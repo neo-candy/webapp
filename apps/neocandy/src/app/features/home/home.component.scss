@@ -1,0 +1,182 @@
+.custom-shape-divider-bottom-1637331594 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg);
+}
+
+.custom-shape-divider-bottom-1637331594 svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 63px;
+}
+
+.custom-shape-divider-bottom-1637331594 .shape-fill {
+  fill: #ffffff;
+}
+
+.container {
+  height: 45rem;
+  background: rgb(255, 131, 195);
+  background: linear-gradient(333deg, #ffe552 16%, #ff83c3 100%);
+}
+
+.features-section {
+  h1 {
+    color: #7f73ff;
+  }
+}
+
+#neo {
+  font-size: 250px;
+  font-weight: 900;
+  opacity: 0.2;
+  margin-bottom: -160px;
+  overflow: hidden;
+}
+
+#candy {
+  font-size: 140px;
+}
+
+@media screen and (max-width: 450px) {
+  #neo {
+    font-size: 120px;
+    font-weight: 900;
+    opacity: 0.2;
+    margin-bottom: -80px;
+  }
+
+  #candy {
+    font-size: 50px;
+  }
+}
+
+.container-subtext {
+  max-width: 800px;
+  .hashtag {
+    color: #7063f8;
+  }
+}
+
+section {
+  margin-bottom: 60px;
+}
+
+.feature {
+  width: 140px;
+  height: 140px;
+}
+
+.custom-shape-divider-top-1637408466 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.custom-shape-divider-top-1637408466 svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 50px;
+}
+
+.custom-shape-divider-top-1637408466 .shape-fill {
+  fill: #ffffff;
+}
+
+.free-candy-container {
+  background-color: #7f73ff;
+  height: auto;
+  padding-top: 6rem;
+  h1,
+  p {
+    color: white;
+  }
+  button {
+    background-color: #14d0f0;
+    border: #14d0f0;
+    &:hover {
+      background-color: #4ae2fd;
+    }
+  }
+}
+
+.games-container {
+  #gamename {
+    color: #7063f8;
+    font-weight: 800;
+  }
+  .game-icon {
+    width: 150px;
+    height: 150px;
+    border-radius: 150px;
+    background-color: #ffe552;
+  }
+  h1 {
+    color: #f76db4;
+  }
+  button {
+    background-color: #ff83c3;
+    border: #ff83c3;
+    &:hover {
+      background-color: #f76db4;
+    }
+  }
+}
+
+.faq-container {
+  background-color: #35e2c3;
+}
+::ng-deep .nc-accordion {
+  .p-accordion-header-text,
+  .p-accordion-toggle-icon {
+    color: #7f73ff !important;
+  }
+}
+.custom-shape-divider-top-1637605853 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.custom-shape-divider-top-1637605853 svg {
+  position: relative;
+  display: block;
+  width: calc(147% + 1.3px);
+  height: 57px;
+}
+
+.custom-shape-divider-top-1637605853 .shape-fill {
+  fill: #ffffff;
+}
+
+.faq-container {
+  padding-top: 4rem;
+  h1 {
+    color: white;
+  }
+}
+
+.socials-container {
+  h1 {
+    color: #7f73ff;
+  }
+  button {
+    background-color: #7f73ff;
+    border: #7f73ff;
+    &:hover {
+      background-color: #7063f8;
+    }
+  }
+}

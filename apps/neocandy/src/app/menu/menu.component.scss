@@ -1,0 +1,24 @@
+::ng-deep .custom-menubar {
+  background: transparent;
+  border: 0;
+  position: absolute;
+  z-index: 3;
+  width: 100%;
+
+  .p-menubar-button {
+    color: black;
+  }
+  .p-menuitem-text,
+  .p-submenu-icon,
+  .p-menuitem-icon {
+    color: #ffe552 !important;
+    font-weight: 800;
+    font-size: 20px;
+  }
+  .p-menuitem-link {
+    &:hover,
+    &:active {
+      background: transparent !important;
+    }
+  }
+}
