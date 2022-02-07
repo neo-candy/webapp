@@ -21,13 +21,13 @@
 
 .container {
   height: 45rem;
-  background: rgb(255, 131, 195);
-  background: linear-gradient(333deg, #ffe552 16%, #ff83c3 100%);
+  background: #e829ad;
+  background: linear-gradient(333deg, #fdca25 16%, #e829ad 100%);
 }
 
 .features-section {
   h1 {
-    color: #7f73ff;
+    color: #6d61f5;
   }
 }
 
@@ -59,7 +59,7 @@
 .container-subtext {
   max-width: 800px;
   .hashtag {
-    color: #7063f8;
+    color: #6d61f5;
   }
 }
 
@@ -93,7 +93,7 @@ section {
 }
 
 .free-candy-container {
-  background-color: #7f73ff;
+  background-color: #6d61f5;
   height: auto;
   padding-top: 6rem;
   h1,
@@ -111,23 +111,17 @@ section {
 
 .games-container {
   #gamename {
-    color: #7063f8;
+    color: #6d61f5;
     font-weight: 800;
   }
-  .game-icon {
-    width: 150px;
-    height: 150px;
-    border-radius: 150px;
-    background-color: #ffe552;
-  }
   h1 {
-    color: #f76db4;
+    color: #e829ad;
   }
   button {
-    background-color: #ff83c3;
-    border: #ff83c3;
+    background-color: #e93ab2;
+    border: #e93ab2;
     &:hover {
-      background-color: #f76db4;
+      background-color: #e829ad;
     }
   }
 }
@@ -138,7 +132,7 @@ section {
 ::ng-deep .nc-accordion {
   .p-accordion-header-text,
   .p-accordion-toggle-icon {
-    color: #7f73ff !important;
+    color: #6d61f5 !important;
   }
 }
 .custom-shape-divider-top-1637605853 {
@@ -170,13 +164,13 @@ section {
 
 .socials-container {
   h1 {
-    color: #7f73ff;
+    color: #493cd8;
   }
   button {
-    background-color: #7f73ff;
-    border: #7f73ff;
+    background-color: #6d61f5;
+    border: #6d61f5;
     &:hover {
-      background-color: #7063f8;
+      background-color: rgb(91, 79, 228);
     }
   }
 }
