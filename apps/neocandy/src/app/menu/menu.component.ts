@@ -4,8 +4,7 @@ import { MenuItem } from 'primeng/api';
 
 const BOUNTY_GOOGLE_DOC =
   'https://docs.google.com/document/d/1Qo3-Gdk7uewiTwczt716KGMnQb2ByDVTKKt5xq_pGss/edit?usp=sharing';
-const LITE_PAPER =
-  'https://docs.google.com/document/d/1aRYe4de3PKGYtCW8jQSzU51jDjO_X1bYW3BhgoVLChs/edit?usp=sharing';
+const LITE_PAPER = 'https://docs.neocandy.io';
 
 @Component({
   selector: 'nc-menu',
@@ -20,12 +19,12 @@ export class MenuComponent implements OnInit {
   ngOnInit() {
     this.items = [
       {
-        label: 'Features',
-        command: () => this.router.navigate([''], { fragment: 'features' }),
+        label: 'Free CANDY',
+        command: () => this.router.navigate([''], { fragment: 'free-candy' }),
       },
       {
-        label: 'Get $CANDY',
-        command: () => this.router.navigate([''], { fragment: 'free-candy' }),
+        label: 'Lite Paper',
+        command: () => window.open(LITE_PAPER, '_blank'),
       },
       {
         label: 'Games',
@@ -34,10 +33,6 @@ export class MenuComponent implements OnInit {
       {
         label: 'Bounty Program',
         command: () => window.open(BOUNTY_GOOGLE_DOC, '_blank'),
-      },
-      {
-        label: 'Lite Paper',
-        command: () => window.open(LITE_PAPER, '_blank'),
       },
       {
         label: 'FAQ',
