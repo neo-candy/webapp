@@ -6,8 +6,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
-  constructor() {}
-
   public openDiscord(): void {
     window.open('https://discord.gg/7ssWUpvcfF', '_blank');
   }

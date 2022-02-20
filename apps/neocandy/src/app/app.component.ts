@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'neocandy-webapp-root',
+  selector: 'nc-webapp-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
