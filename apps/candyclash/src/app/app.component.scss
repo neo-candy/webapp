@@ -1,5 +1,13 @@
 .menu {
   background-color: var(--primary-blue);
+  img {
+    margin-left: 1rem;
+  }
+  .candyclash-logo-text {
+    color: white;
+    font-weight: 800;
+    margin-left: 1rem;
+  }
   .menu-content {
     margin-top: 1rem;
     max-width: 80rem;
@@ -35,6 +43,21 @@
       border-radius: 150px;
       height: 10rem;
       width: 10rem;
+      &:hover {
+        cursor: pointer;
+        border: 0px;
+        background-color: #e93ab2;
+        .count-label,
+        .counter {
+          display: none;
+        }
+      }
+      &:hover:before {
+        content: 'Claim!';
+        font-size: 25px;
+        font-weight: 600;
+        color: white;
+      }
     }
   }
 }
