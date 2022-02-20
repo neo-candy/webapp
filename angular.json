@@ -21,8 +21,17 @@
               "apps/candyclash/src/favicon.ico",
               "apps/candyclash/src/assets"
             ],
-            "styles": ["apps/candyclash/src/styles.scss"],
-            "scripts": []
+            "styles": [
+              "apps/candyclash/src/styles.scss",
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/primeng/resources/themes/lara-light-indigo/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeflex/primeflex.css"
+            ],
+            "scripts": [],
+            "stylePreprocessorOptions": {
+              "includePaths": ["apps/candyclash/src/assets/scss"]
+            }
           },
           "configurations": {
             "production": {

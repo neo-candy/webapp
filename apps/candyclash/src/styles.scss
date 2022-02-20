@@ -1,1 +1,13 @@
-/* You can add global styles to this file, and also import other style files */
+@import '_variables';
+@import '@fontsource/poppins';
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #eeeeee;
+  font-family: 'Poppins';
+  .p-component {
+    font-family: 'Poppins' !important;
+  }
+}

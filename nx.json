@@ -1,5 +1,5 @@
 {
-  "npmScope": "neocandy-webapp",
+  "npmScope": "webapp",
   "affected": {
     "defaultBase": "master"
   },
