@@ -38,15 +38,17 @@
       font-size: 15px;
       color: white;
     }
-    .claim-button {
-      border: 2px solid white;
-      border-radius: 150px;
+    .mint-btn {
+      height: 7rem;
+      width: 7rem;
+      border-radius: 5rem;
+    }
+    .claim-btn {
       height: 10rem;
       width: 10rem;
+      border-radius: 15rem;
+      background: transparent;
       &:hover {
-        cursor: pointer;
-        border: 0px;
-        background-color: #e93ab2;
         .count-label,
         .counter {
           display: none;
@@ -57,6 +59,7 @@
         font-size: 25px;
         font-weight: 600;
         color: white;
+        padding: 1rem;
       }
     }
   }
@@ -83,10 +86,24 @@
 }
 
 .statistic-container {
+  .statistic-container-title {
+    font-size: 18x;
+    font-weight: 800;
+    padding: 1.2rem;
+  }
   background-color: white;
   border-radius: 7px;
   max-width: 55rem;
-  height: 20rem;
+  min-height: 20rem;
   margin-top: -3rem;
   width: 100%;
+  padding-top: 0.4rem;
+
+  ::ng-deep .cc-nft-table.p-datatable {
+    .p-datatable-header,
+    .p-datatable-thead > tr > th {
+      background-color: white;
+      border: 0px;
+    }
+  }
 }

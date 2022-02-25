@@ -1,3 +1,8 @@
+<!-- <p-menubar [model]="items">
+  <input type="text" pInputText placeholder="Search" />
+  <button pButton label="Logout" icon="pi pi-power-off"></button>
+</p-menubar> -->
+
 <div class="menu flex justify-content-center">
   <div class="menu-content flex flex-row justify-content-between">
     <div class="flex align-items-center">
@@ -30,17 +35,21 @@
       </div>
     </div>
     <div class="box flex align-items-center justify-content-center">
-      <div
-        class="
-          claim-button
-          flex flex-column
-          align-items-center
-          justify-content-center
-        "
-      >
-        <div class="count-label">Unclaimed</div>
-        <div class="counter">0.000000000</div>
-      </div>
+      <button pButton pRipple class="mint-btn mr-2" label="MINT"></button>
+      <button pButton pRipple class="claim-btn mr-2">
+        <div
+          class="
+            flex flex-column
+            text-center
+            justify-content-center
+            align-items-center
+            w-full
+          "
+        >
+          <div class="count-label">Unclaimed</div>
+          <div class="counter">0.000000000</div>
+        </div>
+      </button>
     </div>
     <div class="box flex align-items-center justify-content-center p-3">
       <div class="flex flex-column align-items-center">
@@ -49,6 +58,7 @@
       </div>
     </div>
   </div>
+
   <div class="progress flex justify-content-center align-items-start">
     <div class="flex m-3 justify-content-center align-items-center w-full">
       <div class="mr-2">
@@ -62,5 +72,53 @@
 </div>
 
 <div class="flex justify-content-center">
-  <div class="statistic-container"></div>
+  <div class="statistic-container">
+    <p-table
+      [value]="nfts"
+      styleClass="cc-nft-table"
+      [scrollable]="true"
+      scrollHeight="30rem"
+    >
+      <ng-template pTemplate="caption">
+        <div class="flex align-items-center justify-content-between">
+          <span>Your NFTs</span>
+          <button
+            #menuBtn
+            pButton
+            pRipple
+            (click)="menu.toggle($event)"
+            class="p-button-outlined p-button-rounded"
+            icon="pi pi-bars"
+          ></button>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th>NFT</th>
+          <th>Type</th>
+          <th>Sugar</th>
+          <th>Multiplier</th>
+          <th>Staked</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-nft>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="nft"></p-tableCheckbox>
+          </td>
+          <td>
+            <img [src]="nft.image" height="75" alt="ipfs" />
+          </td>
+          <td>{{ nft.type }}</td>
+          <td>{{ nft.sugar }}</td>
+          <td>{{ nft.multiplier }}</td>
+          <td>{{ nft.staked }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </div>
+<p-menu #menu [popup]="true" [model]="items"></p-menu>
