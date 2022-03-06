@@ -1,16 +1,11 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
-
 export const environment = {
   production: false,
+  testnet: {
+    tokens: {
+      gas: '0xd2a4cff31913016155e38e474a2c06d08be276cf',
+    },
+    candyclashNFT: '0xf27e2d3da7315dc945d8f0fb03135e8bb874a5c9',
+    candyclashStaking: '0xcff60c307d98139f41e01ec504d797918d6db94d',
+    nodeUrl: 'https://neo3-testnet.neoline.vip:443',
+  },
 };
-
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.

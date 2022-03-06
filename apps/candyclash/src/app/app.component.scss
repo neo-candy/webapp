@@ -86,6 +86,8 @@
 }
 
 .statistic-container {
+  padding: 0.1rem;
+  margin-bottom: 5rem;
   .statistic-container-title {
     font-size: 18x;
     font-weight: 800;
@@ -94,7 +96,6 @@
   background-color: white;
   border-radius: 7px;
   max-width: 55rem;
-  min-height: 20rem;
   margin-top: -3rem;
   width: 100%;
   padding-top: 0.4rem;
@@ -106,4 +107,8 @@
       border: 0px;
     }
   }
+}
+
+ngx-animated-counter {
+  font-family: monospace;
 }

@@ -1,0 +1,59 @@
+<p-table [value]="[1]" styleClass="cc-nft-table">
+  <ng-template pTemplate="caption">
+    <div class="flex align-items-center justify-content-between">
+      <span>Details</span>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-nft>
+    <tr>
+      <td class="font-bold flex">Mint Status</td>
+      <td>{{ nftConfig.isPaused ? 'Active' : 'Paused' }}</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Staking Status</td>
+      <td>{{ stakingConfig.isPaused ? 'Active' : 'Paused' }}</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Max. Gen 0 Mints</td>
+      <td>{{ nftConfig.maxGenesisAmount }}</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Gen 0 Price</td>
+      <td>{{ nftConfig.gasPrice / 100000000 | number }} GAS</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Gen 1 Price</td>
+      <td>{{ nftConfig.candyPrice / 100000000 | number }} CANDY</td>
+    </tr>
+
+    <tr>
+      <td class="font-bold">Daily Candy Rate</td>
+      <td>{{ stakingConfig.dailyCandyRate / 1000000000 | number }}</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Treasury</td>
+      <td>{{ stakingConfig.maxCandiesToEarn / 1000000000 | number }} CANDY</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Min. Stake Duration</td>
+      <td>{{ stakingConfig.minStakeBlockCount }} blocks</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Villain Tax</td>
+      <td>{{ stakingConfig.taxAmount }}%</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Distributed CANDY</td>
+      <td>{{ stakingConfig.totalCandiesEarned }}</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Villagers Staked</td>
+      <td>{{ stakingConfig.totalVillagerCandiesStaked }}</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Villains Staked</td>
+      <td>{{ stakingConfig.totalVillainCandiesStaked }}</td>
+    </tr>
+  </ng-template>
+</p-table>

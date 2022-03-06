@@ -21,6 +21,8 @@
     "@angular/platform-browser": "13.2.3",
     "@angular/platform-browser-dynamic": "13.2.3",
     "@angular/router": "13.2.3",
+    "@bugsplat/ngx-animated-counter": "^2.0.0",
+    "@cityofzion/neon-js": "5.0.0-next.10",
     "@fontsource/poppins": "^4.5.0",
     "@nrwl/angular": "13.8.3",
     "primeflex": "^3.1.0",

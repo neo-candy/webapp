@@ -14,13 +14,26 @@
       <span class="candyclash-logo-text">CANDYCLASH</span>
     </div>
 
-    <button
-      pButton
-      pRipple
-      class="connect-wallet-btn p-button-outlined"
-      type="button"
-      label="Connect Wallet"
-    ></button>
+    <ng-container *ngIf="address; else connect">
+      <button
+        pButton
+        pRipple
+        icon="pi pi-copy"
+        class="connect-wallet-btn p-button-text"
+        type="button"
+        label="{{ address | truncateAddress }}"
+      ></button>
+    </ng-container>
+    <ng-template #connect>
+      <button
+        pButton
+        pRipple
+        class="connect-wallet-btn p-button-outlined"
+        type="button"
+        (click)="connectWallet()"
+        label="Connect Wallet"
+      ></button>
+    </ng-template>
   </div>
 </div>
 
@@ -31,30 +44,34 @@
     <div class="box flex align-items-center justify-content-center p-3">
       <div class="flex flex-column align-items-center">
         <div class="count-label">Villagers</div>
-        <div class="count-value">0</div>
+        <div class="count-value">{{ villagers }}</div>
       </div>
     </div>
     <div class="box flex align-items-center justify-content-center">
-      <button pButton pRipple class="mint-btn mr-2" label="MINT"></button>
+      <button
+        pButton
+        pRipple
+        class="mint-btn mr-2"
+        label="MINT"
+        (click)="displayMintModal = true"
+      ></button>
       <button pButton pRipple class="claim-btn mr-2">
         <div
-          class="
-            flex flex-column
-            text-center
-            justify-content-center
-            align-items-center
-            w-full
-          "
+          class="flex flex-column text-center justify-content-center align-items-center w-full"
         >
-          <div class="count-label">Unclaimed</div>
-          <div class="counter">0.000000000</div>
+          <div class="count-label">Unclaimed CANDY</div>
+          <div class="counter">
+            <ngx-animated-counter
+              [params]="counterParams"
+            ></ngx-animated-counter>
+          </div>
         </div>
       </button>
     </div>
     <div class="box flex align-items-center justify-content-center p-3">
       <div class="flex flex-column align-items-center">
         <div class="count-label">Villains</div>
-        <div class="count-value">0</div>
+        <div class="count-value">{{ villains }}</div>
       </div>
     </div>
   </div>
@@ -63,19 +80,24 @@
     <div class="flex m-3 justify-content-center align-items-center w-full">
       <div class="mr-2">
         <span class="available-label mr-2">Available</span>
-        <span class="available-percent">100%</span>
+        <span class="available-percent"
+          >{{
+            ((maxTokensAmount - totalSupply) / maxTokensAmount) * 100
+          }}%</span
+        >
       </div>
       <div class="mint-progressbar"></div>
-      <div class="ml-2 available-label">10'000</div>
+      <div class="ml-2 available-label">{{ maxTokensAmount | number }}</div>
     </div>
   </div>
 </div>
 
-<div class="flex justify-content-center">
-  <div class="statistic-container">
+<div class="flex flex-column align-items-center justify-content-center">
+  <div class="statistic-container" *ngIf="nfts.length > 0">
     <p-table
-      [value]="nfts"
       styleClass="cc-nft-table"
+      [value]="nfts"
+      [(selection)]="selectedNfts"
       [scrollable]="true"
       scrollHeight="30rem"
     >
@@ -100,25 +122,71 @@
           <th>NFT</th>
           <th>Type</th>
           <th>Sugar</th>
-          <th>Multiplier</th>
+          <th>Claim Bonus</th>
           <th>Staked</th>
         </tr>
       </ng-template>
+
       <ng-template pTemplate="body" let-nft>
         <tr>
           <td>
             <p-tableCheckbox [value]="nft"></p-tableCheckbox>
           </td>
           <td>
-            <img [src]="nft.image" height="75" alt="ipfs" />
+            <!-- <img [src]="nft.image" height="75" alt="ipfs" /> -->
+            {{ nft.tokenId }}
           </td>
           <td>{{ nft.type }}</td>
           <td>{{ nft.sugar }}</td>
-          <td>{{ nft.multiplier }}</td>
+          <td>{{ nft.bonus }}</td>
           <td>{{ nft.staked }}</td>
         </tr>
       </ng-template>
     </p-table>
   </div>
+
+  <div class="statistic-container">
+    <cc-nft-details></cc-nft-details>
+  </div>
 </div>
 <p-menu #menu [popup]="true" [model]="items"></p-menu>
+
+<p-dialog
+  header="Mint"
+  [(visible)]="displayMintModal"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <p class="m-0">How many NFTs do you want to mint?</p>
+  <div class="text-xl mt-4 flex justify-content-center">
+    {{ mintAmount }}
+  </div>
+  <div class="mt-5">
+    <p-slider
+      [(ngModel)]="mintAmount"
+      [step]="1"
+      [min]="1"
+      [max]="10"
+    ></p-slider>
+    <ng-container *ngIf="generation === 0; else gen1">
+      <div class="mt-2 flex justify-content-end">
+        {{ (mintAmount * gasPrice) / 100000000 }} GAS
+      </div>
+    </ng-container>
+    <ng-template #gen1>
+      <div class="mt-2 flex justify-content-end">
+        {{ (mintAmount * candyPrice) / 1000000000 }} CANDY
+      </div>
+    </ng-template>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      icon="pi pi-check"
+      (click)="displayMintModal = false; mint(mintAmount)"
+      label="Confirm"
+      styleClass="p-button-text"
+    ></p-button>
+  </ng-template>
+</p-dialog>
