@@ -55,15 +55,13 @@
         label="MINT"
         (click)="displayMintModal = true"
       ></button>
-      <button pButton pRipple class="claim-btn mr-2">
+      <button pButton pRipple class="claim-btn mr-2" (click)="claim()">
         <div
           class="flex flex-column text-center justify-content-center align-items-center w-full"
         >
           <div class="count-label">Unclaimed CANDY</div>
           <div class="counter">
-            <ngx-animated-counter
-              [params]="counterParams"
-            ></ngx-animated-counter>
+            <cc-animated-counter [params]="counterParams"></cc-animated-counter>
           </div>
         </div>
       </button>
@@ -82,7 +80,7 @@
         <span class="available-label mr-2">Available</span>
         <span class="available-percent"
           >{{
-            ((maxTokensAmount - totalSupply) / maxTokensAmount) * 100
+            ((maxTokensAmount - totalSupply) / maxTokensAmount) * 100 || 0
           }}%</span
         >
       </div>
@@ -100,10 +98,16 @@
       [(selection)]="selectedNfts"
       [scrollable]="true"
       scrollHeight="30rem"
+      [loading]="isLoading"
     >
       <ng-template pTemplate="caption">
         <div class="flex align-items-center justify-content-between">
-          <span>Your NFTs</span>
+          <span
+            >Your NFTs
+            {{
+              selectedNfts.length > 0 ? '(' + selectedNfts.length + ')' : ''
+            }}</span
+          >
           <button
             #menuBtn
             pButton
@@ -119,11 +123,21 @@
           <th>
             <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
           </th>
-          <th>NFT</th>
-          <th>Type</th>
-          <th>Sugar</th>
-          <th>Claim Bonus</th>
-          <th>Staked</th>
+          <th pSortableColumn="tokenId">
+            Token ID<p-sortIcon field="tokenId"></p-sortIcon>
+          </th>
+          <th pSortableColumn="type">
+            Type<p-sortIcon field="type"></p-sortIcon>
+          </th>
+          <th pSortableColumn="sugar">
+            Sugar<p-sortIcon field="sugar"></p-sortIcon>
+          </th>
+          <th pSortableColumn="bonus">
+            Claim Bonus<p-sortIcon field="bonus"></p-sortIcon>
+          </th>
+          <th pSortableColumn="staked">
+            Staked<p-sortIcon field="staked"></p-sortIcon>
+          </th>
         </tr>
       </ng-template>
 
@@ -139,7 +153,7 @@
           <td>{{ nft.type }}</td>
           <td>{{ nft.sugar }}</td>
           <td>{{ nft.bonus }}</td>
-          <td>{{ nft.staked }}</td>
+          <td>{{ nft.staked === true ? 'Yes' : 'No' }}</td>
         </tr>
       </ng-template>
     </p-table>

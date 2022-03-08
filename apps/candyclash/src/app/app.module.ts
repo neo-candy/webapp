@@ -16,10 +16,15 @@ import { AppComponent } from './app.component';
 import { NftDetailsComponent } from './nft-details/nft-details.component';
 import { TruncateAddressPipe } from './pipes/truncateAddress.pipe';
 import { FormsModule } from '@angular/forms';
-import { NgxAnimatedCounterModule } from '@bugsplat/ngx-animated-counter';
+import { NgxAnimatedCounterComponent } from './ngx-animated-counter/ngx-animated-counter.component';
 
 @NgModule({
-  declarations: [AppComponent, NftDetailsComponent, TruncateAddressPipe],
+  declarations: [
+    AppComponent,
+    NftDetailsComponent,
+    TruncateAddressPipe,
+    NgxAnimatedCounterComponent,
+  ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -34,7 +39,6 @@ import { NgxAnimatedCounterModule } from '@bugsplat/ngx-animated-counter';
     FormsModule,
     SliderModule,
     ScrollPanelModule,
-    NgxAnimatedCounterModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

@@ -91,23 +91,26 @@ export class NftService {
 
   public mint(
     address: string,
-    amount: number
+    amount: number,
+    price: number
   ): Observable<NeoInvokeWriteResponse> {
-    amount *= 50000000;
-    const mint = {
-      scriptHash: environment.testnet.tokens.gas,
-      operation: 'transfer',
-      args: [
-        NeolineService.address(address),
-        NeolineService.hash160(environment.testnet.candyclashNFT),
-        NeolineService.int(amount),
-        NeolineService.any(null),
-      ],
-    };
+    const args = [];
+    for (let i = 0; i < amount; i++) {
+      args.push({
+        scriptHash: environment.testnet.tokens.gas,
+        operation: 'transfer',
+        args: [
+          NeolineService.address(address),
+          NeolineService.hash160(environment.testnet.candyclashNFT),
+          NeolineService.int(price),
+          NeolineService.any(null),
+        ],
+      });
+    }
 
     return this.neoline.invokeMultiple({
       signers: [{ account: new wallet.Account(address).scriptHash, scopes: 1 }],
-      invokeArgs: [mint],
+      invokeArgs: [...args],
     });
   }
 }

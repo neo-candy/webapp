@@ -2,8 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { NgxAnimatedCounterParams } from '@bugsplat/ngx-animated-counter';
 import { MenuItem, PrimeNGConfig } from 'primeng/api';
 import { combineLatest, Observable } from 'rxjs';
-import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
-import { map, switchMap, tap } from 'rxjs/operators';
+import {
+  distinctUntilChanged,
+  finalize,
+  first,
+  map,
+  switchMap,
+  tap,
+} from 'rxjs/operators';
 import { NeolineService } from './services/neoline.service';
 import { NftService } from './services/nft.service';
 import { StakingService } from './services/staking.service';
@@ -17,6 +23,11 @@ export interface NFT {
   sugar?: string;
   bonus?: string;
 }
+
+// 11574 * 1000 * 60 * 60 * 24 = ~~1000_000000000
+const CLAIM_INC_PER_MS = 11581;
+const CLAIM_INC_PER_SEC = 11574074;
+
 @Component({
   selector: 'cc-root',
   templateUrl: './app.component.html',
@@ -24,7 +35,7 @@ export interface NFT {
 })
 export class AppComponent implements OnInit {
   public counterParams: NgxAnimatedCounterParams = {
-    start: 0,
+    start: -1,
     end: 0,
     interval: 0,
     increment: 0,
@@ -37,9 +48,16 @@ export class AppComponent implements OnInit {
       command: () => this.stakeTokens(this.selectedNfts),
     },
     {
-      label: 'Unstake',
+      label: 'Claim & Unstake',
       icon: 'pi pi-pause',
       disabled: false,
+      command: () => this.unstake(),
+    },
+    {
+      label: 'Refresh',
+      icon: 'pi pi-refresh',
+      disabled: false,
+      command: () => this.refreshAll(),
     },
   ];
   public totalSupply = 0;
@@ -47,7 +65,7 @@ export class AppComponent implements OnInit {
   public address = '';
   public nfts: NFT[] = [];
   public displayMintModal = false;
-  public mintAmount = 0;
+  public mintAmount = 1;
   public gasPrice = 0;
   public candyPrice = 0;
   public villains = 0;
@@ -55,19 +73,28 @@ export class AppComponent implements OnInit {
   public generation = 0;
   public selectedNfts: NFT[] = [];
   public claimableAmount = 0;
+  public isLoading = false;
 
   constructor(
     private primengConfig: PrimeNGConfig,
     private nft: NftService,
     private neoline: NeolineService,
     private staking: StakingService
-  ) {}
+  ) {
+    this.neoline.ACCOUNT_CHANGED_EVENT$.pipe(distinctUntilChanged()).subscribe(
+      (address) => {
+        this.address = address;
+        this.refreshAll();
+      }
+    );
+  }
   ngOnInit() {
     this.primengConfig.ripple = true;
     this.neoline.init();
     this.nft.maxTokensAmount().subscribe((res) => {
       this.maxTokensAmount = res;
     });
+
     //TODO: get value 2000 from contract
     this.nft.totalSupply().subscribe((res) => {
       if (res >= 2000) {
@@ -90,22 +117,84 @@ export class AppComponent implements OnInit {
           this.villains = nfts.filter((nft) => nft.type === 'Villain').length;
         })
       )
-      .subscribe((res) => {
-        this.nfts = res;
-        this.staking.claimableAmount(this.address).subscribe((res) => {
-          this.claimableAmount = res;
-          this.counterParams = {
-            end: -1,
-            interval: 1,
-            start: +res,
-            increment: 11574 * this.nfts.filter((nft) => nft.staked).length,
-          };
-        });
-      });
+      .subscribe(() => this.refreshAll());
   }
 
   public mint(amount: number): void {
-    this.nft.mint(this.address, amount).subscribe((res) => console.log(res));
+    if (!this.address) {
+      this.connectWallet();
+    } else {
+      const price = this.generation == 0 ? this.gasPrice : this.candyPrice;
+      this.nft
+        .mint(this.address, amount, price)
+        .subscribe((res) => console.log(res));
+    }
+  }
+
+  public claim(): void {
+    if (!this.address) {
+      this.connectWallet();
+    } else if (
+      this.claimableAmount == 0 ||
+      this.nfts.filter((nft) => nft.staked).length === 0
+    ) {
+      return;
+    } else {
+      const staked: number[] = this.nfts
+        .filter((nft) => nft.staked)
+        .map((nft) => nft.tokenId);
+      this.staking
+        .claim(this.address, staked, false)
+        .subscribe((res) => console.log(res));
+    }
+  }
+
+  public unstake(): void {
+    if (!this.address) {
+      this.connectWallet();
+    } else if (this.selectedNfts.filter((nft) => nft.staked).length === 0) {
+      return;
+    } else {
+      const staked: number[] = this.selectedNfts.map((nft) => nft.tokenId);
+      this.staking
+        .claim(this.address, staked, true)
+        .subscribe((res) => console.log(res));
+    }
+  }
+
+  private refreshAll(): void {
+    if (!this.address) {
+      this.connectWallet();
+    } else {
+      this.isLoading = true;
+      this.tokensOf(this.address)
+        .pipe(
+          tap((nfts) => {
+            this.villagers = nfts.filter(
+              (nft) => nft.type === 'Villager'
+            ).length;
+            this.villains = nfts.filter((nft) => nft.type === 'Villain').length;
+          }),
+          finalize(() => (this.isLoading = false))
+        )
+        .subscribe((res) => {
+          this.nfts = res;
+          this.staking.claimableAmount(this.address).subscribe((res) => {
+            this.claimableAmount = res;
+            const stakedVillagers = this.nfts.filter(
+              (nft) => nft.staked && nft.type === 'Villager'
+            );
+            // add either 0 or 1 to the increment so the last digit of the counter will change
+            const rand = Math.random() < 0.5 ? 1 : 0;
+            this.counterParams = {
+              end: stakedVillagers.length ? 0 : -1,
+              interval: 111,
+              start: +res,
+              increment: rand + CLAIM_INC_PER_MS * 111 * stakedVillagers.length,
+            };
+          });
+        });
+    }
   }
 
   private tokensOf(address: string): Observable<NFT[]> {

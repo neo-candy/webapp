@@ -98,7 +98,6 @@ export class NeolineService {
       console.log('CONNECTED', response)
     );
     window.addEventListener(ACCOUNT_CHANGED, (response: any) => {
-      console.log('ACCOUNT_CHANGED', response.detail.address);
       this.ACCOUNT_CHANGED_EVENT.next(response.detail.address);
     });
     window.addEventListener(NETWORK_CHANGED, (response: any) => {

@@ -34,6 +34,7 @@
       font-size: 25px;
       color: white;
     }
+
     .counter {
       font-size: 15px;
       color: white;
@@ -105,10 +106,7 @@
     .p-datatable-thead > tr > th {
       background-color: white;
       border: 0px;
+      font-size: 12px;
     }
   }
-}
-
-ngx-animated-counter {
-  font-family: monospace;
 }

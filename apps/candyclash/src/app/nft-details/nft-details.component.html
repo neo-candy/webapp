@@ -1,4 +1,4 @@
-<p-table [value]="[1]" styleClass="cc-nft-table">
+<p-table [value]="[1]" styleClass="cc-nft-table" [autoLayout]="true">
   <ng-template pTemplate="caption">
     <div class="flex align-items-center justify-content-between">
       <span>Details</span>
@@ -44,8 +44,10 @@
       <td>{{ stakingConfig.taxAmount }}%</td>
     </tr>
     <tr>
-      <td class="font-bold">Distributed CANDY</td>
-      <td>{{ stakingConfig.totalCandiesEarned }}</td>
+      <td class="font-bold">Claimed CANDY REWORK</td>
+      <td>
+        {{ stakingConfig.totalCandiesEarned / 1000000000 | number: '1.9-10' }}
+      </td>
     </tr>
     <tr>
       <td class="font-bold">Villagers Staked</td>

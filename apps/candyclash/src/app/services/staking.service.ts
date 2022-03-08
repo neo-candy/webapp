@@ -3,13 +3,9 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { NeonJSService } from './neonjs.service';
 import { NeolineService } from './neoline.service';
-import {
-  NeoInvokeArgs,
-  NeoInvokeArgument,
-  NeoInvokeWriteResponse,
-} from '../models/n3';
+import { NeoInvokeArgument, NeoInvokeWriteResponse } from '../models/n3';
 import { sc, wallet } from '@cityofzion/neon-js';
-import { map, mergeAll, switchMap, tap, toArray } from 'rxjs/operators';
+import { map, mergeAll, switchMap, toArray } from 'rxjs/operators';
 import { mapToNFT, NftProperties } from './nft.service';
 import { NFT } from '../app.component';
 
@@ -98,6 +94,30 @@ export class StakingService {
     return this.neoline.invokeMultiple({
       signers: [{ account: new wallet.Account(address).scriptHash, scopes: 1 }],
       invokeArgs: args,
+    });
+  }
+
+  public claim(
+    address: string,
+    tokenIds: number[],
+    unstake: boolean
+  ): Observable<NeoInvokeWriteResponse> {
+    const params = [];
+    for (let i = 0; i < tokenIds.length; i++) {
+      params.push(sc.ContractParam.integer(tokenIds[i]));
+    }
+    const invokeArg = {
+      scriptHash: environment.testnet.candyclashStaking,
+      operation: 'claim',
+      args: [
+        NeolineService.array(params),
+        NeolineService.bool(unstake),
+        NeolineService.hash160(address),
+      ],
+    };
+    return this.neoline.invokeMultiple({
+      signers: [{ account: new wallet.Account(address).scriptHash, scopes: 1 }],
+      invokeArgs: [invokeArg],
     });
   }
 }
