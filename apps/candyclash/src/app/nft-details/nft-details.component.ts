@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { combineLatest, Observable } from 'rxjs';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { combineLatest, forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NftService } from '../services/nft.service';
 import { StakingService } from '../services/staking.service';
@@ -9,6 +9,8 @@ interface NftContractConfig {
   maxGenesisAmount: number;
   gasPrice: number;
   candyPrice: number;
+  maxTokensAmount: number;
+  totalSupply: number;
 }
 
 interface StakingConfig {
@@ -27,6 +29,8 @@ const DEFAULT_NFT_VALUES: NftContractConfig = {
   maxGenesisAmount: 0,
   gasPrice: 0,
   candyPrice: 0,
+  maxTokensAmount: 0,
+  totalSupply: 0,
 };
 
 const DEFAULT_STAKING_VALUES: StakingConfig = {
@@ -39,14 +43,22 @@ const DEFAULT_STAKING_VALUES: StakingConfig = {
   minStakeBlockCount: 0,
   maxCandiesToEarn: 0,
 };
+
+export type CandyClashConfig = StakingConfig & NftContractConfig;
+
 @Component({
   selector: 'cc-nft-details',
   templateUrl: './nft-details.component.html',
   styleUrls: ['./nft-details.component.scss'],
 })
 export class NftDetailsComponent implements OnInit {
-  public nftConfig: NftContractConfig = DEFAULT_NFT_VALUES;
-  public stakingConfig: StakingConfig = DEFAULT_STAKING_VALUES;
+  public config: CandyClashConfig = {
+    ...DEFAULT_NFT_VALUES,
+    ...DEFAULT_STAKING_VALUES,
+  };
+
+  @Output()
+  public configLoaded: EventEmitter<CandyClashConfig> = new EventEmitter();
 
   constructor(private nft: NftService, private staking: StakingService) {}
 
@@ -90,22 +102,39 @@ export class NftDetailsComponent implements OnInit {
     this.nft.gasPrice(),
     this.nft.isPaused(),
     this.nft.maxGenesisAmount(),
+    this.nft.maxTokensAmount(),
+    this.nft.totalSupply(),
   ]).pipe(
-    map(([candyPrice, gasPrice, isPaused, maxGenesisAmount]) => {
-      return {
-        isPaused,
-        gasPrice,
+    map(
+      ([
         candyPrice,
+        gasPrice,
+        isPaused,
         maxGenesisAmount,
-      };
-    })
+        maxTokensAmount,
+        totalSupply,
+      ]) => {
+        return {
+          isPaused,
+          gasPrice,
+          candyPrice,
+          maxGenesisAmount,
+          maxTokensAmount,
+          totalSupply,
+        };
+      }
+    )
   );
 
   ngOnInit(): void {
-    this.loadNftConfig$.subscribe((c) => {
-      this.nftConfig = c;
-    });
-
-    this.loadStakingConfig$.subscribe((c) => (this.stakingConfig = c));
+    forkJoin({
+      nftConfig: this.loadNftConfig$,
+      stakingConfig: this.loadStakingConfig$,
+    })
+      .pipe(map((r) => ({ ...r.nftConfig, ...r.stakingConfig })))
+      .subscribe((res) => {
+        this.config = res;
+        this.configLoaded.emit(res);
+      });
   }
 }

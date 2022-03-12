@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { NeonJSService } from './neonjs.service';
-import { sc, u, wallet } from '@cityofzion/neon-js';
+import { sc, wallet } from '@cityofzion/neon-js';
 import { NeolineService } from './neoline.service';
 import { NFT } from '../app.component';
 import { NeoInvokeWriteResponse } from '../models/n3';
@@ -118,11 +118,14 @@ export const mapToNFT = (props: NftProperties, staked: boolean): NFT => {
   return {
     tokenId: props.tokenId,
     name: props.name,
-    bonus: props.attributes.filter((a) => a.trait_type === 'Claim Bonus')[0]
-      ?.value,
+    bonus:
+      props.attributes.filter((a) => a.trait_type === 'Claim Bonus')[0]
+        ?.value || '0%',
     image: props.image,
     staked,
     sugar: props.attributes.filter((a) => a.trait_type === 'Sugar')[0]?.value,
     type: props.attributes.filter((a) => a.trait_type === 'Type')[0].value,
+    generation: props.attributes.filter((a) => a.trait_type === 'Generation')[0] //TODO: remove ? .. used for compatible reasons with old contract version
+      ?.value,
   };
 };

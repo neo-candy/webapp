@@ -1,7 +1,8 @@
-<!-- <p-menubar [model]="items">
-  <input type="text" pInputText placeholder="Search" />
-  <button pButton label="Logout" icon="pi pi-power-off"></button>
-</p-menubar> -->
+<p-menubar styleClass="cc-menu" [model]="menuItems">
+  <span class="mr-5 pi pi-github"></span>
+  <span class="mr-5 pi pi-twitter"></span>
+  <span class="mr-5 pi pi-discord"></span>
+</p-menubar>
 
 <div class="menu flex justify-content-center">
   <div class="menu-content flex flex-row justify-content-between">
@@ -18,7 +19,7 @@
       <button
         pButton
         pRipple
-        icon="pi pi-copy"
+        [icon]="isLoading ? 'pi pi-spin pi-spinner' : 'pi pi pi-copy'"
         class="connect-wallet-btn p-button-text"
         type="button"
         label="{{ address | truncateAddress }}"
@@ -43,7 +44,7 @@
   >
     <div class="box flex align-items-center justify-content-center p-3">
       <div class="flex flex-column align-items-center">
-        <div class="count-label">Villagers</div>
+        <div class="count-label mb-2">Villagers</div>
         <div class="count-value">{{ villagers }}</div>
       </div>
     </div>
@@ -51,7 +52,7 @@
       <button
         pButton
         pRipple
-        class="mint-btn mr-2"
+        class="mint-btn mr-2 p-button-help"
         label="MINT"
         (click)="displayMintModal = true"
       ></button>
@@ -59,7 +60,7 @@
         <div
           class="flex flex-column text-center justify-content-center align-items-center w-full"
         >
-          <div class="count-label">Unclaimed CANDY</div>
+          <div class="count-label">Unclaimed</div>
           <div class="counter">
             <cc-animated-counter [params]="counterParams"></cc-animated-counter>
           </div>
@@ -68,7 +69,7 @@
     </div>
     <div class="box flex align-items-center justify-content-center p-3">
       <div class="flex flex-column align-items-center">
-        <div class="count-label">Villains</div>
+        <div class="count-label mb-2">Villains</div>
         <div class="count-value">{{ villains }}</div>
       </div>
     </div>
@@ -80,7 +81,8 @@
         <span class="available-label mr-2">Available</span>
         <span class="available-percent"
           >{{
-            ((maxTokensAmount - totalSupply) / maxTokensAmount) * 100 || 0
+            (((maxTokensAmount - totalSupply) / maxTokensAmount) * 100
+              | number) || 0
           }}%</span
         >
       </div>
@@ -118,7 +120,7 @@
           ></button>
         </div>
       </ng-template>
-      <ng-template pTemplate="header">
+      <ng-template pTemplate="header" let-columns>
         <tr>
           <th>
             <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
@@ -128,6 +130,9 @@
           </th>
           <th pSortableColumn="type">
             Type<p-sortIcon field="type"></p-sortIcon>
+          </th>
+          <th pSortableColumn="generation">
+            Generation<p-sortIcon field="generation"></p-sortIcon>
           </th>
           <th pSortableColumn="sugar">
             Sugar<p-sortIcon field="sugar"></p-sortIcon>
@@ -141,7 +146,7 @@
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-nft>
+      <ng-template pTemplate="body" let-nft let-columns="columns">
         <tr>
           <td>
             <p-tableCheckbox [value]="nft"></p-tableCheckbox>
@@ -151,19 +156,28 @@
             {{ nft.tokenId }}
           </td>
           <td>{{ nft.type }}</td>
+          <td>{{ nft.generation }}</td>
           <td>{{ nft.sugar }}</td>
           <td>{{ nft.bonus }}</td>
-          <td>{{ nft.staked === true ? 'Yes' : 'No' }}</td>
+          <td>
+            <i
+              class="pi"
+              [ngClass]="{
+                'true-icon pi-check-circle': nft.staked,
+                'false-icon pi-times-circle': !nft.staked
+              }"
+            ></i>
+          </td>
         </tr>
       </ng-template>
     </p-table>
   </div>
 
   <div class="statistic-container">
-    <cc-nft-details></cc-nft-details>
+    <cc-nft-details (configLoaded)="onConfigLoaded($event)"></cc-nft-details>
   </div>
 </div>
-<p-menu #menu [popup]="true" [model]="items"></p-menu>
+<p-menu #menu [popup]="true" [model]="tableItems"></p-menu>
 
 <p-dialog
   header="Mint"

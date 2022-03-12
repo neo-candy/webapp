@@ -1,15 +1,16 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { NgxAnimatedCounterParams } from '@bugsplat/ngx-animated-counter';
 import { MenuItem, PrimeNGConfig } from 'primeng/api';
 import { combineLatest, Observable } from 'rxjs';
 import {
   distinctUntilChanged,
   finalize,
-  first,
   map,
   switchMap,
   tap,
 } from 'rxjs/operators';
+import { CandyClashConfig } from './nft-details/nft-details.component';
+import { NgxAnimatedCounterParams } from './ngx-animated-counter/ngx-animated-counter.component';
 import { NeolineService } from './services/neoline.service';
 import { NftService } from './services/nft.service';
 import { StakingService } from './services/staking.service';
@@ -22,25 +23,37 @@ export interface NFT {
   staked: boolean;
   sugar?: string;
   bonus?: string;
+  generation: string;
 }
 
 // 11574 * 1000 * 60 * 60 * 24 = ~~1000_000000000
 const CLAIM_INC_PER_MS = 11581;
 const CLAIM_INC_PER_SEC = 11574074;
 
+const DEFAULT_MENU_ITEMS = [
+  {
+    label: 'About',
+    icon: 'pi pi-heart',
+  },
+];
+
 @Component({
   selector: 'cc-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  providers: [DecimalPipe],
 })
 export class AppComponent implements OnInit {
+  public TOTAL_CANDIES_POOL = 1000000_000000000;
+
   public counterParams: NgxAnimatedCounterParams = {
     start: -1,
     end: 0,
     interval: 0,
     increment: 0,
   };
-  public items: MenuItem[] = [
+  public menuItems: MenuItem[] = DEFAULT_MENU_ITEMS;
+  public tableItems: MenuItem[] = [
     {
       label: 'Stake',
       icon: 'pi pi-play',
@@ -50,7 +63,6 @@ export class AppComponent implements OnInit {
     {
       label: 'Claim & Unstake',
       icon: 'pi pi-pause',
-      disabled: false,
       command: () => this.unstake(),
     },
     {
@@ -60,6 +72,7 @@ export class AppComponent implements OnInit {
       command: () => this.refreshAll(),
     },
   ];
+
   public totalSupply = 0;
   public maxTokensAmount = 0;
   public address = '';
@@ -79,7 +92,8 @@ export class AppComponent implements OnInit {
     private primengConfig: PrimeNGConfig,
     private nft: NftService,
     private neoline: NeolineService,
-    private staking: StakingService
+    private staking: StakingService,
+    private decimalPipe: DecimalPipe
   ) {
     this.neoline.ACCOUNT_CHANGED_EVENT$.pipe(distinctUntilChanged()).subscribe(
       (address) => {
@@ -91,22 +105,10 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.primengConfig.ripple = true;
     this.neoline.init();
-    this.nft.maxTokensAmount().subscribe((res) => {
-      this.maxTokensAmount = res;
-    });
-
-    //TODO: get value 2000 from contract
-    this.nft.totalSupply().subscribe((res) => {
-      if (res >= 2000) {
-        this.generation = 1;
-      }
-      this.totalSupply = res;
-    });
-    this.nft.gasPrice().subscribe((res) => (this.gasPrice = res));
-    this.nft.candyPrice().subscribe((res) => (this.candyPrice = res));
   }
 
   public connectWallet(): void {
+    this.isLoading = true;
     this.neoline
       .getAccount()
       .pipe(
@@ -125,9 +127,7 @@ export class AppComponent implements OnInit {
       this.connectWallet();
     } else {
       const price = this.generation == 0 ? this.gasPrice : this.candyPrice;
-      this.nft
-        .mint(this.address, amount, price)
-        .subscribe((res) => console.log(res));
+      this.nft.mint(this.address, amount, price).subscribe();
     }
   }
 
@@ -143,9 +143,7 @@ export class AppComponent implements OnInit {
       const staked: number[] = this.nfts
         .filter((nft) => nft.staked)
         .map((nft) => nft.tokenId);
-      this.staking
-        .claim(this.address, staked, false)
-        .subscribe((res) => console.log(res));
+      this.staking.claim(this.address, staked, false).subscribe();
     }
   }
 
@@ -155,13 +153,18 @@ export class AppComponent implements OnInit {
     } else if (this.selectedNfts.filter((nft) => nft.staked).length === 0) {
       return;
     } else {
-      const staked: number[] = this.selectedNfts.map((nft) => nft.tokenId);
+      const staked: number[] = this.selectedNfts
+        .filter((nft) => nft.staked)
+        .map((nft) => nft.tokenId);
       this.staking
         .claim(this.address, staked, true)
-        .subscribe((res) => console.log(res));
+        .subscribe(() => (this.selectedNfts = []));
     }
   }
 
+  /**
+   * Refreshes owned NFTs and claimable amount
+   */
   private refreshAll(): void {
     if (!this.address) {
       this.connectWallet();
@@ -175,7 +178,9 @@ export class AppComponent implements OnInit {
             ).length;
             this.villains = nfts.filter((nft) => nft.type === 'Villain').length;
           }),
-          finalize(() => (this.isLoading = false))
+          finalize(() => {
+            this.isLoading = false;
+          })
         )
         .subscribe((res) => {
           this.nfts = res;
@@ -197,6 +202,48 @@ export class AppComponent implements OnInit {
     }
   }
 
+  public onConfigLoaded(config: CandyClashConfig) {
+    this.candyPrice = config.candyPrice;
+    this.gasPrice = config.gasPrice;
+    this.maxTokensAmount = config.maxTokensAmount;
+    this.totalSupply = config.totalSupply;
+    if (config.totalSupply >= 2000) {
+      this.generation = 1;
+    }
+    const items: MenuItem[] = [...DEFAULT_MENU_ITEMS];
+    items.push(
+      {
+        label:
+          'Vault: ' +
+          this.decimalPipe.transform(
+            config.maxCandiesToEarn / 1000000000,
+            '1.0-2'
+          ) +
+          ' $CANDY',
+        disabled: true,
+      },
+      {
+        label:
+          'Claimed: ' +
+          this.decimalPipe.transform(
+            (this.TOTAL_CANDIES_POOL - config.maxCandiesToEarn) / 1000000000,
+            '1.0-2'
+          ) +
+          ' $CANDY',
+        disabled: true,
+      },
+      {
+        label: 'Total Mints: ' + this.totalSupply,
+        disabled: true,
+      },
+      {
+        label: 'Current Generation: ' + this.generation,
+        disabled: true,
+      }
+    );
+    this.menuItems = items;
+  }
+
   private tokensOf(address: string): Observable<NFT[]> {
     return combineLatest([
       this.nft.tokensOfJson(address),
@@ -212,8 +259,8 @@ export class AppComponent implements OnInit {
     this.staking
       .stake(
         this.address,
-        nfts.map((nft) => nft.tokenId)
+        nfts.filter((nft) => !nft.staked).map((nft) => nft.tokenId)
       )
-      .subscribe();
+      .subscribe(() => (this.selectedNfts = []));
   }
 }

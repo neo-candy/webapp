@@ -1,13 +1,21 @@
 @import '_variables';
 @import '@fontsource/poppins';
+@import '@fontsource/questrial';
 
 html,
 body {
   margin: 0;
   padding: 0;
-  background-color: #eeeeee;
-  font-family: 'Poppins';
+  background: rgb(0, 0, 0);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(232, 230, 236, 1) 100%
+  );
+
+  font-family: 'Questrial';
   .p-component {
-    font-family: 'Poppins' !important;
+    font-family: 'Questrial' !important;
   }
 }

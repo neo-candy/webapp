@@ -6,6 +6,8 @@
     "ng": "nx",
     "postinstall": "node ./decorate-angular-cli.js && ngcc --properties es2015 browser module main",
     "start": "nx serve",
+    "start:cc": "nx s candyclash",
+    "start:nc": "nx s neocandy",
     "lint:ts": "nx lint",
     "build": "nx build",
     "test": "nx test"
@@ -23,6 +25,7 @@
     "@angular/router": "13.2.3",
     "@cityofzion/neon-js": "5.0.0-next.10",
     "@fontsource/poppins": "^4.5.0",
+    "@fontsource/questrial": "^4.5.0",
     "@nrwl/angular": "13.8.3",
     "primeflex": "^3.1.0",
     "primeicons": "^5.0.0",

@@ -11,6 +11,8 @@ import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
 import { SliderModule } from 'primeng/slider';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { DropdownModule } from 'primeng/dropdown';
+import { TagModule } from 'primeng/tag';
 
 import { AppComponent } from './app.component';
 import { NftDetailsComponent } from './nft-details/nft-details.component';
@@ -34,11 +36,13 @@ import { NgxAnimatedCounterComponent } from './ngx-animated-counter/ngx-animated
     TabViewModule, //required to use ng-template in primeng components,
     RippleModule,
     TableModule,
+    TagModule,
     MenuModule,
     DialogModule,
     FormsModule,
     SliderModule,
     ScrollPanelModule,
+    DropdownModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
