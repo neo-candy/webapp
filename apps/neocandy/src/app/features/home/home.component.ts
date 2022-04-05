@@ -18,4 +18,13 @@ export class HomeComponent {
   public openTelegram(): void {
     window.open('https://t.me/NeoCandyN3', '_blank');
   }
+  public openCandyclash(): void {
+    window.open(
+      'https://medium.com/neocandy/candyclash-nft-staking-game-a9e87dae3fcb',
+      '_blank'
+    );
+  }
+  public openCandyland(): void {
+    window.open('https://docs.neocandy.io/about/games/candyland', '_blank');
+  }
 }
