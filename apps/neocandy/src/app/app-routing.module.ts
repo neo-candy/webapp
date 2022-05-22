@@ -7,10 +7,20 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/home/home.module').then((m) => m.HomeModule),
   },
+  {
+    path: 'staking',
+    loadChildren: () =>
+      import('./features/staking/staking.module').then((m) => m.StakingModule),
+  },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { anchorScrolling: 'enabled' })],
+  imports: [
+    RouterModule.forRoot(routes, {
+      anchorScrolling: 'enabled',
+      enableTracing: true,
+    }),
+  ],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

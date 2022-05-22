@@ -31,7 +31,7 @@ export class MenuComponent implements OnInit {
         command: () => this.router.navigate([''], { fragment: 'free-candy' }),
       },
       {
-        label: 'Lite Paper',
+        label: 'Docs',
         command: () => window.open(LITE_PAPER, '_blank'),
       },
       {
@@ -59,7 +59,7 @@ export class MenuComponent implements OnInit {
           command: () => this.router.navigate([''], { fragment: 'free-candy' }),
         },
         {
-          label: 'Lite Paper',
+          label: 'Docs',
           command: () => window.open(LITE_PAPER, '_blank'),
         },
         {
