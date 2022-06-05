@@ -21,22 +21,29 @@
       <td>{{ config.maxGenesisAmount }}</td>
     </tr>
     <tr>
-      <td class="font-bold">Gen 0 Price</td>
-      <td>{{ config.gasPrice / 100000000 | number }} GAS</td>
+      <td class="font-bold">Gen 0 Mint Cost</td>
+      <td>{{ config.nftPricesCandy[0] / 1000000000 | number }} CANDY</td>
     </tr>
     <tr>
-      <td class="font-bold">Gen 1 Price</td>
-      <td>{{ config.candyPrice / 100000000 | number }} CANDY</td>
+      <td class="font-bold">Gen 1 Mint Cost</td>
+      <td>{{ config.nftPricesCandy[1] / 1000000000 | number }} CANDY</td>
     </tr>
 
     <tr>
-      <td class="font-bold">Daily Candy Rate</td>
+      <td class="font-bold">Daily Candy Reward Rate</td>
       <td>{{ config.dailyCandyRate / 1000000000 | number }}</td>
     </tr>
-
     <tr>
       <td class="font-bold">Min. Stake Duration</td>
       <td>{{ config.minStakeBlockCount }} blocks</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Experience Point Cost</td>
+      <td>{{ config.pricePerExperiencePoint / 1000000000 | number }} CANDY</td>
+    </tr>
+    <tr>
+      <td class="font-bold">Action Point Cost</td>
+      <td>{{ config.pricePerActionPoint / 1000000000 | number }} CANDY</td>
     </tr>
     <tr>
       <td class="font-bold">Villain Tax</td>

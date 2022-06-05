@@ -13,20 +13,17 @@ import { SliderModule } from 'primeng/slider';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { ToastModule } from 'primeng/toast';
 
 import { AppComponent } from './app.component';
 import { NftDetailsComponent } from './nft-details/nft-details.component';
 import { TruncateAddressPipe } from './pipes/truncateAddress.pipe';
 import { FormsModule } from '@angular/forms';
-import { NgxAnimatedCounterComponent } from './ngx-animated-counter/ngx-animated-counter.component';
+import { MessageService } from 'primeng/api';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    NftDetailsComponent,
-    TruncateAddressPipe,
-    NgxAnimatedCounterComponent,
-  ],
+  declarations: [AppComponent, NftDetailsComponent, TruncateAddressPipe],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -43,8 +40,10 @@ import { NgxAnimatedCounterComponent } from './ngx-animated-counter/ngx-animated
     SliderModule,
     ScrollPanelModule,
     DropdownModule,
+    ProgressBarModule,
+    ToastModule,
   ],
-  providers: [],
+  providers: [MessageService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -8,6 +8,7 @@
     "start": "nx serve",
     "start:cc": "nx s candyclash",
     "start:nc": "nx s neocandy",
+    "build:cc": "nx build candyclash",
     "lint:ts": "nx lint",
     "build": "nx build",
     "test": "nx test"

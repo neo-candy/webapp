@@ -7,10 +7,14 @@ import { StakingService } from '../services/staking.service';
 interface NftContractConfig {
   isPaused: number;
   maxGenesisAmount: number;
-  gasPrice: number;
-  candyPrice: number;
+  nftPricesCandy: number[];
   maxTokensAmount: number;
   totalSupply: number;
+  pricePerActionPoint: number;
+  pricePerExperiencePoint: number;
+  actionPointsLevelTable: number[];
+  experienceTable: number[];
+  generation: number;
 }
 
 interface StakingConfig {
@@ -21,16 +25,20 @@ interface StakingConfig {
   totalCandiesEarned: number;
   dailyCandyRate: number;
   minStakeBlockCount: number;
-  maxCandiesToEarn: number;
+  candyBalance: number;
 }
 
 const DEFAULT_NFT_VALUES: NftContractConfig = {
   isPaused: 0,
   maxGenesisAmount: 0,
-  gasPrice: 0,
-  candyPrice: 0,
+  nftPricesCandy: [],
   maxTokensAmount: 0,
   totalSupply: 0,
+  pricePerActionPoint: 0,
+  pricePerExperiencePoint: 0,
+  experienceTable: [],
+  actionPointsLevelTable: [],
+  generation: 0,
 };
 
 const DEFAULT_STAKING_VALUES: StakingConfig = {
@@ -41,7 +49,7 @@ const DEFAULT_STAKING_VALUES: StakingConfig = {
   totalVillagerCandiesStaked: 0,
   totalVillainCandiesStaked: 0,
   minStakeBlockCount: 0,
-  maxCandiesToEarn: 0,
+  candyBalance: 0,
 };
 
 export type CandyClashConfig = StakingConfig & NftContractConfig;
@@ -70,7 +78,7 @@ export class NftDetailsComponent implements OnInit {
     this.staking.totalVillagerCandiesStaked(),
     this.staking.totalVillainCandiesStaked(),
     this.staking.minStakeBlockCount(),
-    this.staking.maxCandiesToEarn(),
+    this.staking.candyBalance(),
   ]).pipe(
     map(
       ([
@@ -81,7 +89,7 @@ export class NftDetailsComponent implements OnInit {
         totalVillagerCandiesStaked,
         totalVillainCandiesStaked,
         minStakeBlockCount,
-        maxCandiesToEarn,
+        candyBalance,
       ]) => {
         return {
           isPaused,
@@ -91,38 +99,46 @@ export class NftDetailsComponent implements OnInit {
           totalVillagerCandiesStaked,
           totalVillainCandiesStaked,
           minStakeBlockCount,
-          maxCandiesToEarn,
+          candyBalance,
         };
       }
     )
   );
 
-  loadNftConfig$: Observable<NftContractConfig> = combineLatest([
-    this.nft.candyPrice(),
-    this.nft.gasPrice(),
+  loadNftConfig$: Observable<NftContractConfig> = forkJoin([
+    this.nft.nftPricesCandy(),
     this.nft.isPaused(),
     this.nft.maxGenesisAmount(),
     this.nft.maxTokensAmount(),
     this.nft.totalSupply(),
+    this.nft.pricePerActionPoint(),
+    this.nft.pricePerExperiencePoint(),
+    this.nft.actionPointsLevelTable(),
+    this.nft.experienceTable(),
   ]).pipe(
     map(
       ([
-        candyPrice,
-        gasPrice,
+        nftPricesCandy,
         isPaused,
         maxGenesisAmount,
         maxTokensAmount,
         totalSupply,
-      ]) => {
-        return {
-          isPaused,
-          gasPrice,
-          candyPrice,
-          maxGenesisAmount,
-          maxTokensAmount,
-          totalSupply,
-        };
-      }
+        pricePerActionPoint,
+        pricePerExperiencePoint,
+        actionPointsLevelTable,
+        experienceTable,
+      ]) => ({
+        isPaused: isPaused as number,
+        maxGenesisAmount: maxGenesisAmount as number,
+        nftPricesCandy: nftPricesCandy as number[],
+        maxTokensAmount: maxTokensAmount as number,
+        totalSupply: totalSupply as number,
+        pricePerActionPoint: pricePerActionPoint as number,
+        pricePerExperiencePoint: pricePerExperiencePoint as number,
+        actionPointsLevelTable: actionPointsLevelTable as number[],
+        experienceTable: experienceTable as number[],
+        generation: totalSupply < maxGenesisAmount ? 1 : 0,
+      })
     )
   );
 
@@ -133,6 +149,7 @@ export class NftDetailsComponent implements OnInit {
     })
       .pipe(map((r) => ({ ...r.nftConfig, ...r.stakingConfig })))
       .subscribe((res) => {
+        console.log(res);
         this.config = res;
         this.configLoaded.emit(res);
       });

@@ -1,19 +1,24 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { NeonJSService } from './neonjs.service';
 import { NeolineService } from './neoline.service';
 import { NeoInvokeArgument, NeoInvokeWriteResponse } from '../models/n3';
 import { sc, wallet } from '@cityofzion/neon-js';
-import { map, mergeAll, switchMap, toArray } from 'rxjs/operators';
+import { catchError, map, mergeAll, switchMap, toArray } from 'rxjs/operators';
 import { mapToNFT, NftProperties } from './nft.service';
 import { NFT } from '../app.component';
+import { ErrorService } from './error.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StakingService {
-  constructor(private neonjs: NeonJSService, private neoline: NeolineService) {}
+  constructor(
+    private neonjs: NeonJSService,
+    private neoline: NeolineService,
+    private error: ErrorService
+  ) {}
 
   public taxAmount(): Observable<number> {
     const scriptHash = environment.testnet.candyclashStaking;
@@ -21,11 +26,11 @@ export class StakingService {
   }
   public totalVillagerCandiesStaked(): Observable<number> {
     const scriptHash = environment.testnet.candyclashStaking;
-    return this.neonjs.rpcRequest('totalVillagerCandiesStaked', [], scriptHash);
+    return this.neonjs.rpcRequest('totalVillagersStaked', [], scriptHash);
   }
   public totalVillainCandiesStaked(): Observable<number> {
     const scriptHash = environment.testnet.candyclashStaking;
-    return this.neonjs.rpcRequest('totalVillainCandiesStaked', [], scriptHash);
+    return this.neonjs.rpcRequest('totalVillainsStaked', [], scriptHash);
   }
   public totalCandiesEarned(): Observable<number> {
     const scriptHash = environment.testnet.candyclashStaking;
@@ -43,9 +48,9 @@ export class StakingService {
     const scriptHash = environment.testnet.candyclashStaking;
     return this.neonjs.rpcRequest('minStakeBlockCount', [], scriptHash);
   }
-  public maxCandiesToEarn(): Observable<number> {
+  public candyBalance(): Observable<number> {
     const scriptHash = environment.testnet.candyclashStaking;
-    return this.neonjs.rpcRequest('maxCandiesToEarn', [], scriptHash);
+    return this.neonjs.rpcRequest('candyBalance', [], scriptHash);
   }
   public tokensOf(address: string): Observable<NFT[]> {
     const scriptHash = environment.testnet.candyclashStaking;
@@ -61,7 +66,7 @@ export class StakingService {
     const scriptHash = environment.testnet.candyclashStaking;
     return this.tokensOf(address).pipe(
       map((tokens) =>
-        tokens.map((token) => sc.ContractParam.integer(token.tokenId))
+        tokens.map((token) => sc.ContractParam.string(token.tokenId))
       ),
       mergeAll(),
       toArray(),
@@ -77,7 +82,7 @@ export class StakingService {
 
   public stake(
     address: string,
-    tokenIds: number[]
+    tokenIds: string[]
   ): Observable<NeoInvokeWriteResponse> {
     const args: NeoInvokeArgument[] = [];
     for (let i = 0; i < tokenIds.length; i++) {
@@ -86,38 +91,52 @@ export class StakingService {
         operation: 'transfer',
         args: [
           NeolineService.hash160(environment.testnet.candyclashStaking),
-          NeolineService.int(tokenIds[i]),
+          NeolineService.string(tokenIds[i]),
           NeolineService.any(null),
         ],
       });
     }
-    return this.neoline.invokeMultiple({
-      signers: [{ account: new wallet.Account(address).scriptHash, scopes: 1 }],
-      invokeArgs: args,
-    });
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+        ],
+        invokeArgs: args,
+      })
+      .pipe(
+        catchError((e) => {
+          this.error.displayError(e);
+          return throwError(e);
+        })
+      );
   }
 
   public claim(
     address: string,
-    tokenIds: number[],
+    tokenIds: string[],
     unstake: boolean
   ): Observable<NeoInvokeWriteResponse> {
     const params = [];
     for (let i = 0; i < tokenIds.length; i++) {
-      params.push(sc.ContractParam.integer(tokenIds[i]));
+      params.push(sc.ContractParam.string(tokenIds[i]));
     }
     const invokeArg = {
       scriptHash: environment.testnet.candyclashStaking,
       operation: 'claim',
-      args: [
-        NeolineService.array(params),
-        NeolineService.bool(unstake),
-        NeolineService.hash160(address),
-      ],
+      args: [NeolineService.array(params), NeolineService.bool(unstake)],
     };
-    return this.neoline.invokeMultiple({
-      signers: [{ account: new wallet.Account(address).scriptHash, scopes: 1 }],
-      invokeArgs: [invokeArg],
-    });
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+        ],
+        invokeArgs: [invokeArg],
+      })
+      .pipe(
+        catchError((e) => {
+          this.error.displayError(e);
+          return throwError(e);
+        })
+      );
   }
 }

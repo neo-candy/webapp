@@ -1,11 +1,10 @@
 export const environment = {
   production: false,
   testnet: {
-    tokens: {
-      gas: '0xd2a4cff31913016155e38e474a2c06d08be276cf',
-    },
-    candyclashNFT: '0xf27e2d3da7315dc945d8f0fb03135e8bb874a5c9',
-    candyclashStaking: '0xcff60c307d98139f41e01ec504d797918d6db94d',
+    neocandy: '0xa90c11b6f71cee327bf9f62060641e5ad22f57e6',
+    candyclashNFT: '0xce756718ecadd5cf8f5cde6c70276f3235553f3b',
+    candyclashStaking: '0x8255accb100917b9e0541fcb082d3fe1ea8c4424',
+    candySwap: '0x575954e6754cc3fc358c936134274b726f788ceb',
     nodeUrl: 'https://neo3-testnet.neoline.vip:443',
   },
 };

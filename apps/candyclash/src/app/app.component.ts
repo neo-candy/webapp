@@ -10,32 +10,29 @@ import {
   tap,
 } from 'rxjs/operators';
 import { CandyClashConfig } from './nft-details/nft-details.component';
-import { NgxAnimatedCounterParams } from './ngx-animated-counter/ngx-animated-counter.component';
+import { AlphaSwapService } from './services/alpha-swap.service';
 import { NeolineService } from './services/neoline.service';
 import { NftService } from './services/nft.service';
 import { StakingService } from './services/staking.service';
 
 export interface NFT {
-  tokenId: number;
+  tokenId: string;
   name: string;
   image: string;
   type: string;
   staked: boolean;
-  sugar?: string;
-  bonus?: string;
-  generation: string;
+  sugar: number;
+  bonus: string;
+  generation: number;
+  level: number;
+  origin: string;
+  age: number;
+  actions: number;
 }
 
 // 11574 * 1000 * 60 * 60 * 24 = ~~1000_000000000
 const CLAIM_INC_PER_MS = 11581;
 const CLAIM_INC_PER_SEC = 11574074;
-
-const DEFAULT_MENU_ITEMS = [
-  {
-    label: 'About',
-    icon: 'pi pi-heart',
-  },
-];
 
 @Component({
   selector: 'cc-root',
@@ -44,15 +41,15 @@ const DEFAULT_MENU_ITEMS = [
   providers: [DecimalPipe],
 })
 export class AppComponent implements OnInit {
-  public TOTAL_CANDIES_POOL = 1000000_000000000;
+  public TOTAL_CANDIES_POOL = 100000_000000000;
 
-  public counterParams: NgxAnimatedCounterParams = {
-    start: -1,
-    end: 0,
-    interval: 0,
-    increment: 0,
-  };
-  public menuItems: MenuItem[] = DEFAULT_MENU_ITEMS;
+  public menuItems: MenuItem[] = [
+    {
+      label: 'About',
+      icon: 'pi pi-heart',
+      command: () => this.openMedium(),
+    },
+  ];
   public tableItems: MenuItem[] = [
     {
       label: 'Stake',
@@ -64,6 +61,29 @@ export class AppComponent implements OnInit {
       label: 'Claim & Unstake',
       icon: 'pi pi-pause',
       command: () => this.unstake(),
+    },
+    {
+      label: 'Feed sugar',
+      icon: 'pi pi-angle-double-up',
+      command: () =>
+        this.selectedNfts.length > 0
+          ? ((this.sugarIncrease = 0), (this.displayNftDetailsModal = true))
+          : false,
+    },
+
+    {
+      label: 'Add action point',
+      icon: 'pi pi-plus',
+      command: () =>
+        this.selectedNfts.length > 0
+          ? this.nft
+              .addActionPoints(
+                this.address,
+                this.pricePerActionPoint,
+                this.selectedNfts[0].tokenId
+              )
+              .subscribe()
+          : false,
     },
     {
       label: 'Refresh',
@@ -78,22 +98,28 @@ export class AppComponent implements OnInit {
   public address = '';
   public nfts: NFT[] = [];
   public displayMintModal = false;
+  public displayNftDetailsModal = false;
   public mintAmount = 1;
-  public gasPrice = 0;
-  public candyPrice = 0;
+  public nftPricesCandy: number[] = [];
   public villains = 0;
   public villagers = 0;
   public generation = 0;
   public selectedNfts: NFT[] = [];
   public claimableAmount = 0;
   public isLoading = false;
+  public sugarIncrease = 0;
+  public xpTable: number[] = [];
+  public pricePerXp = 0;
+  public actionPointsTable: number[] = [];
+  public pricePerActionPoint = 0;
 
   constructor(
     private primengConfig: PrimeNGConfig,
     private nft: NftService,
     private neoline: NeolineService,
     private staking: StakingService,
-    private decimalPipe: DecimalPipe
+    private decimalPipe: DecimalPipe,
+    private swapService: AlphaSwapService
   ) {
     this.neoline.ACCOUNT_CHANGED_EVENT$.pipe(distinctUntilChanged()).subscribe(
       (address) => {
@@ -105,6 +131,13 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.primengConfig.ripple = true;
     this.neoline.init();
+  }
+
+  public openMedium(): void {
+    window.open(
+      'https://medium.com/neocandy/candyclash-nft-staking-game-a9e87dae3fcb',
+      '_blank'
+    );
   }
 
   public connectWallet(): void {
@@ -119,16 +152,36 @@ export class AppComponent implements OnInit {
           this.villains = nfts.filter((nft) => nft.type === 'Villain').length;
         })
       )
-      .subscribe(() => this.refreshAll());
+      .subscribe(() => {
+        this.refreshAll();
+        const items = [...this.menuItems];
+        items.push({
+          label: 'Get Candy',
+          icon: 'pi pi-arrow-right',
+          command: () => this.swapService.swap(this.address).subscribe(),
+        });
+        this.menuItems = items;
+      });
   }
 
   public mint(amount: number): void {
     if (!this.address) {
       this.connectWallet();
     } else {
-      const price = this.generation == 0 ? this.gasPrice : this.candyPrice;
+      const price = this.nftPricesCandy[this.generation];
       this.nft.mint(this.address, amount, price).subscribe();
     }
+  }
+
+  public confirmSugarAdded(amount: number): void {
+    this.sugarIncrease = 0;
+    this.nft
+      .addSugar(
+        this.address,
+        amount * this.pricePerXp,
+        this.selectedNfts[0].tokenId
+      )
+      .subscribe();
   }
 
   public claim(): void {
@@ -140,7 +193,7 @@ export class AppComponent implements OnInit {
     ) {
       return;
     } else {
-      const staked: number[] = this.nfts
+      const staked: string[] = this.nfts
         .filter((nft) => nft.staked)
         .map((nft) => nft.tokenId);
       this.staking.claim(this.address, staked, false).subscribe();
@@ -153,13 +206,46 @@ export class AppComponent implements OnInit {
     } else if (this.selectedNfts.filter((nft) => nft.staked).length === 0) {
       return;
     } else {
-      const staked: number[] = this.selectedNfts
+      const staked: string[] = this.selectedNfts
         .filter((nft) => nft.staked)
         .map((nft) => nft.tokenId);
       this.staking
         .claim(this.address, staked, true)
         .subscribe(() => (this.selectedNfts = []));
     }
+  }
+
+  public getLevelUpXp(amount: number): number {
+    for (let i = 0; i < this.xpTable.length; i++) {
+      if (amount < this.xpTable[i]) {
+        return this.xpTable[i];
+      }
+    }
+    return this.xpTable[this.xpTable.length - 1];
+  }
+
+  public addSugar(amount: number) {
+    if (
+      amount + this.sugarIncrease + this.selectedNfts[0].sugar <=
+      this.xpTable[this.xpTable.length - 1]
+    ) {
+      this.sugarIncrease += amount;
+    }
+  }
+
+  public getLevelForXp(xp: number): number {
+    for (let i = 0; i < this.xpTable.length; i++) {
+      if (xp < this.xpTable[i]) {
+        return i + 1;
+      }
+    }
+    return this.xpTable.length + 1;
+  }
+
+  public addActionPoint(tokenId: string): void {
+    this.nft
+      .addActionPoints(this.address, this.pricePerActionPoint, tokenId)
+      .subscribe();
   }
 
   /**
@@ -186,37 +272,29 @@ export class AppComponent implements OnInit {
           this.nfts = res;
           this.staking.claimableAmount(this.address).subscribe((res) => {
             this.claimableAmount = res;
-            const stakedVillagers = this.nfts.filter(
-              (nft) => nft.staked && nft.type === 'Villager'
-            );
-            // add either 0 or 1 to the increment so the last digit of the counter will change
-            const rand = Math.random() < 0.5 ? 1 : 0;
-            this.counterParams = {
-              end: stakedVillagers.length ? 0 : -1,
-              interval: 111,
-              start: +res,
-              increment: rand + CLAIM_INC_PER_MS * 111 * stakedVillagers.length,
-            };
           });
         });
     }
   }
 
   public onConfigLoaded(config: CandyClashConfig) {
-    this.candyPrice = config.candyPrice;
-    this.gasPrice = config.gasPrice;
+    this.nftPricesCandy = config.nftPricesCandy;
     this.maxTokensAmount = config.maxTokensAmount;
     this.totalSupply = config.totalSupply;
+    this.pricePerXp = config.pricePerExperiencePoint;
+    this.xpTable = config.experienceTable;
+    this.actionPointsTable = config.actionPointsLevelTable;
+    this.pricePerActionPoint = config.pricePerActionPoint;
     if (config.totalSupply >= 2000) {
       this.generation = 1;
     }
-    const items: MenuItem[] = [...DEFAULT_MENU_ITEMS];
+    const items: MenuItem[] = [...this.menuItems];
     items.push(
       {
         label:
           'Vault: ' +
           this.decimalPipe.transform(
-            config.maxCandiesToEarn / 1000000000,
+            config.candyBalance / 1000000000,
             '1.0-2'
           ) +
           ' $CANDY',
@@ -226,7 +304,7 @@ export class AppComponent implements OnInit {
         label:
           'Claimed: ' +
           this.decimalPipe.transform(
-            (this.TOTAL_CANDIES_POOL - config.maxCandiesToEarn) / 1000000000,
+            (this.TOTAL_CANDIES_POOL - config.candyBalance) / 1000000000,
             '1.0-2'
           ) +
           ' $CANDY',
@@ -250,7 +328,7 @@ export class AppComponent implements OnInit {
       this.staking.tokensOf(address),
     ]).pipe(
       map(([unstaked, staked]) =>
-        [...unstaked, ...staked].sort((a, b) => a.tokenId - b.tokenId)
+        [...unstaked, ...staked].sort((a, b) => +a.tokenId - +b.tokenId)
       )
     );
   }
@@ -261,6 +339,8 @@ export class AppComponent implements OnInit {
         this.address,
         nfts.filter((nft) => !nft.staked).map((nft) => nft.tokenId)
       )
-      .subscribe(() => (this.selectedNfts = []));
+      .subscribe((x) => {
+        console.log(x), (this.selectedNfts = []);
+      });
   }
 }
