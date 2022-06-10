@@ -26,6 +26,8 @@ interface StakingConfig {
   dailyCandyRate: number;
   minStakeBlockCount: number;
   candyBalance: number;
+  totalVillainClaims: number;
+  totalVillagerClaims: number;
 }
 
 const DEFAULT_NFT_VALUES: NftContractConfig = {
@@ -50,6 +52,8 @@ const DEFAULT_STAKING_VALUES: StakingConfig = {
   totalVillainCandiesStaked: 0,
   minStakeBlockCount: 0,
   candyBalance: 0,
+  totalVillagerClaims: 0,
+  totalVillainClaims: 0,
 };
 
 export type CandyClashConfig = StakingConfig & NftContractConfig;
@@ -74,11 +78,13 @@ export class NftDetailsComponent implements OnInit {
     this.staking.dailyCandyRate(),
     this.staking.isPaused(),
     this.staking.taxAmount(),
-    this.staking.totalCandiesEarned(),
+    this.staking.totalCandyEarned(),
     this.staking.totalVillagerCandiesStaked(),
     this.staking.totalVillainCandiesStaked(),
     this.staking.minStakeBlockCount(),
     this.staking.candyBalance(),
+    this.staking.totalVillagerClaims(),
+    this.staking.totalVillainClaims(),
   ]).pipe(
     map(
       ([
@@ -90,6 +96,8 @@ export class NftDetailsComponent implements OnInit {
         totalVillainCandiesStaked,
         minStakeBlockCount,
         candyBalance,
+        totalVillagerClaims,
+        totalVillainClaims,
       ]) => {
         return {
           isPaused,
@@ -100,6 +108,8 @@ export class NftDetailsComponent implements OnInit {
           totalVillainCandiesStaked,
           minStakeBlockCount,
           candyBalance,
+          totalVillagerClaims,
+          totalVillainClaims,
         };
       }
     )

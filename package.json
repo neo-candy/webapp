@@ -8,7 +8,9 @@
     "start": "nx serve",
     "start:cc": "nx s candyclash",
     "start:nc": "nx s neocandy",
+    "start:cd": "nx s candefi",
     "build:cc": "nx build candyclash",
+    "build:cd": "nx build candefi",
     "lint:ts": "nx lint",
     "build": "nx build",
     "test": "nx test"
@@ -33,7 +35,6 @@
     "primeng": "^13.0.0-rc.2",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
-
     "zone.js": "0.11.4"
   },
   "devDependencies": {

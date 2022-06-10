@@ -1,0 +1,68 @@
+<div class="flex justify-content-between align-items-center ml-3 mr-3">
+  <div>
+    <h1>CanDEFI</h1>
+  </div>
+  <div>
+    <ng-container *ngIf="address; else connect">
+      <button
+        pButton
+        pRipple
+        [icon]="isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-copy'"
+        class="p-button-text"
+        type="button"
+        label="{{ address | truncateAddress }}"
+      ></button>
+    </ng-container>
+    <ng-template #connect>
+      <button
+        pButton
+        pRipple
+        class="p-button-outlined"
+        type="button"
+        (click)="connectWallet()"
+        label="Connect Wallet"
+      ></button>
+    </ng-template>
+  </div>
+</div>
+
+<div class="flex justify-content-center">
+  <button
+    pButton
+    label="Buy"
+    icon="pi pi-arrow-circle-up"
+    class="p-button-success mr-3"
+  ></button>
+  <button
+    pButton
+    label="Sell"
+    icon="pi pi-arrow-circle-down"
+    class="p-button-danger"
+    (click)="displaySellModal = true"
+  ></button>
+</div>
+
+<p-dialog
+  header="Open a new position"
+  [(visible)]="displaySellModal"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <p class="m-0">Lorem Ipsum</p>
+
+  <div class="flex flex-column">
+    <p-dropdown [options]="tokens" [(ngModel)]="selectedToken"></p-dropdown>
+  </div>
+
+  <!-- duration, stake, fee, token, direction -->
+
+  <ng-template pTemplate="footer">
+    <p-button
+      icon="pi pi-check"
+      (click)="displaySellModal = false; sell()"
+      label="Confirm"
+      styleClass="p-button-text p-button-danger"
+    ></p-button>
+  </ng-template>
+</p-dialog>

@@ -32,9 +32,9 @@ export class StakingService {
     const scriptHash = environment.testnet.candyclashStaking;
     return this.neonjs.rpcRequest('totalVillainsStaked', [], scriptHash);
   }
-  public totalCandiesEarned(): Observable<number> {
+  public totalCandyEarned(): Observable<number> {
     const scriptHash = environment.testnet.candyclashStaking;
-    return this.neonjs.rpcRequest('totalCandiesEarned', [], scriptHash);
+    return this.neonjs.rpcRequest('totalCandyEarned', [], scriptHash);
   }
   public dailyCandyRate(): Observable<number> {
     const scriptHash = environment.testnet.candyclashStaking;
@@ -52,6 +52,14 @@ export class StakingService {
     const scriptHash = environment.testnet.candyclashStaking;
     return this.neonjs.rpcRequest('candyBalance', [], scriptHash);
   }
+  public totalVillainClaims(): Observable<number> {
+    const scriptHash = environment.testnet.candyclashStaking;
+    return this.neonjs.rpcRequest('totalVillainClaims', [], scriptHash);
+  }
+  public totalVillagerClaims(): Observable<number> {
+    const scriptHash = environment.testnet.candyclashStaking;
+    return this.neonjs.rpcRequest('totalVillagerClaims', [], scriptHash);
+  }
   public tokensOf(address: string): Observable<NFT[]> {
     const scriptHash = environment.testnet.candyclashStaking;
     return this.neonjs
@@ -60,6 +68,24 @@ export class StakingService {
         map((res) => res.map((v: any) => JSON.parse(atob(v.value)))),
         map((res: NftProperties[]) => res.map((props) => mapToNFT(props, true)))
       );
+  }
+
+  public villainClaimsOf(address: string): Observable<number> {
+    const scriptHash = environment.testnet.candyclashStaking;
+    return this.neonjs.rpcRequest(
+      'villainClaimsOf',
+      [sc.ContractParam.hash160(address)],
+      scriptHash
+    );
+  }
+
+  public villagerClaimsOf(address: string): Observable<number> {
+    const scriptHash = environment.testnet.candyclashStaking;
+    return this.neonjs.rpcRequest(
+      'villainClaimsOf',
+      [sc.ContractParam.hash160(address)],
+      scriptHash
+    );
   }
 
   public claimableAmount(address: string): Observable<number> {

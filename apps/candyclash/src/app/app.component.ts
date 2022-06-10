@@ -41,8 +41,6 @@ const CLAIM_INC_PER_SEC = 11574074;
   providers: [DecimalPipe],
 })
 export class AppComponent implements OnInit {
-  public TOTAL_CANDIES_POOL = 100000_000000000;
-
   public menuItems: MenuItem[] = [
     {
       label: 'About',
@@ -300,16 +298,17 @@ export class AppComponent implements OnInit {
           ' $CANDY',
         disabled: true,
       },
-      {
+      /* {
         label:
           'Claimed: ' +
           this.decimalPipe.transform(
-            (this.TOTAL_CANDIES_POOL - config.candyBalance) / 1000000000,
+            (config.totalVillainClaims + config.totalVillagerClaims) /
+              1000000000,
             '1.0-2'
           ) +
           ' $CANDY',
         disabled: true,
-      },
+      }, */
       {
         label: 'Total Mints: ' + this.totalSupply,
         disabled: true,
