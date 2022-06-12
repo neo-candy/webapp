@@ -109,6 +109,33 @@ section {
   }
 }
 
+.nfts-container {
+
+  .candy-amount {
+    color: #e829ad;
+    font-size: 105%;
+  }
+  padding-top: 6rem;
+  background-color: #fff;
+  height: auto;
+  h1 {
+    color: #6d61f5;
+  }
+  h3 {
+    color: #14d0f0;
+  }
+  p {
+    color: #000;
+  }
+  button {
+    background-color: #6d61f5;
+    border: #6d61f5;
+    &:hover {
+      background-color: #5d4ff8;
+    }
+  }
+}
+
 .games-container {
   #gamename {
     color: #6d61f5;

@@ -35,6 +35,10 @@ export class MenuComponent implements OnInit {
         command: () => window.open(LITE_PAPER, '_blank'),
       },
       {
+        label: 'NFTs',
+        command: () => this.router.navigate([''], { fragment: 'nfts' }),
+      },
+      {
         label: 'Games',
         command: () => this.router.navigate([''], { fragment: 'games' }),
       },
@@ -61,6 +65,10 @@ export class MenuComponent implements OnInit {
         {
           label: 'Docs',
           command: () => window.open(LITE_PAPER, '_blank'),
+        },
+        {
+          label: 'NFTs',
+          command: () => this.router.navigate([''], { fragment: 'nfts' }),
         },
         {
           label: 'Games',

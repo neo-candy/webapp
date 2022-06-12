@@ -180,7 +180,100 @@
       </div>
     </div>
   </div>
+
+  <div class="nfts-container" id="nfts">
+    <div class="flex flex-column align-items-center text-center">
+      <div style="width: 70%">
+        <h1>NeoCandy NFT collection</h1>
+        <p class="text-xl">
+          NeoCandy NFT is a collection of 222 randomly generated NFTs on the Neo
+          N3 blockchain. NeoCandy NFT holders can participate in exclusive
+          events, NFT claims, airdrops, giveaways, and more.
+        </p>
+        <div class="flex flex-column justify-content-center text-left">
+          <h3>Utilities</h3>
+
+          🍭 Whitelisted for all NeoCandy NFT mints (mint 1 day earlier than
+          anyone else) <br />
+
+          🍭 1x free Candyland character mint<br />
+          🍭 1x free Candyclash NFT mint<br />
+          🍭 Special discord role/channel<br />
+          🍭 Airdrops<br />
+          🍭 More entries for giveaways in the discord<br />
+          🍭 Bonus candy in the faucet (stackable) <br />
+          🍭 Early access to all future NeoCandy games<br />
+          🍭 With time, more utilities will be added<br />
+
+          <h3>Where can I get one?</h3>
+          🍬 22 NFTs will be distributed via giveaways and quizzes. <br />
+          🍬 Trade 50'000 candies from your candy-factory stack for 1 random
+          NeoCandy NFT. Can only be done once per discord account.<br />
+          🍬 Mint an NFT for a higher price:
+          <div
+            class="text-xl flex flex-column align-items-center justify-content-center mt-5"
+          >
+            <div style="width: 25rem">
+              <div class="grid">
+                <div class="col">
+                  <span class="font-bold">23-100: </span>
+                </div>
+                <div class="col text-right">
+                  <span class="candy-amount">500'000 $CANDY</span>
+                </div>
+              </div>
+
+              <div class="grid">
+                <div class="col">
+                  <span class="font-bold">101-200: </span>
+                </div>
+                <div class="col text-right">
+                  <span class="candy-amount">750'000 $CANDY</span>
+                </div>
+              </div>
+
+              <div class="grid">
+                <div class="col">
+                  <span class="font-bold">201-222: </span>
+                </div>
+                <div class="col text-right">
+                  <span class="candy-amount">1'000'000' $CANDY</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid p-fluid p-5 mb-5">
+        <div class="col-12">
+          <button
+            pButton
+            label="Mint"
+            class="p-button text-xl"
+            [disabled]="true"
+          ></button>
+        </div>
+        <div class="col-12 md:col-6">
+          <button
+            pButton
+            label="GhostMarket"
+            class="p-button text-xl"
+            (click)="openGhostmarket()"
+          ></button>
+        </div>
+        <div class="col-12 md:col-6">
+          <button
+            pButton
+            label="SkyHut"
+            class="p-button text-xl"
+            (click)="openSkyhut()"
+          ></button>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
+
 <section id="games" style="position: relative">
   <div class="games-container flex flex-column align-items-center text-center">
     <div style="width: 70%">
@@ -219,16 +312,24 @@
           </div>
           <p>
             <span id="gamename">Candyclash</span> is a risk-based NFT staking
-            game coming to NEO N3. It combines fun candy art with
-            utility-focused NFT & DeFi features, like stealing or taxing other
-            NFTs. In Candyclash, you can build your collection of villagers or
-            villains and passively earn NeoCandy!
+            game on NEO N3. It combines fun candy art with utility-focused NFT &
+            DeFi features, like stealing or taxing other NFTs. In Candyclash,
+            you can build your collection of villagers or villains and passively
+            earn NeoCandy!
           </p>
-          <button
-            pButton
-            label="Read more..."
-            (click)="openCandyclash()"
-          ></button>
+          <div class="flex justify-content-between">
+            <button
+              class="mr-3"
+              pButton
+              label="Read more..."
+              (click)="openCandyclash()"
+            ></button>
+            <button
+              pButton
+              label="Play (Testnet)"
+              (click)="openCandyclashAlpha()"
+            ></button>
+          </div>
         </div>
       </div>
     </div>
