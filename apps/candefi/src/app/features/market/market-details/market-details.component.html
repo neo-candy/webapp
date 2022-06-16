@@ -1,0 +1,48 @@
+<ng-container *ngIf="state$ | async as s">
+  <p-table
+    dataKey="tokenId"
+    [loading]="s.isLoading"
+    (onRowSelect)="onRowSelect($event)"
+    selectionMode="single"
+    [value]="s.tokens"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-sm"
+  >
+    <ng-template pTemplate="caption">Details</ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Stake</th>
+        <th>Strike</th>
+        <th>Duration</th>
+        <th>Gas/Day</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-token let-expanded="expanded">
+      <tr [pRowToggler]="token">
+        <td>{{ token.tokenId }}</td>
+        <td>
+          <div class="flex align-items-center">
+            ${{ token.stake / 1000000000 | number: '1.0-0' }}
+            <img src="assets/images/candy.png" height="20" class="ml-2" />
+          </div>
+        </td>
+        <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
+        <td>
+          {{ token.minRentInMinutes / 60 / 24 }} -
+          {{ token.maxRentInMinutes / 60 / 24 }} days
+        </td>
+        <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="rowexpansion" let-token>
+      <table>
+        <tr>
+          <td *ngFor="let stat of token.stats">{{ stat.day }}</td>
+          <td *ngFor="let stat of token.stats">{{ stat.gas }}</td>
+        </tr>
+      </table>
+    </ng-template>
+  </p-table>
+</ng-container>

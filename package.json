@@ -30,6 +30,7 @@
     "@fontsource/poppins": "^4.5.0",
     "@fontsource/questrial": "^4.5.0",
     "@nrwl/angular": "13.8.3",
+    "@rx-angular/state": "^1.6.1",
     "primeflex": "^3.1.0",
     "primeicons": "^5.0.0",
     "primeng": "^13.0.0-rc.2",

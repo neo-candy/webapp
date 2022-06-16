@@ -1,34 +1,36 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ButtonModule } from 'primeng/button';
-import { MenubarModule } from 'primeng/menubar';
-import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputNumberModule } from 'primeng/inputnumber';
+
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
-import { TruncateAddressPipe } from './pipes/truncateAddress.pipe';
 import { ToastModule } from 'primeng/toast';
-import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { AppRoutingModule } from './app-routing.module';
+import { SharedModule } from './shared/shared.module';
+import { GlobalState, GLOBAL_RX_STATE } from './state/global.state';
+import { RxState } from '@rx-angular/state';
+import { MenuModule } from './menu/menu.module';
 
 @NgModule({
-  declarations: [AppComponent, TruncateAddressPipe],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    CommonModule,
-    ButtonModule,
-    MenubarModule,
+    HttpClientModule,
     ToastModule,
-    FormsModule,
-    DialogModule,
-    DropdownModule,
-    InputNumberModule,
+    AppRoutingModule,
+    SharedModule,
+    MenuModule,
   ],
-  providers: [MessageService],
+  providers: [
+    MessageService,
+    {
+      provide: GLOBAL_RX_STATE,
+      useFactory: () => new RxState<GlobalState>(),
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

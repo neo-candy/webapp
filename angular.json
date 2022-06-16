@@ -5,7 +5,7 @@
       "projectType": "application",
       "root": "apps/candefi",
       "sourceRoot": "apps/candefi/src",
-      "prefix": "webapp",
+      "prefix": "cd",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",

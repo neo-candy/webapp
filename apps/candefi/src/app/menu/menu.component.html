@@ -1,0 +1,32 @@
+<ng-container *ngIf="state$ | async as s">
+  <div class="flex justify-content-between align-items-center ml-3 mr-3">
+    <div>
+      <h1>CanDEFI</h1>
+    </div>
+    <div>
+      <span class="text-xs">NEO: ${{ s.neoPrice }}</span>
+    </div>
+    <div>
+      <ng-container *ngIf="s.address; else connect">
+        <button
+          pButton
+          pRipple
+          [icon]="s.isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-copy'"
+          class="p-button-text"
+          type="button"
+          label="{{ s.address | truncateAddress }}"
+        ></button>
+      </ng-container>
+      <ng-template #connect>
+        <button
+          pButton
+          pRipple
+          class="p-button-outlined"
+          type="button"
+          (click)="connectWallet()"
+          label="Connect Wallet"
+        ></button>
+      </ng-template>
+    </div>
+  </div>
+</ng-container>
