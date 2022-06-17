@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
-import { environment } from 'apps/candefi/src/environments/environment';
+import { environment } from '../../../environments/environment';
 import { DialogService } from 'primeng/dynamicdialog';
 import { map } from 'rxjs/operators';
 import { CandefiService, Token } from '../../services/candefi.service';
@@ -35,11 +35,11 @@ interface OptionOverview {
 export class MarketComponent extends RxState<MarketState> {
   readonly state$ = this.select();
   readonly calls$ = this.select('tokens').pipe(
-    map((t) => t.filter((t) => t.type === 'Call')),
+    map((t) => t.filter((t) => t.type === 'Call' && !t.exercised)),
     map((t) => this.summarize(t).sort((a, b) => a.strike - b.strike))
   );
   readonly puts$ = this.select('tokens').pipe(
-    map((t) => t.filter((t) => t.type === 'Put')),
+    map((t) => t.filter((t) => t.type === 'Put' && !t.exercised)),
     map((t) => this.summarize(t).sort((a, b) => a.strike - b.strike))
   );
 
@@ -96,7 +96,6 @@ export class MarketComponent extends RxState<MarketState> {
       stack.push(token.stake);
       map.set(token.strike, stack);
     });
-    console.log('OptionOverviewMap', map);
 
     const result: OptionOverview[] = [];
     map.forEach((v, k) => {

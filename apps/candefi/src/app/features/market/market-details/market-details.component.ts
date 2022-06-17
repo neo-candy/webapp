@@ -53,7 +53,6 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
   constructor(
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig,
-    private candefi: CandefiService,
     private rentfuse: RentfuseService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
@@ -80,6 +79,7 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
 
   private addTokenDetails(token: Token, listing: Listing): TokenDetails {
     return {
+      ...token,
       listingId: listing.listingId,
       maxRentInMinutes: listing.maxMinutes,
       minRentInMinutes: listing.minMinutes,
@@ -87,7 +87,11 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
       stats: Array(listing.maxMinutes / 24 / 60).fill(
         (listing.gasPerMinute / 100000000) * 24 * 60
       ),
-      ...token,
+      vi: (token.vi / Math.pow(10, 9)) * Math.pow(10, 8),
+      realValue:
+        token.realValue +
+        (this.globalState.get('neoPrice') * Math.pow(10, 8) - token.strike) *
+          token.vi,
     };
   }
 }

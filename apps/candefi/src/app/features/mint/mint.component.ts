@@ -39,6 +39,9 @@ export class MintComponent extends RxState<MintState> implements OnInit {
       strike: [0, Validators.required],
       stake: [5000, Validators.required],
       fee: [{ value: 1000, disabled: true }],
+      vdot: [0],
+      value: [0],
+      vi: [0],
     });
   }
 
@@ -78,19 +81,33 @@ export class MintComponent extends RxState<MintState> implements OnInit {
     return this.form.get('strike')?.value;
   }
 
+  get vdot(): number {
+    return this.form.get('vdot')?.value;
+  }
+
+  get vi(): number {
+    return this.form.get('vi')?.value;
+  }
+
+  get value(): number {
+    return this.form.get('value')?.value;
+  }
+
   private mintCall(): void {
     const stake = this.stake * Math.pow(10, 9);
     const strike = this.strike * Math.pow(10, 8);
+    const value = this.value * Math.pow(10, 9);
     this.candefi
-      .mintCall(this.get('address'), strike, stake)
+      .mintCall(this.get('address'), strike, stake, this.vdot, value, this.vi)
       .subscribe((res) => console.log(res));
   }
 
   private mintPut(): void {
     const stake = this.stake * Math.pow(10, 9);
     const strike = this.strike * Math.pow(10, 8);
+    const value = this.value * Math.pow(10, 9);
     this.candefi
-      .mintPut(this.get('address'), strike, stake)
+      .mintPut(this.get('address'), strike, stake, this.vdot, value, this.vi)
       .subscribe((res) => console.log(res));
   }
 }

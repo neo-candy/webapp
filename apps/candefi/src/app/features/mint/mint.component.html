@@ -67,6 +67,33 @@
       <div class="mb-5">
         <span class="p-float-label">
           <p-inputNumber
+            formControlName="value"
+            suffix=" $CANDY"
+            [min]="0"
+            id="value"
+          ></p-inputNumber>
+          <label for="stake">Initial Value</label>
+        </span>
+      </div>
+      <div class="mb-5">
+        <span class="p-float-label">
+          <p-inputNumber
+            formControlName="vdot"
+            [min]="0"
+            id="vdot"
+          ></p-inputNumber>
+          <label for="vdot">Vdot</label>
+        </span>
+      </div>
+      <div class="mb-5">
+        <span class="p-float-label">
+          <p-inputNumber formControlName="vi" [min]="0" id="vi"></p-inputNumber>
+          <label for="vi">Vi</label>
+        </span>
+      </div>
+      <div class="mb-5">
+        <span class="p-float-label">
+          <p-inputNumber
             formControlName="fee"
             suffix=" $CANDY"
             id="fee"
@@ -74,139 +101,16 @@
           <label for="fee">Protocol Fee</label>
         </span>
       </div>
-      <button
-        pButton
-        [disabled]="!form.valid"
-        icon="pi pi-check"
-        label="Confirm"
-        type="submit"
-        styleClass="p-button-text"
-      ></button>
+      <div class="text-center">
+        <button
+          pButton
+          [disabled]="!form.valid"
+          icon="pi pi-check"
+          label="Confirm"
+          type="submit"
+          styleClass="p-button-text"
+        ></button>
+      </div>
     </form>
   </p-dialog>
 </ng-container>
-
-<!-- <section *ngIf="address" class="mt-5">
-  <p-table
-    [value]="rented"
-    responsiveLayout="scroll"
-    styleClass="p-datatable-sm"
-  >
-    <ng-template pTemplate="caption">Rented Options </ng-template>
-
-    <ng-template pTemplate="header">
-      <tr>
-        <th>ID</th>
-        <th>Asset</th>
-        <th>Type</th>
-        <th>Strike</th>
-        <th>Stake</th>
-        <th>Owner</th>
-        <th>Writer</th>
-        <th></th>
-        <th></th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-token>
-      <tr
-        [ngClass]="{
-          'highlight-row':
-            (token.strike / 100000000 < neoPrice && token.type === 1) ||
-            (token.strike / 100000000 > neoPrice && token.type === 2)
-        }"
-      >
-        <td>{{ token.tokenId }}</td>
-        <td><img src="assets/images/neo.png" height="20" /></td>
-        <td>{{ token.type }}</td>
-        <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
-        <td>
-          <div class="flex align-items-center">
-            ${{ token.stake / 1000000000 | number: '1.0-0' }}
-            <img src="assets/images/candy.png" height="20" class="ml-2" />
-          </div>
-        </td>
-        <td>{{ token.owner | truncateAddress }}</td>
-        <td>{{ token.writer | truncateAddress }}</td>
-        <td>
-          <div class="flex justify-content-end">
-            <button
-              pButton
-              label="Update"
-              icon="pi pi-pencil"
-              class="p-button-outlined mr-2"
-            ></button>
-            <button
-              pButton
-              label="Claim"
-              icon="pi pi-arrow-circle-down"
-              class="p-button-outlined mr-2"
-            ></button>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-</section>
-<section *ngIf="address" class="mt-5">
-  <p-table
-    [value]="minted"
-    responsiveLayout="scroll"
-    styleClass="p-datatable-sm"
-  >
-    <ng-template pTemplate="caption">Minted Options </ng-template>
-
-    <ng-template pTemplate="header">
-      <tr>
-        <th>ID</th>
-        <th>Asset</th>
-        <th>Type</th>
-        <th>Strike</th>
-        <th>Stake</th>
-        <th>Owner</th>
-        <th>Writer</th>
-        <th></th>
-        <th></th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-token>
-      <tr
-        [ngClass]="{
-          'highlight-row':
-            (token.strike / 100000000 < neoPrice && token.type === 1) ||
-            (token.strike / 100000000 > neoPrice && token.type === 2)
-        }"
-      >
-        <td>{{ token.tokenId }}</td>
-        <td><img src="assets/images/neo.png" height="20" /></td>
-        <td>{{ token.type }}</td>
-        <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
-        <td>
-          <div class="flex align-items-center">
-            ${{ token.stake / 1000000000 | number: '1.0-0' }}
-            <img src="assets/images/candy.png" height="20" class="ml-2" />
-          </div>
-        </td>
-        <td>{{ token.owner | truncateAddress }}</td>
-        <td>{{ token.writer | truncateAddress }}</td>
-        <td>
-          <div class="flex justify-content-end">
-            <button
-              *ngIf="token.owner === token.writer"
-              pButton
-              label="Update"
-              icon="pi pi-pencil"
-              class="p-button-outlined mr-2"
-            ></button>
-            <button
-              *ngIf="token.owner === token.writer"
-              pButton
-              label="Claim"
-              icon="pi pi-arrow-circle-down"
-              class="p-button-outlined mr-2"
-            ></button>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-</section> -->

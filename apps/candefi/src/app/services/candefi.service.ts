@@ -37,6 +37,12 @@ export interface Token {
   writer: string;
   owner: string;
   type: 'Call' | 'Put';
+  created: number;
+  vdot: number;
+  vi: number;
+  realValue: number;
+  startValue: number;
+  exercised: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -50,7 +56,10 @@ export class CandefiService {
   public mintCall(
     address: string,
     strike: number,
-    stake: number
+    stake: number,
+    vdot: number,
+    value: number,
+    vi: number
   ): Observable<NeoInvokeWriteResponse> {
     stake += PROTOCOL_FEE;
     const args = [
@@ -64,6 +73,9 @@ export class CandefiService {
           NeolineService.array([
             NeolineService.int(CALL),
             NeolineService.int(strike),
+            NeolineService.int(vdot),
+            NeolineService.int(value),
+            NeolineService.int(vi),
           ]),
         ],
       },
@@ -86,7 +98,10 @@ export class CandefiService {
   public mintPut(
     address: string,
     strike: number,
-    stake: number
+    stake: number,
+    vdot: number,
+    value: number,
+    vi: number
   ): Observable<NeoInvokeWriteResponse> {
     stake += PROTOCOL_FEE;
     const args = [
@@ -100,6 +115,9 @@ export class CandefiService {
           NeolineService.array([
             NeolineService.int(PUT),
             NeolineService.int(strike),
+            NeolineService.int(vdot),
+            NeolineService.int(value),
+            NeolineService.int(vi),
           ]),
         ],
       },
@@ -177,6 +195,27 @@ export class CandefiService {
           v.attributes.filter((a) => a.trait_type === 'Owner')[0].value
         )
       ).address,
+      vdot:
+        -(
+          Number(v.attributes.filter((a) => a.trait_type === 'Vdot')[0].value) *
+          1000 *
+          60 *
+          60 *
+          24
+        ) / Math.pow(10, 9),
+      vi: Number(v.attributes.filter((a) => a.trait_type === 'Vi')[0].value),
+      realValue: Number(
+        v.attributes.filter((a) => a.trait_type === 'Real Value')[0].value
+      ),
+      startValue: Number(
+        v.attributes.filter((a) => a.trait_type === 'Start Value')[0].value
+      ),
+      created: Number(
+        v.attributes.filter((a) => a.trait_type === 'Created')[0].value
+      ),
+      exercised: Boolean(
+        v.attributes.filter((a) => a.trait_type === 'Exercised')[0].value
+      ),
     };
   }
 }
