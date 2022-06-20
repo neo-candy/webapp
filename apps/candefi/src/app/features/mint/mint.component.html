@@ -16,15 +16,84 @@
     ></button>
   </div>
 
+  <p-table
+    selectionMode="single"
+    [loading]="s.isLoadingWriter"
+    [value]="s.writer"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-sm"
+  >
+    <ng-template pTemplate="caption">Writer </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Stake</th>
+        <th>Value</th>
+        <th>Change</th>
+        <th>Strike</th>
+        <th>Duration</th>
+        <th>Vdot</th>
+        <th>Vi</th>
+        <th>Gas/Day</th>
+        <th>Safe</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-token let-expanded="expanded">
+      <tr [pRowToggler]="token">
+        <td>{{ token.tokenId }}</td>
+        <td>
+          <div class="flex align-items-center">
+            {{ token.stake / 1000000000 | number: '1.0-0' }}
+            <img src="assets/images/candy.png" height="20" class="ml-2" />
+          </div>
+        </td>
+        <td>
+          <div class="flex align-items-center">
+            {{ token.realValue / 1000000000 | number: '1.0-0' }}
+            <img src="assets/images/candy.png" height="20" class="ml-2" />
+          </div>
+        </td>
+        <td>
+          <div *ngIf="token.startValue < token.realValue; else minus">
+            +{{
+              ((token.realValue - token.startValue) / token.startValue) * 100
+                | number: '1.2-2'
+            }}%
+          </div>
+          <ng-template #minus>
+            <div>
+              -{{
+                ((token.startValue - token.realValue) / token.startValue) * 100
+                  | number: '1.2-2'
+              }}%
+            </div>
+          </ng-template>
+        </td>
+        <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
+        <td>
+          {{ token.minRentInMinutes / 60 / 24 }} -
+          {{ token.maxRentInMinutes / 60 / 24 }} days
+        </td>
+        <td>{{ token.vdot }}</td>
+        <td>{{ token.vi }}</td>
+        <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
+        <td>
+          <span [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"></span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
   <p-dialog
     header="Mint Option"
     [(visible)]="s.displayMintModal"
     [modal]="true"
-    [draggable]="false"
+    [draggable]="true"
     [resizable]="false"
   >
     <form [formGroup]="form" (ngSubmit)="mint()">
-      <div class="mb-5">
+      <div class="mb-5 mt-4">
         <span class="p-float-label">
           <input pInputText id="type" formControlName="type" />
           <label for="type">Type</label>
@@ -41,15 +110,12 @@
           <p-inputNumber
             formControlName="strike"
             prefix="$"
-            [maxFractionDigits]="0"
-            [minFractionDigits]="0"
             [min]="0"
             id="strike"
           ></p-inputNumber>
           <label for="strike">Strike Price</label>
         </span>
       </div>
-      <!-- [min]="math.ceil(neoPrice + 0.5)" -->
       <div class="mb-5">
         <span class="p-float-label">
           <p-inputNumber
@@ -73,6 +139,54 @@
             id="value"
           ></p-inputNumber>
           <label for="stake">Initial Value</label>
+        </span>
+      </div>
+      <div class="mb-5">
+        <span class="p-float-label">
+          <input
+            type="text"
+            id="duration"
+            pInputText
+            [value]="duration[0] + ' - ' + duration[1] + ' days'"
+            readonly
+          />
+          <p-slider
+            formControlName="duration"
+            [min]="1"
+            [max]="180"
+            [range]="true"
+            [step]="1"
+          >
+          </p-slider>
+          <label for="duration">Duration</label>
+        </span>
+      </div>
+      <div class="mb-5">
+        <span class="p-float-label">
+          <p-inputNumber
+            mode="decimal"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            formControlName="dailyFee"
+            [min]="0.01"
+            suffix=" GAS"
+            id="dailyFee"
+          ></p-inputNumber>
+          <label for="dailyFee">Daily Fee</label>
+        </span>
+      </div>
+      <div class="mb-5">
+        <span class="p-float-label">
+          <p-inputNumber
+            mode="decimal"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            formControlName="collateral"
+            [min]="0.01"
+            suffix=" GAS"
+            id="collateral"
+          ></p-inputNumber>
+          <label for="collateral">Collateral</label>
         </span>
       </div>
       <div class="mb-5">
@@ -101,7 +215,22 @@
           <label for="fee">Protocol Fee</label>
         </span>
       </div>
-      <div class="text-center">
+
+      <div class="mb-5">
+        <p-checkbox
+          label="Safe exercise"
+          [binary]="true"
+          formControlName="safe"
+        ></p-checkbox>
+      </div>
+
+      <div class="mb-5">
+        <div class="flex">
+          <p-checkbox [binary]="true" formControlName="agreement"></p-checkbox>
+          <span class="ml-2">I understand the <a href="">risks</a></span>
+        </div>
+      </div>
+      <div class="text-center p-fluid">
         <button
           pButton
           [disabled]="!form.valid"

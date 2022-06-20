@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { environment } from '../../../environments/environment';
 import { DialogService } from 'primeng/dynamicdialog';
-import { map } from 'rxjs/operators';
+import { finalize, map, tap } from 'rxjs/operators';
 import { CandefiService, Token } from '../../services/candefi.service';
 import { RentfuseService } from '../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
@@ -13,6 +13,7 @@ interface MarketState {
   calls: OptionOverview[];
   puts: OptionOverview[];
   neoPrice: number;
+  isLoading: boolean;
 }
 
 const DEFAULT_STATE: MarketState = {
@@ -20,6 +21,7 @@ const DEFAULT_STATE: MarketState = {
   calls: [],
   puts: [],
   neoPrice: 0,
+  isLoading: true,
 };
 
 interface OptionOverview {
@@ -46,16 +48,17 @@ export class MarketComponent extends RxState<MarketState> {
   constructor(
     private dialogService: DialogService,
     private candefi: CandefiService,
-    private rentfuse: RentfuseService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
     this.set(DEFAULT_STATE);
     this.connect(
       'tokens',
-      this.candefi.tokensOfJson(
-        environment.testnet.rentfuseAddress
-      ) /* 'NSjnxcxV6qXGFLbo1vSAsSqRjBiyB6Qz7V' */
+      this.candefi
+        .tokensOfJson(environment.testnet.rentfuseAddress)
+        .pipe(
+          tap(() => this.set({ isLoading: false }))
+        ) /* 'NSjnxcxV6qXGFLbo1vSAsSqRjBiyB6Qz7V' */
     );
     this.connect('neoPrice', this.globalState.select('neoPrice'));
     this.connect('calls', this.calls$);
@@ -67,7 +70,7 @@ export class MarketComponent extends RxState<MarketState> {
 
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Calls',
-      width: '70%',
+      width: '90%',
       data: {
         tokens: this.get('tokens')
           .filter((t) => t.type === 'Call')

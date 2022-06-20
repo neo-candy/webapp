@@ -8,12 +8,16 @@ interface MenuState {
   isLoading: boolean;
   address: string;
   neoPrice: number;
+  gasPrice: number;
+  candyPrice: number;
 }
 
 const DEFAULT_STATE: MenuState = {
   isLoading: false,
   address: '',
   neoPrice: 0,
+  gasPrice: 0,
+  candyPrice: 0,
 };
 @Component({
   selector: 'cd-menu',
@@ -31,6 +35,8 @@ export class MenuComponent extends RxState<MenuState> {
     this.set(DEFAULT_STATE);
     this.connect('address', this.globalState.select('address'));
     this.connect('neoPrice', this.globalState.select('neoPrice'));
+    this.connect('gasPrice', this.globalState.select('gasPrice'));
+    this.connect('candyPrice', this.globalState.select('candyPrice'));
   }
 
   connectWallet(): void {

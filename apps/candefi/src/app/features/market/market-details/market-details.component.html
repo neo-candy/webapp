@@ -21,6 +21,7 @@
         <th>Vdot</th>
         <th>Vi</th>
         <th>Gas/Day</th>
+        <th>Safe</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-token let-expanded="expanded">
@@ -28,13 +29,13 @@
         <td>{{ token.tokenId }}</td>
         <td>
           <div class="flex align-items-center">
-            ${{ token.stake / 1000000000 | number: '1.0-0' }}
+            {{ token.stake / 1000000000 | number: '1.0-0' }}
             <img src="assets/images/candy.png" height="20" class="ml-2" />
           </div>
         </td>
         <td>
           <div class="flex align-items-center">
-            ${{ token.realValue / 1000000000 | number: '1.0-0' }}
+            {{ token.realValue / 1000000000 | number: '1.0-0' }}
             <img src="assets/images/candy.png" height="20" class="ml-2" />
           </div>
         </td>
@@ -62,6 +63,9 @@
         <td>{{ token.vdot }}</td>
         <td>{{ token.vi }}</td>
         <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
+        <td>
+          <span [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"></span>
+        </td>
       </tr>
     </ng-template>
     <ng-template pTemplate="rowexpansion" let-token>

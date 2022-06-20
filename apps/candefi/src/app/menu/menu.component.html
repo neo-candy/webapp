@@ -4,10 +4,13 @@
       <h1>CanDEFI</h1>
     </div>
     <div>
-      <span class="text-xs">NEO: ${{ s.neoPrice }}</span>
-    </div>
-    <div>
       <ng-container *ngIf="s.address; else connect">
+        <button
+          pButton
+          icon="pi pi-user"
+          class="p-button-text p-button-secondary"
+          routerLink="profile"
+        ></button>
         <button
           pButton
           pRipple
@@ -28,5 +31,10 @@
         ></button>
       </ng-template>
     </div>
+  </div>
+  <div class="flex justify-content-center align-items-center p-1 topbar">
+    <span class="text-xs mr-4">NEO: ${{ s.neoPrice }}</span>
+    <span class="text-xs mr-4">GAS: ${{ s.gasPrice | number: '1.8-8' }}</span>
+    <span class="text-xs">CANDY: ${{ s.candyPrice | number: '1.9-9' }}</span>
   </div>
 </ng-container>

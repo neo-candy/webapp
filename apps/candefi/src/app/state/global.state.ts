@@ -4,6 +4,8 @@ import { RxState } from '@rx-angular/state';
 export interface GlobalState {
   address: string;
   neoPrice: number;
+  gasPrice: number;
+  candyPrice: number;
   displayLoadingModal: boolean;
 }
 

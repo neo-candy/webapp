@@ -43,6 +43,7 @@ export interface Token {
   realValue: number;
   startValue: number;
   exercised: boolean;
+  safe: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -52,14 +53,18 @@ export class CandefiService {
     private neonjs: NeonJSService,
     private error: ErrorService
   ) {}
-
   public mintCall(
     address: string,
     strike: number,
     stake: number,
     vdot: number,
     value: number,
-    vi: number
+    vi: number,
+    safe: boolean,
+    collateral: number,
+    minDuration: number,
+    maxDuration: number,
+    feePerMinute: number
   ): Observable<NeoInvokeWriteResponse> {
     stake += PROTOCOL_FEE;
     const args = [
@@ -76,6 +81,11 @@ export class CandefiService {
             NeolineService.int(vdot),
             NeolineService.int(value),
             NeolineService.int(vi),
+            NeolineService.bool(safe),
+            NeolineService.int(feePerMinute),
+            NeolineService.int(minDuration),
+            NeolineService.int(maxDuration),
+            NeolineService.int(collateral),
           ]),
         ],
       },
@@ -101,7 +111,12 @@ export class CandefiService {
     stake: number,
     vdot: number,
     value: number,
-    vi: number
+    vi: number,
+    safe: boolean,
+    collateral: number,
+    minDuration: number,
+    maxDuration: number,
+    dailyFee: number
   ): Observable<NeoInvokeWriteResponse> {
     stake += PROTOCOL_FEE;
     const args = [
@@ -118,6 +133,11 @@ export class CandefiService {
             NeolineService.int(vdot),
             NeolineService.int(value),
             NeolineService.int(vi),
+            NeolineService.bool(safe),
+            NeolineService.int(dailyFee),
+            NeolineService.int(minDuration),
+            NeolineService.int(maxDuration),
+            NeolineService.int(collateral),
           ]),
         ],
       },
@@ -196,13 +216,12 @@ export class CandefiService {
         )
       ).address,
       vdot:
-        -(
-          Number(v.attributes.filter((a) => a.trait_type === 'Vdot')[0].value) *
+        (Number(v.attributes.filter((a) => a.trait_type === 'Vdot')[0].value) *
           1000 *
           60 *
           60 *
-          24
-        ) / Math.pow(10, 9),
+          24) /
+        Math.pow(10, 9),
       vi: Number(v.attributes.filter((a) => a.trait_type === 'Vi')[0].value),
       realValue: Number(
         v.attributes.filter((a) => a.trait_type === 'Real Value')[0].value
@@ -215,6 +234,9 @@ export class CandefiService {
       ),
       exercised: Boolean(
         v.attributes.filter((a) => a.trait_type === 'Exercised')[0].value
+      ),
+      safe: Boolean(
+        v.attributes.filter((a) => a.trait_type === 'Safe')[0].value
       ),
     };
   }

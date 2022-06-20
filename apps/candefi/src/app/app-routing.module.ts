@@ -13,7 +13,7 @@ const routes: Routes = [
       import('./features/market/market.module').then((m) => m.MarketModule),
   },
   {
-    path: 'mint',
+    path: 'profile',
     loadChildren: () =>
       import('./features/mint/mint.module').then((m) => m.MintModule),
   },

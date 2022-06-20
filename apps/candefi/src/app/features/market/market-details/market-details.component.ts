@@ -2,8 +2,8 @@ import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { from, of, Subject } from 'rxjs';
-import { finalize, map, switchMap, toArray } from 'rxjs/operators';
-import { CandefiService, Token } from '../../../services/candefi.service';
+import { finalize, map, mergeMap, switchMap, toArray } from 'rxjs/operators';
+import { Token } from '../../../services/candefi.service';
 import { Listing, RentfuseService } from '../../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
 
@@ -60,7 +60,7 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
     this.set(DEFAULT_STATE);
     from(this.config.data.tokens as Token[])
       .pipe(
-        switchMap((token: Token) => this.fetchTokenDetails$(token)),
+        mergeMap((token: Token) => this.fetchTokenDetails$(token)),
         toArray(),
         finalize(() => this.set({ isLoading: false }))
       )
@@ -70,14 +70,18 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
   }
 
   onRowSelect(event: any): void {
-    this.rentfuse
+    /* this.rentfuse
       .getListingIdFromNft(event.data.tokenId)
       .subscribe((id) =>
         window.open('https://www.testnet.rentfuse.com/listings/' + id, '_blank')
-      );
+      ); */
   }
 
   private addTokenDetails(token: Token, listing: Listing): TokenDetails {
+    const realValue =
+      token.realValue +
+      (this.globalState.get('neoPrice') * Math.pow(10, 8) - token.strike) *
+        token.vi;
     return {
       ...token,
       listingId: listing.listingId,
@@ -87,11 +91,7 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
       stats: Array(listing.maxMinutes / 24 / 60).fill(
         (listing.gasPerMinute / 100000000) * 24 * 60
       ),
-      vi: (token.vi / Math.pow(10, 9)) * Math.pow(10, 8),
-      realValue:
-        token.realValue +
-        (this.globalState.get('neoPrice') * Math.pow(10, 8) - token.strike) *
-          token.vi,
+      realValue: realValue > token.stake ? token.stake : realValue,
     };
   }
 }

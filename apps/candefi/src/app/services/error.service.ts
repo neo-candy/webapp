@@ -16,12 +16,17 @@ export class ErrorService {
     this.messageService.add({
       severity: 'error',
       summary: 'Error',
-      detail: this.mapToReadableErrorMessage(err.description.exception),
+      detail: err.description.exception
+        ? this.mapToReadableErrorMessage(err.description.exception)
+        : 'An unhandled error occured.',
       sticky: true,
     });
   }
 
   private mapToReadableErrorMessage(err: string): string {
+    if (!err.includes('An unhandled exception was thrown.')) {
+      return err;
+    }
     const message = err.replace('An unhandled exception was thrown.', '');
     return message;
   }
