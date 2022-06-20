@@ -7,7 +7,7 @@ import { NeoInvokeWriteResponse } from '../models/n3';
 import { ErrorService } from './error.service';
 import { NeolineService } from './neoline.service';
 import { NeonJSService } from './neonjs.service';
-import { processBase64Hash160 } from './utils';
+import { processBase64Hash160 } from '../shared/utils';
 
 const CALL = 1;
 const PUT = 2;

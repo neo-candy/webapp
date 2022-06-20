@@ -1,23 +1,13 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RxState } from '@rx-angular/state';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { from, of, Subject } from 'rxjs';
-import { finalize, map, mergeMap, switchMap, toArray } from 'rxjs/operators';
+import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { from, Subject } from 'rxjs';
+import { finalize, mergeMap, toArray } from 'rxjs/operators';
 import { Token } from '../../../services/candefi.service';
-import { Listing, RentfuseService } from '../../../services/rentfuse.service';
-import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
-
-interface Stats {
-  day: number;
-  gas: number;
-}
-interface TokenDetails extends Token {
-  listingId: number;
-  minRentInMinutes: number;
-  maxRentInMinutes: number;
-  gasPerMinute: number;
-  stats: Stats[];
-}
+import {
+  RentfuseService,
+  TokenDetails,
+} from '../../../services/rentfuse.service';
 
 interface MarketDetailsState {
   tokens: TokenDetails[];
@@ -36,31 +26,16 @@ const DEFAULT_STATE: MarketDetailsState = {
 export class MarketDetailsComponent extends RxState<MarketDetailsState> {
   readonly state$ = this.select();
   readonly onToken$ = new Subject<Token>();
-  readonly fetchTokenDetails$ = (token: Token) =>
-    of(token).pipe(
-      switchMap((token) =>
-        this.rentfuse
-          .getListingIdFromNft(token.tokenId)
-          .pipe(map((id) => ({ listingId: id, ...token })))
-      ),
-      switchMap((tokenWithListingId) =>
-        this.rentfuse
-          .getListing(tokenWithListingId.listingId)
-          .pipe(map((listing) => this.addTokenDetails(token, listing)))
-      )
-    );
 
   constructor(
-    private ref: DynamicDialogRef,
     private config: DynamicDialogConfig,
-    private rentfuse: RentfuseService,
-    @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
+    private rentfuse: RentfuseService
   ) {
     super();
     this.set(DEFAULT_STATE);
     from(this.config.data.tokens as Token[])
       .pipe(
-        mergeMap((token: Token) => this.fetchTokenDetails$(token)),
+        mergeMap((token: Token) => this.rentfuse.getListingForNft(token)),
         toArray(),
         finalize(() => this.set({ isLoading: false }))
       )
@@ -75,23 +50,5 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
       .subscribe((id) =>
         window.open('https://www.testnet.rentfuse.com/listings/' + id, '_blank')
       ); */
-  }
-
-  private addTokenDetails(token: Token, listing: Listing): TokenDetails {
-    const realValue =
-      token.realValue +
-      (this.globalState.get('neoPrice') * Math.pow(10, 8) - token.strike) *
-        token.vi;
-    return {
-      ...token,
-      listingId: listing.listingId,
-      maxRentInMinutes: listing.maxMinutes,
-      minRentInMinutes: listing.minMinutes,
-      gasPerMinute: listing.gasPerMinute / 100000000,
-      stats: Array(listing.maxMinutes / 24 / 60).fill(
-        (listing.gasPerMinute / 100000000) * 24 * 60
-      ),
-      realValue: realValue > token.stake ? token.stake : realValue,
-    };
   }
 }

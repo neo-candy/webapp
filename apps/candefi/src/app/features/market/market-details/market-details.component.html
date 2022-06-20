@@ -40,14 +40,17 @@
           </div>
         </td>
         <td>
-          <div *ngIf="token.startValue < token.realValue; else minus">
+          <div
+            *ngIf="token.startValue < token.realValue; else minus"
+            class="positive-change"
+          >
             +{{
               ((token.realValue - token.startValue) / token.startValue) * 100
                 | number: '1.2-2'
             }}%
           </div>
           <ng-template #minus>
-            <div>
+            <div class="negative-change">
               -{{
                 ((token.startValue - token.realValue) / token.startValue) * 100
                   | number: '1.2-2'
