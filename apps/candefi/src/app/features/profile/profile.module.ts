@@ -1,23 +1,23 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MintRoutingModule } from './mint-routing.module';
-import { MintComponent } from './mint.component';
+import { ProfileRoutingModule } from './profile-routing.module';
+import { ProfileComponent } from './profile.component';
 import { SharedModule } from '../../shared/shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SliderModule } from 'primeng/slider';
 
 @NgModule({
-  declarations: [MintComponent],
+  declarations: [ProfileComponent],
   imports: [
     CommonModule,
-    MintRoutingModule,
+    ProfileRoutingModule,
     SharedModule,
     ReactiveFormsModule,
     CheckboxModule,
     SliderModule,
   ],
-  exports: [MintComponent],
+  exports: [ProfileComponent],
 })
 export class MintModule {}

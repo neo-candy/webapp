@@ -12,7 +12,7 @@ import { CandefiService } from '../../services/candefi.service';
 import { RentfuseService, TokenDetails } from '../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 
-interface MintState {
+interface ProfileState {
   displayMintModal: boolean;
   address: string;
   owner: TokenDetails[];
@@ -21,7 +21,7 @@ interface MintState {
   isLoadingOwner: boolean;
 }
 
-const DEFAULT_STATE: MintState = {
+const DEFAULT_STATE: ProfileState = {
   displayMintModal: false,
   address: '',
   owner: [],
@@ -30,14 +30,20 @@ const DEFAULT_STATE: MintState = {
   isLoadingOwner: true,
 };
 @Component({
-  selector: 'cd-mint',
-  templateUrl: './mint.component.html',
-  styleUrls: ['./mint.component.scss'],
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.scss'],
 })
-export class MintComponent extends RxState<MintState> implements OnInit {
+export class ProfileComponent extends RxState<ProfileState> implements OnInit {
   form: FormGroup = new FormGroup({});
-
   readonly state$ = this.select();
+
+  readonly fetchWriterTokens$ = (address: string) =>
+    this.candefi.tokensOfWriterJson(address).pipe(
+      mergeAll(),
+      mergeMap((token) => this.rentfuse.getListingForNft(token)),
+      toArray(),
+      finalize(() => this.set({ isLoadingWriter: false }))
+    );
 
   constructor(
     private candefi: CandefiService,
@@ -46,20 +52,14 @@ export class MintComponent extends RxState<MintState> implements OnInit {
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
+
     this.set(DEFAULT_STATE);
     this.connect('address', this.globalState.select('address'));
     this.connect(
       'writer',
-      this.globalState.select('address').pipe(
-        switchMap((a) =>
-          this.candefi.tokensOfWriterJson(a).pipe(
-            mergeAll(),
-            mergeMap((token) => this.rentfuse.getListingForNft(token)),
-            toArray(),
-            finalize(() => this.set({ isLoadingWriter: false }))
-          )
-        )
-      )
+      this.globalState
+        .select('address')
+        .pipe(switchMap((a) => this.fetchWriterTokens$(a)))
     );
     this.connect(
       'owner',
@@ -182,7 +182,11 @@ export class MintComponent extends RxState<MintState> implements OnInit {
         maxDurationInMinutes,
         feePerMinute
       )
-      .subscribe((res) => console.log(res));
+      .subscribe((txid) => {
+        this.set({ displayMintModal: false });
+        this.refreshWriterTokens();
+        console.log(txid);
+      });
   }
 
   private mintPut(): void {
@@ -207,6 +211,23 @@ export class MintComponent extends RxState<MintState> implements OnInit {
         maxDurationInMinutes,
         feePerMinute
       )
+      .subscribe((txid) => {
+        this.set({ displayMintModal: false });
+        this.refreshWriterTokens();
+        console.log(txid);
+      });
+  }
+
+  public cancelListing(tokenId: string): void {
+    this.candefi
+      .cancelListing(this.get('address'), tokenId)
       .subscribe((res) => console.log(res));
+  }
+
+  private refreshWriterTokens(): void {
+    this.set({ isLoadingWriter: true });
+    this.fetchWriterTokens$(this.get('address')).subscribe((res) =>
+      this.set({ writer: res })
+    );
   }
 }

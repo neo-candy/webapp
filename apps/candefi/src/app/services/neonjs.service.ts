@@ -1,7 +1,15 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, of, throwError } from 'rxjs';
+import { from, Observable, of, throwError, timer } from 'rxjs';
 import { rpc } from '@cityofzion/neon-js';
-import { map, mergeMap } from 'rxjs/operators';
+import {
+  catchError,
+  exhaustMap,
+  filter,
+  map,
+  mergeMap,
+  take,
+  tap,
+} from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -22,6 +30,24 @@ export class NeonJSService {
         } else return of(res);
       }),
       map((res) => res.stack[0]?.value)
+    );
+  }
+
+  public applicationLog(tx: string): Observable<{ executions: any[] }> {
+    return from(
+      new rpc.ApplicationLogsRpcClient(
+        environment.testnet.nodeUrl
+      ).getApplicationLog(tx)
+    );
+  }
+
+  public awaitTx(tx: string): Observable<any> {
+    return timer(0, 1000).pipe(
+      exhaustMap(() =>
+        this.applicationLog(tx).pipe(catchError(() => of(null)))
+      ),
+      filter((res) => res != null),
+      take(1)
     );
   }
 }

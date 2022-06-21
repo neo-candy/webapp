@@ -1,0 +1,60 @@
+import { Inject, Injectable } from '@angular/core';
+import { RxState } from '@rx-angular/state';
+import { MessageService } from 'primeng/api';
+import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
+import { NeonJSService } from './neonjs.service';
+
+interface Error {
+  description: {
+    exception: string;
+  };
+}
+@Injectable({
+  providedIn: 'root',
+})
+export class UiService {
+  constructor(
+    private messageService: MessageService,
+    private neonjs: NeonJSService,
+    @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
+  ) {}
+
+  public displayError(err: Error): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: err.description.exception
+        ? this.mapToReadableErrorMessage(err.description.exception)
+        : 'An unhandled error occured.',
+      sticky: true,
+    });
+  }
+
+  public displaySuccess(msg: string): void {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: msg,
+      life: 5000,
+    });
+  }
+
+  public displayTxLoadingModal(txid: string): Observable<any> {
+    this.globalState.set({ displayLoadingModal: true });
+    return this.neonjs
+      .awaitTx(txid)
+      .pipe(
+        finalize(() => this.globalState.set({ displayLoadingModal: false }))
+      );
+  }
+
+  private mapToReadableErrorMessage(err: string): string {
+    if (!err.includes('An unhandled exception was thrown.')) {
+      return err;
+    }
+    const message = err.replace('An unhandled exception was thrown.', '');
+    return message;
+  }
+}

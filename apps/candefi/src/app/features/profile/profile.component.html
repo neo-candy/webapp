@@ -17,7 +17,6 @@
   </div>
 
   <p-table
-    selectionMode="single"
     [loading]="s.isLoadingWriter"
     [value]="s.writer"
     responsiveLayout="scroll"
@@ -37,6 +36,7 @@
         <th>Vi</th>
         <th>Gas/Day</th>
         <th>Safe</th>
+        <th></th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-token let-expanded="expanded">
@@ -83,6 +83,12 @@
         <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
         <td>
           <span [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"></span>
+        </td>
+        <td>
+          <span
+            class="pi pi-trash close-listing-btn negative-change"
+            (click)="cancelListing(token.tokenId)"
+          ></span>
         </td>
       </tr>
     </ng-template>

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { sc, wallet } from '@cityofzion/neon-js';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { NeoInvokeWriteResponse } from '../models/n3';
-import { ErrorService } from './error.service';
+import { UiService } from './ui.service';
 import { NeolineService } from './neoline.service';
 import { NeonJSService } from './neonjs.service';
 import { processBase64Hash160 } from '../shared/utils';
@@ -51,7 +51,7 @@ export class CandefiService {
   constructor(
     private neoline: NeolineService,
     private neonjs: NeonJSService,
-    private error: ErrorService
+    private ui: UiService
   ) {}
   public mintCall(
     address: string,
@@ -98,8 +98,10 @@ export class CandefiService {
         invokeArgs: [...args],
       })
       .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap(() => this.ui.displaySuccess('You listed a new call NFT')),
         catchError((e) => {
-          this.error.displayError(e);
+          this.ui.displayError(e);
           return throwError(e);
         })
       );
@@ -150,8 +152,36 @@ export class CandefiService {
         invokeArgs: [...args],
       })
       .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap(() => this.ui.displaySuccess('You listed a new put NFT')),
         catchError((e) => {
-          this.error.displayError(e);
+          this.ui.displayError(e);
+          return throwError(e);
+        })
+      );
+  }
+
+  public cancelListing(
+    address: string,
+    tokenId: string
+  ): Observable<NeoInvokeWriteResponse> {
+    const args = [
+      {
+        scriptHash: environment.testnet.candefi,
+        operation: 'cancelListing',
+        args: [NeolineService.string(tokenId)],
+      },
+    ];
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+        ],
+        invokeArgs: [...args],
+      })
+      .pipe(
+        catchError((e) => {
+          this.ui.displayError(e);
           return throwError(e);
         })
       );

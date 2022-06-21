@@ -15,7 +15,7 @@ const routes: Routes = [
   {
     path: 'profile',
     loadChildren: () =>
-      import('./features/mint/mint.module').then((m) => m.MintModule),
+      import('./features/profile/profile.module').then((m) => m.MintModule),
   },
 ];
 

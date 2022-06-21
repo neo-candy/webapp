@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MintComponent } from './mint.component';
+import { ProfileComponent } from './profile.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: MintComponent,
+    component: ProfileComponent,
   },
 ];
 
@@ -13,4 +13,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class MintRoutingModule {}
+export class ProfileRoutingModule {}
