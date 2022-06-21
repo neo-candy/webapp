@@ -15,7 +15,6 @@
         <th>ID</th>
         <th>Stake</th>
         <th>Value</th>
-        <th>Change</th>
         <th>Strike</th>
         <th>Duration</th>
         <th>Vdot</th>
@@ -38,25 +37,6 @@
             {{ token.realValue / 1000000000 | number: '1.0-0' }}
             <img src="assets/images/candy.png" height="20" class="ml-2" />
           </div>
-        </td>
-        <td>
-          <div
-            *ngIf="token.startValue < token.realValue; else minus"
-            class="positive-change"
-          >
-            +{{
-              ((token.realValue - token.startValue) / token.startValue) * 100
-                | number: '1.2-2'
-            }}%
-          </div>
-          <ng-template #minus>
-            <div class="negative-change">
-              -{{
-                ((token.startValue - token.realValue) / token.startValue) * 100
-                  | number: '1.2-2'
-              }}%
-            </div>
-          </ng-template>
         </td>
         <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
         <td>

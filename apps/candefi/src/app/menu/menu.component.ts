@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
+import { MenuItem } from 'primeng/api';
 import { map } from 'rxjs/operators';
 import { NeolineService } from '../services/neoline.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
@@ -26,6 +27,17 @@ const DEFAULT_STATE: MenuState = {
 })
 export class MenuComponent extends RxState<MenuState> {
   readonly state$ = this.select();
+
+  items: MenuItem[] = [
+    {
+      label: 'About',
+      icon: 'pi pi-question-circle',
+    },
+    {
+      label: 'Leaderboard',
+      icon: 'pi pi-chart-line',
+    },
+  ];
 
   constructor(
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>,
