@@ -1,21 +1,24 @@
 <ng-container *ngIf="state$ | async as s">
-  <div class="flex justify-content-between align-items-center ml-3 mr-3">
-    <div>
-      <h1 class="cursor-pointer" routerLink="/markets">CanDEFI</h1>
+  <div
+    class="flex justify-content-between align-items-center pl-3 pr-3 gradient-bg"
+  >
+    <div class="flex align-items-center">
+      <img src="assets/images/candy-logo-sm.png" width="30" />
+      <h1 class="cursor-pointer text-white" routerLink="/markets">andefi</h1>
     </div>
     <div>
       <ng-container *ngIf="s.address; else connect">
         <button
           pButton
           icon="pi pi-user"
-          class="p-button-text p-button-secondary"
+          class="p-button-text text-white"
           routerLink="profile"
         ></button>
         <button
           pButton
           pRipple
           [icon]="s.isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-copy'"
-          class="p-button-text"
+          class="p-button-text text-white"
           type="button"
           label="{{ s.address | truncateAddress }}"
         ></button>
@@ -24,18 +27,19 @@
         <button
           pButton
           pRipple
-          class="p-button-outlined"
+          class="p-button-outlined text-white"
           type="button"
+          icon="pi pi-sign-in"
           (click)="connectWallet()"
           label="Connect Wallet"
         ></button>
       </ng-template>
     </div>
   </div>
-  <div class="flex justify-content-center align-items-center p-1 topbar">
-    <span class="text-xs mr-4">NEO: ${{ s.neoPrice }}</span>
-    <span class="text-xs mr-4">GAS: ${{ s.gasPrice | number: '1.8-8' }}</span>
-    <span class="text-xs">CANDY: ${{ s.candyPrice | number: '1.9-9' }}</span>
+  <div class="flex justify-content-center align-items-center p-2">
+    <span class="text-sm mr-5">NEO: ${{ s.neoPrice }}</span>
+    <span class="text-sm mr-5">GAS: ${{ s.gasPrice | number: '1.8-8' }}</span>
+    <span class="text-sm">CANDY: ${{ s.candyPrice | number: '1.9-9' }}</span>
   </div>
 </ng-container>
 
