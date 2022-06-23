@@ -5,3 +5,11 @@
 .negative-change {
   color: #DC2626;
 }
+
+::ng-deep .p-panel .p-panel-content {
+  padding: 0;
+}
+
+::ng-deep p-tabview .p-tabview .p-tabview-panels {
+  padding: 0;
+}

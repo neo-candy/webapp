@@ -36,6 +36,11 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
 
   items: MenuItem[] = [
     {
+      label: 'Markets',
+      icon: 'pi pi-list',
+      routerLink: 'markets',
+    },
+    {
       label: 'About',
       icon: 'pi pi-question-circle',
     },

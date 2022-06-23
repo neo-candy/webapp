@@ -1,7 +1,9 @@
 import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import {
+  filter,
   finalize,
+  map,
   mergeAll,
   mergeMap,
   switchMap,
@@ -14,7 +16,9 @@ import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 interface ProfileState {
   address: string;
   owner: TokenDetails[];
-  writer: TokenDetails[];
+  openListings: TokenDetails[];
+  openListingsCalls: TokenDetails[];
+  openListingsPuts: TokenDetails[];
   isLoadingWriter: boolean;
   isLoadingOwner: boolean;
 }
@@ -22,9 +26,11 @@ interface ProfileState {
 const DEFAULT_STATE: ProfileState = {
   address: '',
   owner: [],
-  writer: [],
+  openListings: [],
   isLoadingWriter: true,
   isLoadingOwner: true,
+  openListingsCalls: [],
+  openListingsPuts: [],
 };
 @Component({
   templateUrl: './profile.component.html',
@@ -33,7 +39,7 @@ const DEFAULT_STATE: ProfileState = {
 export class ProfileComponent extends RxState<ProfileState> {
   readonly state$ = this.select();
 
-  readonly fetchWriterTokens$ = (address: string) =>
+  readonly fetchOpenListings$ = (address: string) =>
     this.candefi.tokensOfWriterJson(address).pipe(
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingForNft(token)),
@@ -51,10 +57,23 @@ export class ProfileComponent extends RxState<ProfileState> {
     this.set(DEFAULT_STATE);
     this.connect('address', this.globalState.select('address'));
     this.connect(
-      'writer',
+      'openListings',
       this.globalState
         .select('address')
-        .pipe(switchMap((a) => this.fetchWriterTokens$(a)))
+        .pipe(switchMap((a) => this.fetchOpenListings$(a)))
+    );
+    this.connect(
+      'openListingsCalls',
+      this.select('openListings').pipe(
+        map((t) => t.filter((t) => t.type === 'Call'))
+      )
+    );
+
+    this.connect(
+      'openListingsPuts',
+      this.select('openListings').pipe(
+        map((t) => t.filter((t) => t.type === 'Put'))
+      )
     );
     this.connect(
       'owner',

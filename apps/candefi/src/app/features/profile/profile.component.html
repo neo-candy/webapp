@@ -1,79 +1,169 @@
 <ng-container *ngIf="state$ | async as s">
-  <p-table
-    [loading]="s.isLoadingWriter"
-    [value]="s.writer"
-    responsiveLayout="scroll"
-    styleClass="p-datatable-sm"
-  >
-    <ng-template pTemplate="caption">Open Listings </ng-template>
-
-    <ng-template pTemplate="header">
-      <tr>
-        <th>ID</th>
-        <th>Stake</th>
-        <th>Value</th>
-        <th>Change</th>
-        <th>Strike</th>
-        <th>Duration</th>
-        <th>Vdot</th>
-        <th>Vi</th>
-        <th>Gas/Day</th>
-        <th>Safe</th>
-        <th></th>
-      </tr>
+  <p-panel [toggleable]="true">
+    <ng-template pTemplate="header"
+      ><span class="mr-2">Open Listings</span>
+      <p-badge [value]="s.openListings.length.toString()"></p-badge>
     </ng-template>
-    <ng-template pTemplate="body" let-token let-expanded="expanded">
-      <tr [pRowToggler]="token">
-        <td>{{ token.tokenId }}</td>
-        <td>
-          <div class="flex align-items-center">
-            {{ token.stake / 1000000000 | number: '1.0-0' }}
-            <img src="assets/images/candy.png" height="20" class="ml-2" />
-          </div>
-        </td>
-        <td>
-          <div class="flex align-items-center">
-            {{ token.realValue / 1000000000 | number: '1.0-0' }}
-            <img src="assets/images/candy.png" height="20" class="ml-2" />
-          </div>
-        </td>
-        <td>
-          <div
-            *ngIf="token.startValue < token.realValue; else minus"
-            class="positive-change"
-          >
-            +{{
-              ((token.realValue - token.startValue) / token.startValue) * 100
-                | number: '1.2-2'
-            }}%
-          </div>
-          <ng-template #minus>
-            <div class="negative-change">
-              -{{
-                ((token.startValue - token.realValue) / token.startValue) * 100
-                  | number: '1.2-2'
-              }}%
-            </div>
+    <p-tabView>
+      <p-tabPanel header="Calls" leftIcon="pi pi-arrow-circle-up">
+        <p-table
+          [loading]="s.isLoadingWriter"
+          [value]="s.openListingsCalls"
+          responsiveLayout="scroll"
+          styleClass="p-datatable-sm"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>ID</th>
+              <th>Stake</th>
+              <th>Value</th>
+              <th>Change</th>
+              <th>Strike</th>
+              <th>Duration</th>
+              <th>Vdot</th>
+              <th>Vi</th>
+              <th>Gas/Day</th>
+              <th>Safe</th>
+              <th></th>
+            </tr>
           </ng-template>
-        </td>
-        <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
-        <td>
-          {{ token.minRentInMinutes / 60 / 24 }} -
-          {{ token.maxRentInMinutes / 60 / 24 }} days
-        </td>
-        <td>{{ token.vdot }}</td>
-        <td>{{ token.vi }}</td>
-        <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
-        <td>
-          <span [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"></span>
-        </td>
-        <td>
-          <span
-            class="pi pi-trash close-listing-btn negative-change"
-            (click)="cancelListing(token.tokenId)"
-          ></span>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+          <ng-template pTemplate="body" let-token let-expanded="expanded">
+            <tr [pRowToggler]="token">
+              <td>{{ token.tokenId }}</td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.stake / 1000000000 | number: '1.0-0' }}
+                  <img src="assets/images/candy.png" height="20" class="ml-2" />
+                </div>
+              </td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.realValue / 1000000000 | number: '1.0-0' }}
+                  <img src="assets/images/candy.png" height="20" class="ml-2" />
+                </div>
+              </td>
+              <td>
+                <div
+                  *ngIf="token.startValue < token.realValue; else minus"
+                  class="positive-change"
+                >
+                  +{{
+                    ((token.realValue - token.startValue) / token.startValue) *
+                      100 | number: '1.2-2'
+                  }}%
+                </div>
+                <ng-template #minus>
+                  <div class="negative-change">
+                    -{{
+                      ((token.startValue - token.realValue) /
+                        token.startValue) *
+                        100 | number: '1.2-2'
+                    }}%
+                  </div>
+                </ng-template>
+              </td>
+              <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
+              <td>
+                {{ token.minRentInMinutes / 60 / 24 }} -
+                {{ token.maxRentInMinutes / 60 / 24 }} days
+              </td>
+              <td>{{ token.vdot }}</td>
+              <td>{{ token.vi }}</td>
+              <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
+              <td>
+                <span
+                  [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"
+                ></span>
+              </td>
+              <td>
+                <span
+                  class="pi pi-trash close-listing-btn negative-change"
+                  (click)="cancelListing(token.tokenId)"
+                ></span>
+              </td>
+            </tr>
+          </ng-template> </p-table
+      ></p-tabPanel>
+      <p-tabPanel header="Puts" leftIcon="pi pi-arrow-circle-down">
+        <p-table
+          [loading]="s.isLoadingWriter"
+          [value]="s.openListingsPuts"
+          responsiveLayout="scroll"
+          styleClass="p-datatable-sm"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>ID</th>
+              <th>Stake</th>
+              <th>Value</th>
+              <th>Change</th>
+              <th>Strike</th>
+              <th>Duration</th>
+              <th>Vdot</th>
+              <th>Vi</th>
+              <th>Gas/Day</th>
+              <th>Safe</th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-token let-expanded="expanded">
+            <tr [pRowToggler]="token">
+              <td>{{ token.tokenId }}</td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.stake / 1000000000 | number: '1.0-0' }}
+                  <img src="assets/images/candy.png" height="20" class="ml-2" />
+                </div>
+              </td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.realValue / 1000000000 | number: '1.0-0' }}
+                  <img src="assets/images/candy.png" height="20" class="ml-2" />
+                </div>
+              </td>
+              <td>
+                <div
+                  *ngIf="token.startValue < token.realValue; else minus"
+                  class="positive-change"
+                >
+                  +{{
+                    ((token.realValue - token.startValue) / token.startValue) *
+                      100 | number: '1.2-2'
+                  }}%
+                </div>
+                <ng-template #minus>
+                  <div class="negative-change">
+                    -{{
+                      ((token.startValue - token.realValue) /
+                        token.startValue) *
+                        100 | number: '1.2-2'
+                    }}%
+                  </div>
+                </ng-template>
+              </td>
+              <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
+              <td>
+                {{ token.minRentInMinutes / 60 / 24 }} -
+                {{ token.maxRentInMinutes / 60 / 24 }} days
+              </td>
+              <td>{{ token.vdot }}</td>
+              <td>{{ token.vi }}</td>
+              <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
+              <td>
+                <span
+                  [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"
+                ></span>
+              </td>
+              <td>
+                <span
+                  class="pi pi-trash close-listing-btn negative-change"
+                  (click)="cancelListing(token.tokenId)"
+                ></span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+    </p-tabView>
+  </p-panel>
 </ng-container>
