@@ -45,15 +45,15 @@
   <p-menubar [model]="items">
     <ng-template pTemplate="end">
       <span
-        class="pi pi-github text-lg mr-5 cursor-pointer"
+        class="pi pi-github text-lg mr-5 cursor-pointer github"
         (click)="openGithub()"
       ></span>
       <span
-        class="pi pi-discord text-lg mr-5 cursor-pointer"
+        class="pi pi-discord text-lg mr-5 cursor-pointer discord"
         (click)="openDiscord()"
       ></span>
       <span
-        class="pi pi-twitter text-lg mr-5 cursor-pointer"
+        class="pi pi-twitter text-lg mr-5 cursor-pointer twitter"
         (click)="openTwitter()"
       ></span>
       <span
@@ -63,7 +63,7 @@
     </ng-template>
   </p-menubar>
 
-  <div class="flex justify-content-center align-items-center p-2 price-bar">
+  <div class="flex justify-content-center align-items-center p-2">
     <span class="text-sm mr-5">NEO: ${{ s.neoPrice }}</span>
     <span class="text-sm mr-5">GAS: ${{ s.gasPrice | number: '1.8-8' }}</span>
     <span class="text-sm">CANDY: ${{ s.candyPrice | number: '1.9-9' }}</span>

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RxState } from '@rx-angular/state';
 import { MenuItem } from 'primeng/api';
@@ -30,7 +30,7 @@ const DEFAULT_STATE: MenuState = {
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
 })
-export class MenuComponent extends RxState<MenuState> {
+export class MenuComponent extends RxState<MenuState> implements OnInit {
   readonly state$ = this.select();
   form: FormGroup = new FormGroup({});
 
