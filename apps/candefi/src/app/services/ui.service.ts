@@ -23,6 +23,7 @@ export class UiService {
 
   public displayError(err: Error): void {
     this.messageService.add({
+      key: 'errorToast',
       severity: 'error',
       summary: 'Error',
       detail: err.description.exception
@@ -32,10 +33,11 @@ export class UiService {
     });
   }
 
-  public displaySuccess(msg: string): void {
+  public displaySuccess(msg: string, summary?: string): void {
     this.messageService.add({
+      key: 'successToast',
       severity: 'success',
-      summary: 'Success',
+      summary: summary ?? 'Success',
       detail: msg,
       life: 5000,
     });

@@ -1,6 +1,8 @@
 <cd-menu></cd-menu>
 <router-outlet></router-outlet>
-<p-toast></p-toast>
+<p-toast key="errorToast"></p-toast>
+<p-toast key="successToast" position="bottom-center"></p-toast>
+
 <ng-container *ngIf="state$ | async as s">
   <p-dialog
     [(visible)]="s.displayLoadingModal"

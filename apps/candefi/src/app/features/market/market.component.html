@@ -10,8 +10,7 @@
         <div class="grid">
           <div class="col">
             <p-table
-              (onRowSelect)="onCallsRowSelect($event)"
-              selectionMode="single"
+              [rowHover]="true"
               [loading]="s.isLoading"
               [value]="s.calls"
               responsiveLayout="scroll"
@@ -28,10 +27,11 @@
               </ng-template>
               <ng-template pTemplate="body" let-token>
                 <tr
+                  (click)="onCallsRowSelect(token)"
+                  class="cursor-pointer"
                   [ngClass]="{
                     'highlight-row': token.strike / 100000000 < s.neoPrice
                   }"
-                  [pSelectableRow]="token"
                 >
                   <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
                   <td>
@@ -51,8 +51,7 @@
           </div>
           <div class="col">
             <p-table
-              (onRowSelect)="onPutsRowSelect($event)"
-              selectionMode="single"
+              [rowHover]="true"
               [value]="s.puts"
               [loading]="s.isLoading"
               responsiveLayout="scroll"
@@ -69,7 +68,8 @@
               </ng-template>
               <ng-template pTemplate="body" let-token>
                 <tr
-                  [pSelectableRow]="token"
+                  (click)="onPutsRowSelect(token)"
+                  class="cursor-pointer"
                   [ngClass]="{
                     'highlight-row': token.strike / 100000000 > s.neoPrice
                   }"

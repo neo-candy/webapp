@@ -65,8 +65,8 @@ export class MarketComponent extends RxState<MarketState> {
     this.connect('puts', this.puts$);
   }
 
-  onCallsRowSelect(event: any): void {
-    const strike = event.data.strike;
+  onCallsRowSelect(token: Token): void {
+    const strike = token.strike;
 
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Calls',
@@ -79,8 +79,8 @@ export class MarketComponent extends RxState<MarketState> {
     });
   }
 
-  onPutsRowSelect(event: any): void {
-    const strike = event.data.strike;
+  onPutsRowSelect(token: Token): void {
+    const strike = token.strike;
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Puts',
       width: '70%',
