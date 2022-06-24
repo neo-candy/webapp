@@ -47,6 +47,15 @@
                   <td>{{ token.volume }}</td>
                 </tr>
               </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="3">
+                    <div class="p-1">
+                      There are currently no call NFTs listed.
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
             </p-table>
           </div>
           <div class="col">
@@ -86,6 +95,15 @@
                     </div>
                   </td>
                   <td>{{ token.volume }}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="3">
+                    <div class="p-1">
+                      There are currently no put NFTs listed.
+                    </div>
+                  </td>
                 </tr>
               </ng-template>
             </p-table>

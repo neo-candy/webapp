@@ -6,6 +6,7 @@ import { ProfileComponent } from './profile.component';
 import { SharedModule } from '../../shared/shared.module';
 import { TabViewModule } from 'primeng/tabview';
 import { BadgeModule } from 'primeng/badge';
+import { TagModule } from 'primeng/tag';
 
 @NgModule({
   declarations: [ProfileComponent],
@@ -15,6 +16,7 @@ import { BadgeModule } from 'primeng/badge';
     SharedModule,
     TabViewModule,
     BadgeModule,
+    TagModule,
   ],
   exports: [ProfileComponent],
 })

@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
+import { environment } from '../../../environments/environment';
 import {
-  filter,
   finalize,
   map,
   mergeAll,
@@ -13,12 +13,21 @@ import { CandefiService } from '../../services/candefi.service';
 import { RentfuseService, TokenDetails } from '../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 
+// open listings, exercised listings, running listings
+// calls, puts
+
+// rented listings
+
+interface TokenDetailsWithStatus extends TokenDetails {
+  status: string;
+}
+
 interface ProfileState {
   address: string;
   owner: TokenDetails[];
-  openListings: TokenDetails[];
-  openListingsCalls: TokenDetails[];
-  openListingsPuts: TokenDetails[];
+  listings: TokenDetailsWithStatus[];
+  listingsCalls: TokenDetailsWithStatus[];
+  listingsPuts: TokenDetailsWithStatus[];
   isLoadingWriter: boolean;
   isLoadingOwner: boolean;
 }
@@ -26,11 +35,11 @@ interface ProfileState {
 const DEFAULT_STATE: ProfileState = {
   address: '',
   owner: [],
-  openListings: [],
+  listings: [],
   isLoadingWriter: true,
   isLoadingOwner: true,
-  openListingsCalls: [],
-  openListingsPuts: [],
+  listingsCalls: [],
+  listingsPuts: [],
 };
 @Component({
   templateUrl: './profile.component.html',
@@ -39,10 +48,11 @@ const DEFAULT_STATE: ProfileState = {
 export class ProfileComponent extends RxState<ProfileState> {
   readonly state$ = this.select();
 
-  readonly fetchOpenListings$ = (address: string) =>
+  readonly fetchListings$ = (address: string) =>
     this.candefi.tokensOfWriterJson(address).pipe(
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingForNft(token)),
+      map((listing) => this.mapStatus(listing)),
       toArray(),
       finalize(() => this.set({ isLoadingWriter: false }))
     );
@@ -57,21 +67,21 @@ export class ProfileComponent extends RxState<ProfileState> {
     this.set(DEFAULT_STATE);
     this.connect('address', this.globalState.select('address'));
     this.connect(
-      'openListings',
+      'listings',
       this.globalState
         .select('address')
-        .pipe(switchMap((a) => this.fetchOpenListings$(a)))
+        .pipe(switchMap((a) => this.fetchListings$(a)))
     );
     this.connect(
-      'openListingsCalls',
-      this.select('openListings').pipe(
+      'listingsCalls',
+      this.select('listings').pipe(
         map((t) => t.filter((t) => t.type === 'Call'))
       )
     );
 
     this.connect(
-      'openListingsPuts',
-      this.select('openListings').pipe(
+      'listingsPuts',
+      this.select('listings').pipe(
         map((t) => t.filter((t) => t.type === 'Put'))
       )
     );
@@ -94,5 +104,23 @@ export class ProfileComponent extends RxState<ProfileState> {
     this.candefi
       .cancelListing(this.get('address'), tokenId)
       .subscribe((res) => console.log(res));
+  }
+
+  private mapStatus(listedToken: TokenDetails): TokenDetailsWithStatus {
+    let status = 'UNKNOWN';
+    if (listedToken.exercised && listedToken.owner === listedToken.writer) {
+      status = 'EXERCISED';
+    } else if (
+      !listedToken.exercised &&
+      listedToken.owner === environment.testnet.rentfuseAddress
+    ) {
+      status = 'LISTED';
+    } else if (listedToken.owner !== environment.testnet.rentfuseAddress) {
+      status = 'LENT';
+    }
+    return {
+      status,
+      ...listedToken,
+    };
   }
 }
