@@ -10,7 +10,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TruncateAddressPipe } from '../pipes/truncateAddress.pipe';
 import { PanelModule } from 'primeng/panel';
 import { TabViewModule } from 'primeng/tabview';
-
+import { ReactiveFormsModule } from '@angular/forms';
+import { CheckboxModule } from 'primeng/checkbox';
+import { SliderModule } from 'primeng/slider';
 @NgModule({
   declarations: [TruncateAddressPipe],
   imports: [
@@ -24,6 +26,9 @@ import { TabViewModule } from 'primeng/tabview';
     InputTextModule,
     PanelModule,
     TabViewModule,
+    ReactiveFormsModule,
+    CheckboxModule,
+    SliderModule,
   ],
   exports: [
     CommonModule,
@@ -37,6 +42,9 @@ import { TabViewModule } from 'primeng/tabview';
     TruncateAddressPipe,
     PanelModule,
     TabViewModule,
+    ReactiveFormsModule,
+    CheckboxModule,
+    SliderModule,
   ],
 })
 export class SharedModule {}

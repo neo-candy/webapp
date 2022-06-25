@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { sc, wallet } from '@cityofzion/neon-js';
+import { sc, u, wallet } from '@cityofzion/neon-js';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -154,6 +154,34 @@ export class CandefiService {
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
         tap(() => this.ui.displaySuccess('You listed a new put NFT')),
+        catchError((e) => {
+          this.ui.displayError(e);
+          return throwError(e);
+        })
+      );
+  }
+
+  public exercise(
+    address: string,
+    tokenId: string
+  ): Observable<NeoInvokeWriteResponse> {
+    const args = [
+      {
+        scriptHash: environment.testnet.candefi,
+        operation: 'exercise',
+        args: [NeolineService.byteArray(tokenId)],
+      },
+    ];
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+        ],
+        invokeArgs: [...args],
+      })
+      .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap(() => this.ui.displaySuccess('You exercised a position')),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);

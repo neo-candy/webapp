@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { environment } from '../../../environments/environment';
 import {
+  filter,
   finalize,
   map,
   mergeAll,
@@ -24,22 +25,26 @@ interface TokenDetailsWithStatus extends TokenDetails {
 
 interface ProfileState {
   address: string;
-  owner: TokenDetails[];
+  rentals: TokenDetails[];
+  ownedCalls: TokenDetails[];
+  ownedPuts: TokenDetails[];
   listings: TokenDetailsWithStatus[];
   listingsCalls: TokenDetailsWithStatus[];
   listingsPuts: TokenDetailsWithStatus[];
-  isLoadingWriter: boolean;
-  isLoadingOwner: boolean;
+  isLoadingListings: boolean;
+  isLoadingOwned: boolean;
 }
 
 const DEFAULT_STATE: ProfileState = {
   address: '',
-  owner: [],
+  rentals: [],
   listings: [],
-  isLoadingWriter: true,
-  isLoadingOwner: true,
+  isLoadingListings: true,
+  isLoadingOwned: true,
   listingsCalls: [],
   listingsPuts: [],
+  ownedCalls: [],
+  ownedPuts: [],
 };
 @Component({
   templateUrl: './profile.component.html',
@@ -54,7 +59,7 @@ export class ProfileComponent extends RxState<ProfileState> {
       mergeMap((token) => this.rentfuse.getListingForNft(token)),
       map((listing) => this.mapStatus(listing)),
       toArray(),
-      finalize(() => this.set({ isLoadingWriter: false }))
+      finalize(() => this.set({ isLoadingListings: false }))
     );
 
   constructor(
@@ -78,7 +83,6 @@ export class ProfileComponent extends RxState<ProfileState> {
         map((t) => t.filter((t) => t.type === 'Call'))
       )
     );
-
     this.connect(
       'listingsPuts',
       this.select('listings').pipe(
@@ -86,16 +90,29 @@ export class ProfileComponent extends RxState<ProfileState> {
       )
     );
     this.connect(
-      'owner',
+      'rentals',
       this.globalState.select('address').pipe(
         switchMap((a) =>
           this.candefi.tokensOfJson(a).pipe(
             mergeAll(),
             mergeMap((token) => this.rentfuse.getListingForNft(token)),
+            filter((v) => v.owner !== v.writer),
             toArray(),
-            finalize(() => this.set({ isLoadingOwner: false }))
+            finalize(() => this.set({ isLoadingOwned: false }))
           )
         )
+      )
+    );
+    this.connect(
+      'ownedCalls',
+      this.select('rentals').pipe(
+        map((t) => t.filter((t) => t.type === 'Call' && t.writer !== t.owner))
+      )
+    );
+    this.connect(
+      'ownedPuts',
+      this.select('rentals').pipe(
+        map((t) => t.filter((t) => t.type === 'Put' && t.writer !== t.owner))
       )
     );
   }
@@ -103,6 +120,12 @@ export class ProfileComponent extends RxState<ProfileState> {
   public cancelListing(tokenId: string): void {
     this.candefi
       .cancelListing(this.get('address'), tokenId)
+      .subscribe((res) => console.log(res));
+  }
+
+  public exercise(tokenId: string): void {
+    this.candefi
+      .exercise(this.get('address'), tokenId)
       .subscribe((res) => console.log(res));
   }
 
@@ -116,7 +139,7 @@ export class ProfileComponent extends RxState<ProfileState> {
     ) {
       status = 'LISTED';
     } else if (listedToken.owner !== environment.testnet.rentfuseAddress) {
-      status = 'LENT';
+      status = 'ONGOING';
     }
     return {
       status,

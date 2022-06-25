@@ -28,7 +28,7 @@ export class UiService {
       summary: 'Error',
       detail: err.description.exception
         ? this.mapToReadableErrorMessage(err.description.exception)
-        : 'An unhandled error occured.',
+        : 'Ops, something went wrong! Try again or notify an administrator.',
       sticky: true,
     });
   }

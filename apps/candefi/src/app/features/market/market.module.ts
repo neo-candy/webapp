@@ -6,9 +6,10 @@ import { MarketComponent } from './market.component';
 import { SharedModule } from '../../shared/shared.module';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { MarketDetailsComponent } from './market-details/market-details.component';
+import { RentDetailsComponent } from './market-details/rent-details/rent-details.component';
 
 @NgModule({
-  declarations: [MarketComponent, MarketDetailsComponent],
+  declarations: [MarketComponent, MarketDetailsComponent, RentDetailsComponent],
   imports: [
     CommonModule,
     MarketRoutingModule,

@@ -58,7 +58,7 @@ export class NeolineService {
     return { type: 'Array', value };
   }
 
-  public static byteArray(value: string[]): NeoTypedValue {
+  public static byteArray(value: string): NeoTypedValue {
     return { type: 'ByteArray', value };
   }
 

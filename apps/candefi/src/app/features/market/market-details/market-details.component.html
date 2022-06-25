@@ -1,8 +1,6 @@
 <ng-container *ngIf="state$ | async as s">
   <p-table
-    dataKey="tokenId"
     [loading]="s.isLoading"
-    (onRowSelect)="onRowSelect($event)"
     selectionMode="single"
     [value]="s.tokens"
     responsiveLayout="scroll"
@@ -20,11 +18,12 @@
         <th>Vdot</th>
         <th>Vi</th>
         <th>Gas/Day</th>
+        <th>Gas Collateral</th>
         <th>Safe</th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-token let-expanded="expanded">
-      <tr [pRowToggler]="token">
+    <ng-template pTemplate="body" let-token>
+      <tr class="cursor-pointer" (click)="displayRentModal(token)">
         <td>{{ token.tokenId }}</td>
         <td>
           <div class="flex align-items-center">
@@ -46,18 +45,28 @@
         <td>{{ token.vdot }}</td>
         <td>{{ token.vi }}</td>
         <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
+        <td>{{ token.collateral | number: '1.2-2' }}</td>
         <td>
           <span [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"></span>
         </td>
       </tr>
     </ng-template>
-    <ng-template pTemplate="rowexpansion" let-token>
-      <table>
-        <tr>
-          <td *ngFor="let stat of token.stats">{{ stat.day }}</td>
-          <td *ngFor="let stat of token.stats">{{ stat.gas }}</td>
-        </tr>
-      </table>
-    </ng-template>
   </p-table>
+
+  <!-- <p-dialog
+    [visible]="s.displayRentModal"
+    [resizable]="false"
+    header="Rent NFT"
+  >
+    <form [formGroup]="formGroup">
+      <span class="p-float-label">
+        <input type="text" pInputText [value]="duration" readonly />
+        <p-slider
+          formControlName="duration"
+          [min]="s.selectedNft ? s.selectedNft.minRentInMinutes / 24 / 60 : 1"
+        ></p-slider>
+        <label for="duration">Duration</label>
+      </span>
+    </form>
+  </p-dialog> -->
 </ng-container>

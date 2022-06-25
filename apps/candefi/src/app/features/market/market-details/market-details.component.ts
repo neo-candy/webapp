@@ -1,13 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { from, Subject } from 'rxjs';
-import { finalize, mergeMap, toArray } from 'rxjs/operators';
+import { finalize, map, mergeMap, tap, toArray } from 'rxjs/operators';
 import { Token } from '../../../services/candefi.service';
+import { NeolineService } from '../../../services/neoline.service';
 import {
   RentfuseService,
   TokenDetails,
 } from '../../../services/rentfuse.service';
+import { UiService } from '../../../services/ui.service';
+import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
+import { RentDetailsComponent } from './rent-details/rent-details.component';
 
 interface MarketDetailsState {
   tokens: TokenDetails[];
@@ -22,6 +26,7 @@ const DEFAULT_STATE: MarketDetailsState = {
 @Component({
   templateUrl: './market-details.component.html',
   styleUrls: ['./market-details.component.scss'],
+  providers: [DialogService],
 })
 export class MarketDetailsComponent extends RxState<MarketDetailsState> {
   readonly state$ = this.select();
@@ -29,7 +34,11 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
 
   constructor(
     private config: DynamicDialogConfig,
-    private rentfuse: RentfuseService
+    private rentfuse: RentfuseService,
+    private neoline: NeolineService,
+    private ui: UiService,
+    private dialogService: DialogService,
+    @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
     this.set(DEFAULT_STATE);
@@ -44,11 +53,27 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
       });
   }
 
-  onRowSelect(event: any): void {
-    /* this.rentfuse
-      .getListingIdFromNft(event.data.tokenId)
-      .subscribe((id) =>
-        window.open('https://www.testnet.rentfuse.com/listings/' + id, '_blank')
-      ); */
+  displayRentModal(token: TokenDetails): void {
+    if (!this.globalState.get('address')) {
+      this.connectWallet();
+    } else {
+      this.dialogService.open(RentDetailsComponent, {
+        header: 'Rent NFT',
+        width: 'auto',
+        data: {
+          token: token,
+        },
+      });
+    }
+  }
+
+  private connectWallet(): void {
+    this.globalState.connect(
+      'address',
+      this.neoline.getAccount().pipe(
+        map((v) => v.address),
+        tap(() => this.ui.displaySuccess('Wallet connected'))
+      )
+    );
   }
 }
