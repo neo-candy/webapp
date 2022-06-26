@@ -19,6 +19,11 @@ export interface Listing {
   collateral: number;
 }
 
+export interface Renting {
+  duration: number;
+  startedAt: number;
+}
+
 export interface TokenDetails extends Token {
   listingId: number;
   minRentInMinutes: number;
@@ -101,6 +106,32 @@ export class RentfuseService {
     );
   }
 
+  getRenting(rentingId: string): Observable<Renting> {
+    const scriptHash = environment.testnet.rentfuseProtocol;
+    return this.neonjs
+      .rpcRequest(
+        'getRenting',
+        [sc.ContractParam.string(rentingId)],
+        scriptHash
+      )
+      .pipe(map((v) => this.mapRenting(v)));
+  }
+
+  getRentingForListing(listingId: number): Observable<Renting> {
+    return this.getRentingCountForListing(listingId).pipe(
+      map((count) => this.getRentingId(listingId, count)),
+      switchMap((rentingId) => this.getRenting(rentingId))
+    );
+  }
+  getRentingCountForListing(listingId: number): Observable<number> {
+    const scriptHash = environment.testnet.rentfuseProtocol;
+    return this.neonjs.rpcRequest(
+      'getRentingCountForListing',
+      [sc.ContractParam.integer(listingId)],
+      scriptHash
+    );
+  }
+
   addTokenDetails(token: Token, listing: Listing): TokenDetails {
     const realValue =
       token.realValue +
@@ -117,6 +148,10 @@ export class RentfuseService {
     };
   }
 
+  private getRentingId(listingId: number, count: number): string {
+    return listingId + '-' + count;
+  }
+
   private mapListing(v: any[]): Listing {
     return {
       listingId: v[0].value,
@@ -124,6 +159,13 @@ export class RentfuseService {
       maxMinutes: v[5].value,
       gasPerMinute: v[3].value[1].value,
       collateral: v[6].value,
+    };
+  }
+
+  private mapRenting(v: any[]): Renting {
+    return {
+      duration: v[3].value,
+      startedAt: v[4].value,
     };
   }
 }

@@ -20,11 +20,11 @@
               <th>Value</th>
               <th>Change</th>
               <th>Strike</th>
-              <th>Duration</th>
+              <th>Remaining Time</th>
               <th>Vdot</th>
               <th>Vi</th>
-              <th>Gas/Day</th>
-              <th>Gas collateral</th>
+              <th>Earned fees</th>
+              <th>Collateral</th>
               <th>Safe</th>
               <th>Status</th>
               <th></th>
@@ -72,8 +72,18 @@
               </td>
               <td>{{ token.vdot }}</td>
               <td>{{ token.vi }}</td>
-              <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
-              <td>{{ token.collateral }}</td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}
+                  <img src="assets/images/gas.png" height="20" class="ml-2" />
+                </div>
+              </td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.collateral | number: '1.2-2' }}
+                  <img src="assets/images/gas.png" height="20" class="ml-2" />
+                </div>
+              </td>
               <td>
                 <span
                   [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"
@@ -126,11 +136,11 @@
               <th>Value</th>
               <th>Change</th>
               <th>Strike</th>
-              <th>Duration</th>
+              <th>Remaining Time</th>
               <th>Vdot</th>
               <th>Vi</th>
-              <th>Gas/Day</th>
-              <th>Gas collateral</th>
+              <th>Earned fees</th>
+              <th>Collateral</th>
               <th>Safe</th>
               <th>Status</th>
               <th></th>
@@ -178,8 +188,18 @@
               </td>
               <td>{{ token.vdot }}</td>
               <td>{{ token.vi }}</td>
-              <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
-              <td>{{ token.collateral }}</td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}
+                  <img src="assets/images/gas.png" height="20" class="ml-2" />
+                </div>
+              </td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.collateral | number: '1.2-2' }}
+                  <img src="assets/images/gas.png" height="20" class="ml-2" />
+                </div>
+              </td>
 
               <td>
                 <span
@@ -234,28 +254,42 @@
         <p-table
           [loading]="s.isLoadingOwned"
           [value]="s.ownedCalls"
+          datKey="tokenId"
           responsiveLayout="scroll"
-          selectionMode="single"
           styleClass="p-datatable-sm"
+          [(selection)]="s.selectedRentalCalls"
         >
+          <ng-template pTemplate="caption">
+            <div class="flex justify-content-end">
+              <span
+                class="pi pi-cog cursor-pointer p-1"
+                (click)="callRentalsMenu.toggle($event)"
+              ></span>
+            </div>
+          </ng-template>
           <ng-template pTemplate="header">
             <tr>
+              <th>
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              </th>
               <th>ID</th>
               <th>Stake</th>
               <th>Value</th>
               <th>Change</th>
               <th>Strike</th>
-              <th>Duration</th>
+              <th>Remaining time</th>
               <th>Vdot</th>
               <th>Vi</th>
-              <th>Gas/Day</th>
-              <th>Gas collateral</th>
+              <th>Paid fees</th>
+              <th>Collateral</th>
               <th>Safe</th>
-              <th></th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-token>
             <tr>
+              <td>
+                <p-tableCheckbox [value]="token"></p-tableCheckbox>
+              </td>
               <td>{{ token.tokenId }}</td>
               <td>
                 <div class="flex align-items-center">
@@ -296,18 +330,22 @@
               </td>
               <td>{{ token.vdot }}</td>
               <td>{{ token.vi }}</td>
-              <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
-              <td>{{ token.collateral }}</td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}
+                  <img src="assets/images/gas.png" height="20" class="ml-2" />
+                </div>
+              </td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.collateral | number: '1.2-2' }}
+                  <img src="assets/images/gas.png" height="20" class="ml-2" />
+                </div>
+              </td>
 
               <td>
                 <span
                   [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"
-                ></span>
-              </td>
-              <td>
-                <span
-                  class="pi pi-eject positive-change cursor-pointer"
-                  (click)="exercise(token.tokenId)"
                 ></span>
               </td>
             </tr>
@@ -329,26 +367,41 @@
           [value]="s.ownedPuts"
           responsiveLayout="scroll"
           styleClass="p-datatable-sm"
-          selectionMode="single"
+          [(selection)]="s.selectedRentalPuts"
         >
+          <ng-template pTemplate="caption">
+            <div class="flex justify-content-end">
+              <div class="flex justify-content-end">
+                <span
+                  class="pi pi-cog cursor-pointer p-1"
+                  (click)="putRentalsMenu.toggle($event)"
+                ></span>
+              </div>
+            </div>
+          </ng-template>
           <ng-template pTemplate="header">
             <tr>
+              <th>
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              </th>
               <th>ID</th>
               <th>Stake</th>
               <th>Value</th>
               <th>Change</th>
               <th>Strike</th>
-              <th>Duration</th>
+              <th>Remaining time</th>
               <th>Vdot</th>
               <th>Vi</th>
-              <th>Gas/Day</th>
-              <th>Gas collateral</th>
+              <th>Paid fees</th>
+              <th>Collateral</th>
               <th>Safe</th>
-              <th></th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-token>
             <tr>
+              <td>
+                <p-tableCheckbox [value]="token"></p-tableCheckbox>
+              </td>
               <td>{{ token.tokenId }}</td>
               <td>
                 <div class="flex align-items-center">
@@ -389,8 +442,18 @@
               </td>
               <td>{{ token.vdot }}</td>
               <td>{{ token.vi }}</td>
-              <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
-              <td>{{ token.collateral }}</td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}
+                  <img src="assets/images/gas.png" height="20" class="ml-2" />
+                </div>
+              </td>
+              <td>
+                <div class="flex align-items-center">
+                  {{ token.collateral | number: '1.2-2' }}
+                  <img src="assets/images/gas.png" height="20" class="ml-2" />
+                </div>
+              </td>
 
               <td>
                 <span
@@ -398,12 +461,6 @@
                 ></span>
               </td>
               <td><p-tag [value]="token.status"></p-tag></td>
-              <td>
-                <span
-                  class="pi pi-eject positive-change cursor-pointer"
-                  (click)="exercise(token.tokenId)"
-                ></span>
-              </td>
             </tr>
           </ng-template>
           <ng-template pTemplate="emptymessage">
@@ -419,5 +476,8 @@
       </p-tabPanel>
     </p-tabView>
   </p-panel>
+  <p-menu #callRentalsMenu [popup]="true" [model]="callRentalsItems"></p-menu>
+  <p-menu #putRentalsMenu [popup]="true" [model]="putRentalsItems"></p-menu>
+  <p-confirmDialog position="bottom" [baseZIndex]="10000"></p-confirmDialog>
 </ng-container>
 <br />

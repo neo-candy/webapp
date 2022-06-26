@@ -43,6 +43,16 @@ export class UiService {
     });
   }
 
+  public displayInfo(msg: string, summary?: string): void {
+    this.messageService.add({
+      key: 'infoToast',
+      severity: 'info',
+      summary: summary ?? 'Info',
+      detail: msg,
+      life: 5000,
+    });
+  }
+
   public displayTxLoadingModal(txid: string): Observable<any> {
     this.globalState.set({ displayLoadingModal: true });
     return this.neonjs

@@ -3,7 +3,7 @@ import { sc, u, wallet } from '@cityofzion/neon-js';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { NeoInvokeWriteResponse } from '../models/n3';
+import { NeoInvokeWriteResponse, NeoTypedValue } from '../models/n3';
 import { UiService } from './ui.service';
 import { NeolineService } from './neoline.service';
 import { NeonJSService } from './neonjs.service';
@@ -163,15 +163,21 @@ export class CandefiService {
 
   public exercise(
     address: string,
-    tokenId: string
+    tokenIds: string[]
   ): Observable<NeoInvokeWriteResponse> {
-    const args = [
-      {
+    const args: {
+      scriptHash: string;
+      operation: string;
+      args: NeoTypedValue[];
+    }[] = [];
+    tokenIds.forEach((tokenId) => {
+      args.push({
         scriptHash: environment.testnet.candefi,
         operation: 'exercise',
         args: [NeolineService.byteArray(tokenId)],
-      },
-    ];
+      });
+    });
+
     return this.neoline
       .invokeMultiple({
         signers: [
