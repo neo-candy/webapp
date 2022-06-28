@@ -5,8 +5,6 @@ import { MenuItem } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-const BOUNTY_GOOGLE_DOC =
-  'https://docs.google.com/document/d/1Qo3-Gdk7uewiTwczt716KGMnQb2ByDVTKKt5xq_pGss/edit?usp=sharing';
 const LITE_PAPER = 'https://docs.neocandy.io';
 const FLAMINGO = 'https://flamingo.finance';
 
@@ -27,11 +25,11 @@ export class MenuComponent implements OnInit {
   ngOnInit() {
     this.items = [
       {
-        label: 'Free CANDY',
-        command: () => this.router.navigate([''], { fragment: 'free-candy' }),
+        label: 'Get CANDY',
+        command: () => this.router.navigate([''], { fragment: 'get-candy' }),
       },
       {
-        label: 'Docs',
+        label: 'Whitepaper',
         command: () => window.open(LITE_PAPER, '_blank'),
       },
       {
@@ -43,27 +41,19 @@ export class MenuComponent implements OnInit {
         command: () => this.router.navigate([''], { fragment: 'games' }),
       },
       {
-        label: 'Bounty Program',
-        command: () => window.open(BOUNTY_GOOGLE_DOC, '_blank'),
-      },
-      {
-        label: 'FAQ',
-        command: () => this.router.navigate([''], { fragment: 'faq' }),
-      },
-      {
-        label: 'Social',
-        command: () => this.router.navigate([''], { fragment: 'social' }),
+        label: 'DeFi',
+        disabled: true,
       },
     ];
 
     this.getCandyPrice().subscribe((price) => {
       this.items = [
         {
-          label: 'Free CANDY',
-          command: () => this.router.navigate([''], { fragment: 'free-candy' }),
+          label: 'Get CANDY',
+          command: () => this.router.navigate([''], { fragment: 'get-candy' }),
         },
         {
-          label: 'Docs',
+          label: 'Whitepaper',
           command: () => window.open(LITE_PAPER, '_blank'),
         },
         {
@@ -75,16 +65,8 @@ export class MenuComponent implements OnInit {
           command: () => this.router.navigate([''], { fragment: 'games' }),
         },
         {
-          label: 'Bounty Program',
-          command: () => window.open(BOUNTY_GOOGLE_DOC, '_blank'),
-        },
-        {
-          label: 'FAQ',
-          command: () => this.router.navigate([''], { fragment: 'faq' }),
-        },
-        {
-          label: 'Social',
-          command: () => this.router.navigate([''], { fragment: 'social' }),
+          label: 'DeFi',
+          disabled: true,
         },
         {
           label: '$' + price.toFixed(9),

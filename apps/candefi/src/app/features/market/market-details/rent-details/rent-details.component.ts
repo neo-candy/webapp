@@ -7,7 +7,7 @@ import {
   DynamicDialogRef,
 } from 'primeng/dynamicdialog';
 import { Subject } from 'rxjs';
-import { Token } from '../../../../services/candefi.service';
+import { CandefiToken } from '../../../../services/candefi.service';
 import {
   RentfuseService,
   TokenDetails,
@@ -27,7 +27,7 @@ export class RentDetailsComponent
   implements OnInit
 {
   readonly state$ = this.select();
-  readonly onToken$ = new Subject<Token>();
+  readonly onToken$ = new Subject<CandefiToken>();
 
   constructor(
     private rentfuse: RentfuseService,

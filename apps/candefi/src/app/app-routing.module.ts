@@ -13,9 +13,16 @@ const routes: Routes = [
       import('./features/market/market.module').then((m) => m.MarketModule),
   },
   {
+    path: 'leaderboard',
+    loadChildren: () =>
+      import('./features/leaderboard/leaderboard.module').then(
+        (m) => m.LeaderBoardModule
+      ),
+  },
+  {
     path: 'profile',
     loadChildren: () =>
-      import('./features/profile/profile.module').then((m) => m.MintModule),
+      import('./features/profile/profile.module').then((m) => m.ProfileModule),
   },
 ];
 

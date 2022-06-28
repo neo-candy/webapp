@@ -47,6 +47,7 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
     {
       label: 'Leaderboard',
       icon: 'pi pi-chart-line',
+      routerLink: 'leaderboard',
     },
   ];
 

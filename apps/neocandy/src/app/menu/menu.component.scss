@@ -4,7 +4,6 @@
   position: absolute;
   z-index: 3;
   width: 100%;
-
   .p-menubar-button {
     color: black;
   }
@@ -13,7 +12,7 @@
   .p-menuitem-icon {
     color: #ffe552 !important;
     font-weight: 800;
-    font-size: 20px;
+    font-size: 18px;
   }
   .p-menuitem-link {
     &:hover,
@@ -21,4 +20,9 @@
       background: transparent !important;
     }
   }
+}
+
+::ng-deep p-menubarsub ul {
+  background-color: #DC35B0 !important;
+
 }

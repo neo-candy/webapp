@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { sc, u, wallet } from '@cityofzion/neon-js';
+import { sc, wallet } from '@cityofzion/neon-js';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -30,7 +30,7 @@ interface TokenProperties {
   }[];
 }
 
-export interface Token {
+export interface CandefiToken {
   tokenId: string;
   stake: number;
   strike: number;
@@ -44,6 +44,11 @@ export interface Token {
   startValue: number;
   exercised: boolean;
   safe: boolean;
+}
+
+export interface Earnings {
+  address: string;
+  value: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -187,7 +192,9 @@ export class CandefiService {
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() => this.ui.displaySuccess('You exercised a position')),
+        tap(() =>
+          this.ui.displaySuccess(`You exercised ${tokenIds.length} position(s)`)
+        ),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);
@@ -197,15 +204,20 @@ export class CandefiService {
 
   public cancelListing(
     address: string,
-    tokenId: string
+    tokenIds: string[]
   ): Observable<NeoInvokeWriteResponse> {
-    const args = [
-      {
+    const args: {
+      scriptHash: string;
+      operation: string;
+      args: NeoTypedValue[];
+    }[] = [];
+    tokenIds.forEach((tokenId) => {
+      args.push({
         scriptHash: environment.testnet.candefi,
         operation: 'cancelListing',
-        args: [NeolineService.string(tokenId)],
-      },
-    ];
+        args: [NeolineService.byteArray(tokenId)],
+      });
+    });
     return this.neoline
       .invokeMultiple({
         signers: [
@@ -214,6 +226,10 @@ export class CandefiService {
         invokeArgs: [...args],
       })
       .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap(() =>
+          this.ui.displaySuccess(`You cancelled ${tokenIds.length} position(s)`)
+        ),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);
@@ -221,7 +237,7 @@ export class CandefiService {
       );
   }
 
-  public tokensOfJson(address: string): Observable<Token[]> {
+  public tokensOfJson(address: string): Observable<CandefiToken[]> {
     const scriptHash = environment.testnet.candefi;
     return this.neonjs
       .rpcRequest(
@@ -238,7 +254,14 @@ export class CandefiService {
       );
   }
 
-  public tokensOfWriterJson(address: string): Observable<Token[]> {
+  public earnings(): Observable<Earnings[]> {
+    const scriptHash = environment.testnet.candefi;
+    return this.neonjs
+      .rpcRequest('earnings', [], scriptHash)
+      .pipe(map((res) => JSON.parse(atob(res))));
+  }
+
+  public tokensOfWriterJson(address: string): Observable<CandefiToken[]> {
     const scriptHash = environment.testnet.candefi;
     return this.neonjs
       .rpcRequest(
@@ -255,7 +278,7 @@ export class CandefiService {
       );
   }
 
-  private mapToken(v: TokenProperties): Token {
+  private mapToken(v: TokenProperties): CandefiToken {
     return {
       tokenId: btoa(v.tokenId),
       type:

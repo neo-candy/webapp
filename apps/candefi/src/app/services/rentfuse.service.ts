@@ -6,7 +6,7 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { NeoInvokeWriteResponse } from '../models/n3';
 import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
-import { Token } from './candefi.service';
+import { CandefiToken } from './candefi.service';
 import { NeolineService } from './neoline.service';
 import { NeonJSService } from './neonjs.service';
 import { UiService } from './ui.service';
@@ -24,13 +24,12 @@ export interface Renting {
   startedAt: number;
 }
 
-export interface TokenDetails extends Token {
-  listingId: number;
-  minRentInMinutes: number;
-  maxRentInMinutes: number;
-  gasPerMinute: number;
-  collateral: number;
+export interface RentfuseTokenDetails {
+  listing: Listing;
+  renting?: Renting;
 }
+
+export type TokenDetails = CandefiToken & RentfuseTokenDetails;
 
 @Injectable({ providedIn: 'root' })
 export class RentfuseService {
@@ -99,12 +98,12 @@ export class RentfuseService {
       .pipe(map((res) => this.mapListing(res)));
   }
 
-  getListingForNft(token: Token): Observable<TokenDetails> {
+  /* getListingForNft(token: CandefiToken): Observable<TokenDetails> {
     return this.getListingIdFromNft(token.tokenId).pipe(
       switchMap((listingId) => this.getListing(listingId)),
       map((listing) => this.addTokenDetails(token, listing))
     );
-  }
+  } */
 
   getRenting(rentingId: string): Observable<Renting> {
     const scriptHash = environment.testnet.rentfuseProtocol;
@@ -117,22 +116,26 @@ export class RentfuseService {
       .pipe(map((v) => this.mapRenting(v)));
   }
 
-  getRentingForListing(listingId: number): Observable<Renting> {
-    return this.getRentingCountForListing(listingId).pipe(
-      map((count) => this.getRentingId(listingId, count)),
-      switchMap((rentingId) => this.getRenting(rentingId))
+  /* getRentingForListing(
+    listing: TokenDetailsWithStatus
+  ): Observable<RentingWithTokenDetails> {
+    return this.getRentingId(listing.listingId).pipe(
+      filter((id) => id !== undefined),
+      switchMap((rentingId) => this.getRenting(rentingId)),
+      map((renting) => this.addRentingDetails(listing, renting))
     );
-  }
-  getRentingCountForListing(listingId: number): Observable<number> {
+  } */
+
+  getRentingListForListing(listingId: number): Observable<any[]> {
     const scriptHash = environment.testnet.rentfuseProtocol;
     return this.neonjs.rpcRequest(
-      'getRentingCountForListing',
-      [sc.ContractParam.integer(listingId)],
+      'getRentingListForListing',
+      [sc.ContractParam.integer(listingId), sc.ContractParam.integer(0)],
       scriptHash
     );
   }
 
-  addTokenDetails(token: Token, listing: Listing): TokenDetails {
+  /* addTokenDetails(token: CandefiToken, listing: Listing): TokenDetails {
     const realValue =
       token.realValue +
       (this.globalState.get('neoPrice') * Math.pow(10, 8) - token.strike) *
@@ -146,10 +149,22 @@ export class RentfuseService {
       realValue: realValue > token.stake ? token.stake : realValue,
       collateral: listing.collateral / Math.pow(10, 8),
     };
-  }
+  } */
 
-  private getRentingId(listingId: number, count: number): string {
-    return listingId + '-' + count;
+  /* addRentingDetails(
+    listing: TokenDetailsWithStatus,
+    renting: Renting
+  ): RentingWithTokenDetails {
+    return {
+      ...listing,
+      ...renting,
+    };
+  } */
+
+  private getRentingId(listingId: number): Observable<string> {
+    return this.getRentingListForListing(listingId).pipe(
+      map((v) => v[0]?.value[0]?.value)
+    );
   }
 
   private mapListing(v: any[]): Listing {

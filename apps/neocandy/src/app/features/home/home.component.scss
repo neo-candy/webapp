@@ -22,7 +22,7 @@
 .container {
   height: 45rem;
   background: #e829ad;
-  background: linear-gradient(333deg, #fdca25 16%, #e829ad 100%);
+  background: linear-gradient(0, #25fdeb 1%, #e829ad 100%);
 }
 
 .features-section {
@@ -45,14 +45,14 @@
 
 @media screen and (max-width: 450px) {
   #neo {
-    font-size: 120px;
+    font-size: 160px;
     font-weight: 900;
     opacity: 0.2;
-    margin-bottom: -80px;
+    margin-bottom: -50px;
   }
 
   #candy {
-    font-size: 50px;
+    font-size: 100px;
   }
 }
 
@@ -127,28 +127,32 @@ section {
   p {
     color: #000;
   }
-  button {
-    background-color: #6d61f5;
-    border: #6d61f5;
-    &:hover {
-      background-color: #5d4ff8;
-    }
-  }
 }
 
 .games-container {
+  background-color: #14d0f0;
+  margin-bottom: -60px;
   #gamename {
     color: #6d61f5;
     font-weight: 800;
   }
   h1 {
-    color: #e829ad;
+    color: #fff;
   }
   button {
     background-color: #e93ab2;
     border: #e93ab2;
     &:hover {
       background-color: #e829ad;
+    }
+  }
+
+  .game {
+    padding: 1rem;
+    background-color: #45d5ee;
+
+    .game-desc {
+      color: #343434;
     }
   }
 }
@@ -179,7 +183,7 @@ section {
 }
 
 .custom-shape-divider-top-1637605853 .shape-fill {
-  fill: #ffffff;
+  fill: #14d0f0;
 }
 
 .faq-container {

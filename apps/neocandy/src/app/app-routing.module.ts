@@ -18,7 +18,6 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes, {
       anchorScrolling: 'enabled',
-      enableTracing: true,
     }),
   ],
   exports: [RouterModule],

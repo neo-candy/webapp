@@ -24,4 +24,4 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   ],
   exports: [ProfileComponent],
 })
-export class MintModule {}
+export class ProfileModule {}

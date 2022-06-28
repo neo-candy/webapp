@@ -3,13 +3,13 @@ import { RxState } from '@rx-angular/state';
 import { environment } from '../../../environments/environment';
 import { DialogService } from 'primeng/dynamicdialog';
 import { finalize, map, tap } from 'rxjs/operators';
-import { CandefiService, Token } from '../../services/candefi.service';
+import { CandefiService, CandefiToken } from '../../services/candefi.service';
 import { RentfuseService } from '../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 import { MarketDetailsComponent } from './market-details/market-details.component';
 
 interface MarketState {
-  tokens: Token[];
+  tokens: CandefiToken[];
   calls: OptionOverview[];
   puts: OptionOverview[];
   neoPrice: number;
@@ -65,7 +65,7 @@ export class MarketComponent extends RxState<MarketState> {
     this.connect('puts', this.puts$);
   }
 
-  onCallsRowSelect(token: Token): void {
+  onCallsRowSelect(token: CandefiToken): void {
     const strike = token.strike;
 
     this.dialogService.open(MarketDetailsComponent, {
@@ -79,7 +79,7 @@ export class MarketComponent extends RxState<MarketState> {
     });
   }
 
-  onPutsRowSelect(token: Token): void {
+  onPutsRowSelect(token: CandefiToken): void {
     const strike = token.strike;
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Puts',
@@ -92,7 +92,7 @@ export class MarketComponent extends RxState<MarketState> {
     });
   }
 
-  private summarize(tokens: Token[]): OptionOverview[] {
+  private summarize(tokens: CandefiToken[]): OptionOverview[] {
     const map: Map<number, number[]> = new Map();
     tokens.forEach((token) => {
       const stack = map.get(token.strike) ?? [];

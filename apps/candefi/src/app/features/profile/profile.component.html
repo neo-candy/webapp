@@ -66,10 +66,7 @@
                 </ng-template>
               </td>
               <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
-              <td>
-                {{ token.minRentInMinutes / 60 / 24 }} -
-                {{ token.maxRentInMinutes / 60 / 24 }} days
-              </td>
+              <td>{{ token.duration }} - {{ token.startedAt }}</td>
               <td>{{ token.vdot }}</td>
               <td>{{ token.vi }}</td>
               <td>

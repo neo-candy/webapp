@@ -16,18 +16,14 @@ import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 import { ConfirmationService, ConfirmEventType, MenuItem } from 'primeng/api';
 import { UiService } from '../../services/ui.service';
 
-interface TokenDetailsWithStatus extends TokenDetails {
-  status: string;
-}
-
 interface ProfileState {
   address: string;
   rentals: TokenDetails[];
   ownedCalls: TokenDetails[];
   ownedPuts: TokenDetails[];
-  listings: TokenDetailsWithStatus[];
-  listingsCalls: TokenDetailsWithStatus[];
-  listingsPuts: TokenDetailsWithStatus[];
+  listings: RentingWithTokenDetails[];
+  listingsCalls: RentingWithTokenDetails[];
+  listingsPuts: RentingWithTokenDetails[];
   isLoadingListings: boolean;
   isLoadingOwned: boolean;
   selectedRentalCalls: TokenDetails[];
@@ -83,6 +79,9 @@ export class ProfileComponent extends RxState<ProfileState> {
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingForNft(token)),
       map((listing) => this.mapStatus(listing)),
+      switchMap((listingWithStatus) =>
+        this.rentfuse.getRentingForListing(listingWithStatus)
+      ),
       toArray(),
       finalize(() => this.set({ isLoadingListings: false }))
     );
@@ -145,9 +144,9 @@ export class ProfileComponent extends RxState<ProfileState> {
   }
 
   cancelListing(tokenId: string): void {
-    this.candefi
+    /* this.candefi
       .cancelListing(this.get('address'), tokenId)
-      .subscribe((res) => console.log(res));
+      .subscribe((res) => console.log(res)); */
   }
 
   finishRentalCalls(): void {
@@ -164,31 +163,32 @@ export class ProfileComponent extends RxState<ProfileState> {
     );
     const warningAmount = unsafeTokens.length + aboveStrikeTokens.length;
     let message = '';
+    const tokenIds: string[] = this.get('selectedRentalCalls').map(
+      (call) => call.tokenId
+    );
     if (warningAmount > 0) {
       message =
         'You have ' +
         warningAmount +
         ' selected call(s) that should be exercised rather than cancelled. Cancelling will cause a higher loss. Are you sure you want to continue?';
+
+      this.confirmation.confirm({
+        message,
+        header: 'Cancel Confirmation',
+        icon: 'pi pi-info-circle',
+        accept: () => {
+          ('');
+        },
+        reject: (type: ConfirmEventType) => {
+          switch (type) {
+            case ConfirmEventType.REJECT:
+              break;
+            case ConfirmEventType.CANCEL:
+              break;
+          }
+        },
+      });
     }
-    const tokenIds: string[] = this.get('selectedRentalCalls').map(
-      (call) => call.tokenId
-    );
-    this.confirmation.confirm({
-      message,
-      header: 'Cancel Confirmation',
-      icon: 'pi pi-info-circle',
-      accept: () => {
-        ('');
-      },
-      reject: (type: ConfirmEventType) => {
-        switch (type) {
-          case ConfirmEventType.REJECT:
-            break;
-          case ConfirmEventType.CANCEL:
-            break;
-        }
-      },
-    });
   }
 
   finishRentalPuts(): void {
@@ -237,7 +237,7 @@ export class ProfileComponent extends RxState<ProfileState> {
       (call) => call.tokenId
     );
     if (tokenIds.length < 1) {
-      this.ui.displayInfo('You have no calls selected');
+      this.ui.displayInfo('You have no call(s) selected');
       return;
     }
     this.candefi
@@ -250,7 +250,7 @@ export class ProfileComponent extends RxState<ProfileState> {
       (put) => put.tokenId
     );
     if (tokenIds.length < 1) {
-      this.ui.displayInfo('You have no puts selected');
+      this.ui.displayInfo('You have no put(s) selected');
       return;
     }
     this.candefi
