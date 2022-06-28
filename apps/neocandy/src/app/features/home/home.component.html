@@ -231,15 +231,23 @@
                         are minted, the more expensive they become.
                       </div>
                       <ng-container *ngIf="address.length > 0; else connect">
-                        <button
-                          pButton
-                          [icon]="
-                            isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-copy'
-                          "
-                          class="p-button-text"
-                          type="button"
-                          label="{{ address | truncateAddress }}"
-                        ></button>
+                        <div>
+                          <button
+                            pButton
+                            icon="pi pi-plus"
+                            class="p-button-outlined p-button-rounded"
+                            (click)="mint()"
+                          ></button>
+                          <button
+                            pButton
+                            [icon]="
+                              isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-copy'
+                            "
+                            class="p-button-text"
+                            type="button"
+                            label="{{ address | truncateAddress }}"
+                          ></button>
+                        </div>
                       </ng-container>
                       <ng-template #connect>
                         <button

@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { map, tap } from 'rxjs/operators';
+import { NeolineService } from '../../services/neoline.service';
 
 @Component({
   selector: 'nc-home',
@@ -6,6 +8,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
+  constructor(private neoline: NeolineService) {}
   address = '';
   isLoading = false;
 
@@ -54,5 +57,13 @@ export class HomeComponent {
     window.open('https://docs.neocandy.io/about/games/candyland', '_blank');
   }
 
-  connectWallet(): void {}
+  connectWallet(): void {
+    this.isLoading = true;
+    this.neoline
+      .getAccount()
+      .pipe(map((v) => v.address))
+      .subscribe((res) => ((this.address = res), (this.isLoading = false)));
+  }
+
+  mint(): void {}
 }
