@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { map, tap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { NeolineService } from '../../services/neoline.service';
+import { NftService } from '../../services/nft.service';
+import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'nc-home',
@@ -8,9 +10,38 @@ import { NeolineService } from '../../services/neoline.service';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
-  constructor(private neoline: NeolineService) {}
+  constructor(
+    private neoline: NeolineService,
+    private nft: NftService,
+    private ui: UiService
+  ) {
+    this.nft.currentPrice().subscribe((res) => (this.currentPrice = res));
+    this.nft.currentSupply().subscribe((res) => (this.currentSupply = res));
+    this.nft.isPaused().subscribe((res) => (this.mintingPaused = res));
+  }
   address = '';
   isLoading = false;
+  currentPrice = 500000_000000000;
+  currentSupply = 0;
+  mintingPaused = 1;
+
+  responsiveCarouselOptions = [
+    {
+      breakpoint: '1024px',
+      numVisible: 4,
+      numScroll: 1,
+    },
+    {
+      breakpoint: '768px',
+      numVisible: 2,
+      numScroll: 1,
+    },
+    {
+      breakpoint: '560px',
+      numVisible: 1,
+      numScroll: 1,
+    },
+  ];
 
   utilities: string[] = [
     'Whitelisted for all future NFT mints of the NeoCandy project. Being whitelisted allows you to mint 24 hours earlier than anyone else.',
@@ -19,10 +50,10 @@ export class HomeComponent {
     'Receive the @Lollipop discord role and gain access to the exclusive #candy-bar channel',
     'As a NeoCandy NFT holder you will be part of exclusive airdrops',
     'With the @Lollipop role, you will get 3 entries to the discord giveaways when participating',
-    'You will receive 50% more candy in the candy-factory (faucet)',
+    'You will receive 100% more candy in the candy-factory (faucet)',
     'Early access to all future NeoCandy games and events',
     'No fees in NeoCandy DeFi protocols',
-    'As the project grows, we will be continiously adding more utilities',
+    'As the project grows, we will be continuously adding more utilities',
   ];
 
   public openDiscord(): void {
@@ -62,8 +93,19 @@ export class HomeComponent {
     this.neoline
       .getAccount()
       .pipe(map((v) => v.address))
-      .subscribe((res) => ((this.address = res), (this.isLoading = false)));
+      .subscribe(
+        (res) => (
+          (this.address = res),
+          (this.isLoading = false),
+          this.ui.displayInfo('Wallet connected')
+        )
+      );
   }
 
-  mint(): void {}
+  mint(): void {
+    this.nft
+      .currentPrice()
+      .pipe(switchMap((p) => this.nft.mint(this.address, p)))
+      .subscribe(console.log);
+  }
 }

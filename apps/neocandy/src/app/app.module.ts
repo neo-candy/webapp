@@ -8,6 +8,8 @@ import { FooterModule } from './footer/footer.module';
 import { MenuModule } from './menu/menu.module';
 import { SharedModule } from './shared/shared.module';
 import { HttpClientModule } from '@angular/common/http';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @NgModule({
   declarations: [AppComponent],
@@ -19,8 +21,9 @@ import { HttpClientModule } from '@angular/common/http';
     FooterModule,
     AppRoutingModule,
     HttpClientModule,
+    ToastModule,
   ],
-  providers: [],
+  providers: [MessageService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
