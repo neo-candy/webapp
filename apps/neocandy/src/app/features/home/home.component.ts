@@ -69,7 +69,10 @@ export class HomeComponent {
     window.open('https://ghostmarket.io/account/user/neocandy/', '_blank');
   }
   public openSkyhut(): void {
-    window.open('https://skyhut.app/', '_blank');
+    window.open(
+      'https://www.skyhut.app/collection/0xcdbb7bd33c623510f94626d1953f95a59c27645c',
+      '_blank'
+    );
   }
   public openTelegram(): void {
     window.open('https://t.me/NeoCandyN3', '_blank');
