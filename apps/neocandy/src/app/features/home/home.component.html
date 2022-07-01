@@ -201,7 +201,12 @@
             [responsiveOptions]="responsiveCarouselOptions"
           >
             <ng-template let-nft pTemplate="item">
-              <img width="270px" [src]="'assets/nfts/' + nft + '.png'" />
+              <div>
+                <img
+                  style="max-width: 270px"
+                  [src]="'assets/nfts/' + nft + '.png'"
+                />
+              </div>
             </ng-template>
           </p-carousel>
           <div class="mb-5 mt-2">

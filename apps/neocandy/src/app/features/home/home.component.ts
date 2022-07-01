@@ -66,7 +66,7 @@ export class HomeComponent {
     window.open('https://reddit.com/r/NeoCandy', '_blank');
   }
   public openGhostmarket(): void {
-    window.open('https://ghostmarket.io/', '_blank');
+    window.open('https://ghostmarket.io/account/user/neocandy/', '_blank');
   }
   public openSkyhut(): void {
     window.open('https://skyhut.app/', '_blank');
