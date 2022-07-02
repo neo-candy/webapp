@@ -245,7 +245,7 @@
                             pButton
                             icon="pi pi-plus"
                             class="p-button-outlined p-button-rounded"
-                            [disabled]="true"
+                            [disabled]="mintingPaused === 0"
                             (click)="mint()"
                           ></button>
                           <button
