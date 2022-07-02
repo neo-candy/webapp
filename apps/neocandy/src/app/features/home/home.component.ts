@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit {
   address = '';
   isLoading = false;
   currentPrice = 500000_000000000;
-  currentSupply = 0;
+  currentSupply = 222;
   mintingPaused = 1;
 
   responsiveCarouselOptions = [
