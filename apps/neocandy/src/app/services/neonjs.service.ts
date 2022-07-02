@@ -8,7 +8,6 @@ import {
   map,
   mergeMap,
   take,
-  tap,
 } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -21,7 +20,7 @@ export class NeonJSService {
     params: any[],
     scriptHash: string
   ): Observable<any> {
-    const rpcClient = new rpc.RPCClient(environment.testnet.nodeUrl);
+    const rpcClient = new rpc.RPCClient(environment.mainnet.nodeUrl);
     return from(rpcClient.invokeFunction(scriptHash, method, params)).pipe(
       mergeMap((res) => {
         if (res.state === 'FAULT') {
@@ -36,7 +35,7 @@ export class NeonJSService {
   public applicationLog(tx: string): Observable<{ executions: any[] }> {
     return from(
       new rpc.ApplicationLogsRpcClient(
-        environment.testnet.nodeUrl
+        environment.mainnet.nodeUrl
       ).getApplicationLog(tx)
     );
   }

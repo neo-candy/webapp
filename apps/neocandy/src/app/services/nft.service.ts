@@ -21,11 +21,11 @@ export class NftService {
   ): Observable<NeoInvokeWriteResponse> {
     const args = [
       {
-        scriptHash: environment.testnet.neocandy,
+        scriptHash: environment.mainnet.neocandy,
         operation: 'transfer',
         args: [
           NeolineService.address(address),
-          NeolineService.hash160(environment.testnet.lollipopNFT),
+          NeolineService.hash160(environment.mainnet.lollipopNFT),
           NeolineService.int(paymentAmount),
           NeolineService.any(null),
         ],
@@ -48,17 +48,17 @@ export class NftService {
   }
 
   public currentPrice(): Observable<number> {
-    const scriptHash = environment.testnet.lollipopNFT;
+    const scriptHash = environment.mainnet.lollipopNFT;
     return this.neonjs.rpcRequest('currentPrice', [], scriptHash);
   }
 
   public currentSupply(): Observable<number> {
-    const scriptHash = environment.testnet.lollipopNFT;
+    const scriptHash = environment.mainnet.lollipopNFT;
     return this.neonjs.rpcRequest('currentSupply', [], scriptHash);
   }
 
   public isPaused(): Observable<number> {
-    const scriptHash = environment.testnet.lollipopNFT;
+    const scriptHash = environment.mainnet.lollipopNFT;
     return this.neonjs.rpcRequest('isPaused', [], scriptHash);
   }
 }

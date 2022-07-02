@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { map, switchMap } from 'rxjs/operators';
 import { NeolineService } from '../../services/neoline.service';
 import { NftService } from '../../services/nft.service';
@@ -9,16 +9,13 @@ import { UiService } from '../../services/ui.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   constructor(
     private neoline: NeolineService,
     private nft: NftService,
     private ui: UiService
-  ) {
-    this.nft.currentPrice().subscribe((res) => (this.currentPrice = res));
-    this.nft.currentSupply().subscribe((res) => (this.currentSupply = res));
-    this.nft.isPaused().subscribe((res) => (this.mintingPaused = res));
-  }
+  ) {}
+
   address = '';
   isLoading = false;
   currentPrice = 500000_000000000;
@@ -55,6 +52,12 @@ export class HomeComponent {
     'No fees in NeoCandy DeFi protocols',
     'As the project grows, we will be continuously adding more utilities',
   ];
+
+  ngOnInit(): void {
+    this.nft.currentPrice().subscribe((res) => (this.currentPrice = res));
+    this.nft.currentSupply().subscribe((res) => (this.currentSupply = res));
+    this.nft.isPaused().subscribe((res) => (this.mintingPaused = res));
+  }
 
   public openDiscord(): void {
     window.open('https://discord.gg/7ssWUpvcfF', '_blank');
