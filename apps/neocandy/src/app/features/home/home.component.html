@@ -246,7 +246,7 @@
                             icon="pi pi-plus"
                             class="p-button-outlined p-button-rounded"
                             [disabled]="
-                              mintingPaused === 1 || currentSupply === 222
+                              mintingPaused == 1 || currentSupply === 222
                             "
                             (click)="mint()"
                           ></button>
