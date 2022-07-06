@@ -47,9 +47,9 @@ export class HomeComponent implements OnInit {
     'Receive the @Lollipop discord role and gain access to the exclusive #candy-bar channel',
     'As a NeoCandy NFT holder you will be part of exclusive airdrops',
     'With the @Lollipop role, you will get 3 entries to the discord giveaways when participating',
-    'You will receive 100% more candy in the candy-factory (faucet)',
+    'You will receive 100% more candy in the candy-factory (stackable)',
     'Early access to all future NeoCandy games and events',
-    'No fees in NeoCandy DeFi protocols',
+    'DeFi utilities',
     'As the project grows, we will be continuously adding more utilities',
   ];
 
