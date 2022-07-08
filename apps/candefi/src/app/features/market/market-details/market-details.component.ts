@@ -45,7 +45,7 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
     from(this.config.data.tokens as CandefiToken[])
       .pipe(
         mergeMap((token: CandefiToken) =>
-          this.rentfuse.getListingForNft(token)
+          this.rentfuse.getListingForToken(token)
         ),
         toArray(),
         finalize(() => this.set({ isLoading: false }))

@@ -1,11 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RxState } from '@rx-angular/state';
-import {
-  DialogService,
-  DynamicDialogConfig,
-  DynamicDialogRef,
-} from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Subject } from 'rxjs';
 import { CandefiToken } from '../../../../services/candefi.service';
 import {
@@ -45,7 +41,7 @@ export class RentDetailsComponent
     const token = this.config.data.token as TokenDetails;
     this.set({ token });
     this.formGroup = this.fb.group({
-      duration: [token.minRentInMinutes / 24 / 60, Validators.required],
+      duration: [token.listing.minMinutes / 24 / 60, Validators.required],
       agreement: [false, Validators.requiredTrue],
     });
   }
@@ -54,12 +50,12 @@ export class RentDetailsComponent
     const durationInMinutes = this.duration * 24 * 60;
     const token = this.get('token');
     const paymentAmount =
-      token.gasPerMinute * Math.pow(10, 8) * durationInMinutes +
-      token.collateral * Math.pow(10, 8);
+      token.listing.gasPerMinute * Math.pow(10, 8) * durationInMinutes +
+      token.listing.collateral * Math.pow(10, 8);
     this.rentfuse
       .startRenting(
         this.globalState.get('address'),
-        token.listingId,
+        token.listing.listingId,
         durationInMinutes,
         paymentAmount
       )

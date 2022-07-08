@@ -75,8 +75,8 @@
           <input type="text" pInputText [value]="duration + ' days'" readonly />
           <p-slider
             formControlName="duration"
-            [min]="s.token.minRentInMinutes / 24 / 60"
-            [max]="s.token.maxRentInMinutes / 24 / 60"
+            [min]="s.token.listing.minMinutes / 24 / 60"
+            [max]="s.token.listing.maxMinutes / 24 / 60"
           ></p-slider>
           <label for="duration">Duration</label>
         </span>

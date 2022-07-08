@@ -21,9 +21,9 @@ interface ProfileState {
   rentals: TokenDetails[];
   ownedCalls: TokenDetails[];
   ownedPuts: TokenDetails[];
-  listings: RentingWithTokenDetails[];
-  listingsCalls: RentingWithTokenDetails[];
-  listingsPuts: RentingWithTokenDetails[];
+  listings: any[];
+  listingsCalls: any[];
+  listingsPuts: any[];
   isLoadingListings: boolean;
   isLoadingOwned: boolean;
   selectedRentalCalls: TokenDetails[];
@@ -74,7 +74,7 @@ export class ProfileComponent extends RxState<ProfileState> {
       command: () => this.finishRentalPuts(),
     },
   ];
-  readonly fetchListings$ = (address: string) =>
+  /* readonly fetchListings$ = (address: string) =>
     this.candefi.tokensOfWriterJson(address).pipe(
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingForNft(token)),
@@ -84,7 +84,7 @@ export class ProfileComponent extends RxState<ProfileState> {
       ),
       toArray(),
       finalize(() => this.set({ isLoadingListings: false }))
-    );
+    ); */
 
   constructor(
     private candefi: CandefiService,
@@ -97,12 +97,12 @@ export class ProfileComponent extends RxState<ProfileState> {
 
     this.set(DEFAULT_STATE);
     this.connect('address', this.globalState.select('address'));
-    this.connect(
+    /*  this.connect(
       'listings',
       this.globalState
         .select('address')
         .pipe(switchMap((a) => this.fetchListings$(a)))
-    );
+    ); */
     this.connect(
       'listingsCalls',
       this.select('listings').pipe(
@@ -115,7 +115,7 @@ export class ProfileComponent extends RxState<ProfileState> {
         map((t) => t.filter((t) => t.type === 'Put'))
       )
     );
-    this.connect(
+    /* this.connect(
       'rentals',
       this.globalState.select('address').pipe(
         switchMap((a) =>
@@ -128,7 +128,7 @@ export class ProfileComponent extends RxState<ProfileState> {
           )
         )
       )
-    );
+    ); */
     this.connect(
       'ownedCalls',
       this.select('rentals').pipe(
@@ -256,23 +256,5 @@ export class ProfileComponent extends RxState<ProfileState> {
     this.candefi
       .exercise(this.get('address'), tokenIds)
       .subscribe((res) => console.log(res));
-  }
-
-  private mapStatus(listedToken: TokenDetails): TokenDetailsWithStatus {
-    let status = 'UNKNOWN';
-    if (listedToken.exercised && listedToken.owner === listedToken.writer) {
-      status = 'EXERCISED';
-    } else if (
-      !listedToken.exercised &&
-      listedToken.owner === environment.testnet.rentfuseAddress
-    ) {
-      status = 'LISTED';
-    } else if (listedToken.owner !== environment.testnet.rentfuseAddress) {
-      status = 'ONGOING';
-    }
-    return {
-      status,
-      ...listedToken,
-    };
   }
 }

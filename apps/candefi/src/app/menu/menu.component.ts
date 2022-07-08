@@ -103,9 +103,9 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
       strike: [0, Validators.required],
       stake: [5000, Validators.required],
       fee: [{ value: 1000, disabled: true }],
-      vdot: [0],
+      depreciation: [0],
       value: [0],
-      vi: [0],
+      volatility: [0],
       safe: [false],
       agreement: [false, Validators.requiredTrue],
       duration: [[1, 28]],
@@ -152,12 +152,12 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
     return this.form.get('strike')?.value;
   }
 
-  get vdot(): number {
-    return this.form.get('vdot')?.value;
+  get depreciation(): number {
+    return this.form.get('depreciation')?.value;
   }
 
-  get vi(): number {
-    return this.form.get('vi')?.value;
+  get volatility(): number {
+    return this.form.get('volatility')?.value;
   }
 
   get value(): number {
@@ -184,22 +184,25 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
     const stake = this.stake * Math.pow(10, 9);
     const strike = this.strike * Math.pow(10, 8);
     const value = this.value * Math.pow(10, 9);
-    const minDurationInMinutes = this.duration[0] * 24 * 60;
-    const maxDurationInMinutes = this.duration[1] * 24 * 60;
-    const feePerMinute = (this.dailyFee * Math.pow(10, 8)) / 24 / 60;
+    const minMinutes = this.duration[0] * 24 * 60;
+    const maxMinutes = this.duration[1] * 24 * 60;
+    const feePerMinute = Math.round(
+      (this.dailyFee * Math.pow(10, 8)) / 24 / 60
+    );
     const collateral = this.collateral * Math.pow(10, 8);
+
     this.candefi
       .mintCall(
         this.get('address'),
         strike,
         stake,
-        this.vdot,
+        this.depreciation,
         value,
-        this.vi,
+        this.volatility,
         this.safe,
         collateral,
-        minDurationInMinutes,
-        maxDurationInMinutes,
+        minMinutes,
+        maxMinutes,
         feePerMinute
       )
       .subscribe((txid) => {
@@ -215,16 +218,18 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
     const value = this.value * Math.pow(10, 9);
     const minDurationInMinutes = this.duration[0] * 24 * 60;
     const maxDurationInMinutes = this.duration[1] * 24 * 60;
-    const feePerMinute = (this.dailyFee * Math.pow(10, 8)) / 24 / 60;
+    const feePerMinute = Math.round(
+      (this.dailyFee * Math.pow(10, 8)) / 24 / 60
+    );
     const collateral = this.collateral * Math.pow(10, 8);
     this.candefi
       .mintPut(
         this.get('address'),
         strike,
         stake,
-        this.vdot,
+        this.depreciation,
         value,
-        this.vi,
+        this.volatility,
         this.safe,
         collateral,
         minDurationInMinutes,
@@ -233,15 +238,7 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
       )
       .subscribe((txid) => {
         this.set({ displayMintModal: false });
-        //this.refreshWriterTokens();
         console.log(txid);
       });
   }
-
-  /* private refreshWriterTokens(): void {
-    this.set({ isLoadingWriter: true });
-    this.fetchWriterTokens$(this.get('address')).subscribe((res) =>
-      this.set({ writer: res })
-    );
-  } */
 }

@@ -98,12 +98,12 @@ export class RentfuseService {
       .pipe(map((res) => this.mapListing(res)));
   }
 
-  /* getListingForNft(token: CandefiToken): Observable<TokenDetails> {
+  getListingForToken(token: CandefiToken): Observable<TokenDetails> {
     return this.getListingIdFromNft(token.tokenId).pipe(
       switchMap((listingId) => this.getListing(listingId)),
-      map((listing) => this.addTokenDetails(token, listing))
+      map((listing) => this.addListingToToken(token, listing))
     );
-  } */
+  }
 
   getRenting(rentingId: string): Observable<Renting> {
     const scriptHash = environment.testnet.rentfuseProtocol;
@@ -126,30 +126,27 @@ export class RentfuseService {
     );
   } */
 
-  getRentingListForListing(listingId: number): Observable<any[]> {
+  getLastRentingIdForListing(listingId: number): Observable<number> {
     const scriptHash = environment.testnet.rentfuseProtocol;
     return this.neonjs.rpcRequest(
-      'getRentingListForListing',
-      [sc.ContractParam.integer(listingId), sc.ContractParam.integer(0)],
+      'getLastRentingIdForListing',
+      [sc.ContractParam.integer(listingId)],
       scriptHash
     );
   }
 
-  /* addTokenDetails(token: CandefiToken, listing: Listing): TokenDetails {
-    const realValue =
-      token.realValue +
-      (this.globalState.get('neoPrice') * Math.pow(10, 8) - token.strike) *
-        token.vi;
+  addListingToToken(token: CandefiToken, listing: Listing): TokenDetails {
     return {
+      listing: {
+        collateral: listing.collateral / Math.pow(10, 8),
+        gasPerMinute: listing.gasPerMinute / Math.pow(10, 8),
+        listingId: listing.listingId,
+        maxMinutes: listing.maxMinutes,
+        minMinutes: listing.minMinutes,
+      },
       ...token,
-      listingId: listing.listingId,
-      maxRentInMinutes: listing.maxMinutes,
-      minRentInMinutes: listing.minMinutes,
-      gasPerMinute: listing.gasPerMinute / Math.pow(10, 8),
-      realValue: realValue > token.stake ? token.stake : realValue,
-      collateral: listing.collateral / Math.pow(10, 8),
     };
-  } */
+  }
 
   /* addRentingDetails(
     listing: TokenDetailsWithStatus,
@@ -160,12 +157,6 @@ export class RentfuseService {
       ...renting,
     };
   } */
-
-  private getRentingId(listingId: number): Observable<string> {
-    return this.getRentingListForListing(listingId).pipe(
-      map((v) => v[0]?.value[0]?.value)
-    );
-  }
 
   private mapListing(v: any[]): Listing {
     return {

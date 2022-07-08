@@ -2,9 +2,8 @@ import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { environment } from '../../../environments/environment';
 import { DialogService } from 'primeng/dynamicdialog';
-import { finalize, map, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { CandefiService, CandefiToken } from '../../services/candefi.service';
-import { RentfuseService } from '../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 import { MarketDetailsComponent } from './market-details/market-details.component';
 
@@ -56,9 +55,7 @@ export class MarketComponent extends RxState<MarketState> {
       'tokens',
       this.candefi
         .tokensOfJson(environment.testnet.rentfuseAddress)
-        .pipe(
-          tap(() => this.set({ isLoading: false }))
-        ) /* 'NSjnxcxV6qXGFLbo1vSAsSqRjBiyB6Qz7V' */
+        .pipe(tap(() => this.set({ isLoading: false })))
     );
     this.connect('neoPrice', this.globalState.select('neoPrice'));
     this.connect('calls', this.calls$);
