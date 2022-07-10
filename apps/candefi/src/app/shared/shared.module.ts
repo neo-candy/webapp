@@ -13,8 +13,11 @@ import { TabViewModule } from 'primeng/tabview';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SliderModule } from 'primeng/slider';
+import { MonitorComponent } from './components/monitor/monitor.component';
+import { MenubarModule } from 'primeng/menubar';
+
 @NgModule({
-  declarations: [TruncateAddressPipe],
+  declarations: [TruncateAddressPipe, MonitorComponent],
   imports: [
     CommonModule,
     ButtonModule,
@@ -29,6 +32,7 @@ import { SliderModule } from 'primeng/slider';
     ReactiveFormsModule,
     CheckboxModule,
     SliderModule,
+    MenubarModule,
   ],
   exports: [
     CommonModule,
@@ -45,6 +49,8 @@ import { SliderModule } from 'primeng/slider';
     ReactiveFormsModule,
     CheckboxModule,
     SliderModule,
+    MonitorComponent,
+    MenubarModule,
   ],
 })
 export class SharedModule {}

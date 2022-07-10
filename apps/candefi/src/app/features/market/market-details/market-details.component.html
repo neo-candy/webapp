@@ -27,17 +27,17 @@
         <td>{{ token.tokenId }}</td>
         <td>
           <div class="flex align-items-center">
-            {{ token.stake / 1000000000 | number: '1.0-0' }}
+            {{ token.stake | number: '1.0-0' }}
             <img src="assets/images/candy.png" height="20" class="ml-2" />
           </div>
         </td>
         <td>
           <div class="flex align-items-center">
-            {{ token.value / 1000000000 | number: '1.0-0' }}
+            {{ token.value | number: '1.0-0' }}
             <img src="assets/images/candy.png" height="20" class="ml-2" />
           </div>
         </td>
-        <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
+        <td>${{ token.strike | number: '1.2-2' }}</td>
         <td>
           {{ token.listing.minMinutes / 60 / 24 }} -
           {{ token.listing.maxMinutes / 60 / 24 }} days

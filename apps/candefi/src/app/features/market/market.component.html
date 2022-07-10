@@ -16,7 +16,11 @@
               responsiveLayout="scroll"
               styleClass="p-datatable-sm"
             >
-              <ng-template pTemplate="caption">Calls </ng-template>
+              <ng-template pTemplate="caption">
+                <div class="flex justify-content-center text-xl">
+                  Calls
+                </div></ng-template
+              >
 
               <ng-template pTemplate="header">
                 <tr>
@@ -30,13 +34,13 @@
                   (click)="onCallsRowSelect(token)"
                   class="cursor-pointer"
                   [ngClass]="{
-                    'highlight-row': token.strike / 100000000 < s.neoPrice
+                    'highlight-row': token.strike < s.neoPrice
                   }"
                 >
-                  <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
+                  <td>${{ token.strike | number: '1.2-2' }}</td>
                   <td>
                     <div class="flex align-items-center">
-                      {{ token.stake / 1000000000 | number: '1.0-0' }}
+                      {{ token.stake | number: '1.0-0' }}
                       <img
                         src="assets/images/candy.png"
                         height="20"
@@ -66,7 +70,11 @@
               responsiveLayout="scroll"
               styleClass="p-datatable-sm"
             >
-              <ng-template pTemplate="caption">Puts </ng-template>
+              <ng-template pTemplate="caption">
+                <div class="flex justify-content-center text-xl">
+                  Puts
+                </div></ng-template
+              >
 
               <ng-template pTemplate="header">
                 <tr>

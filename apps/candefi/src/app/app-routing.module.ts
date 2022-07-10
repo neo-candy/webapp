@@ -24,6 +24,13 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/profile/profile.module').then((m) => m.ProfileModule),
   },
+  {
+    path: 'tokens',
+    loadChildren: () =>
+      import('./features/token-details/token-details.module').then(
+        (m) => m.TokenDetailsModule
+      ),
+  },
 ];
 
 @NgModule({

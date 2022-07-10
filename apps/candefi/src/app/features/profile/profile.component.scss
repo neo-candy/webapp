@@ -1,15 +1,29 @@
-.positive-change {
-  color: #16A34A;
-}
-
-.negative-change {
-  color: #DC2626;
-}
-
 ::ng-deep .p-panel .p-panel-content {
   padding: 0;
 }
 
 ::ng-deep p-tabview .p-tabview .p-tabview-panels {
   padding: 0;
+}
+
+@media only screen and (min-width: 576px) {
+  .small-profile-menu {
+    visibility: hidden;
+    margin-bottom: -58px;
+  }
+}
+
+
+::ng-deep .p-menu {
+  border-radius: 0px;
+  border-top: 0px;
+  border-bottom: 0px;
+}
+
+::ng-deep .p-menuitem-text {
+  padding-left: 15px;
+}
+
+::ng-deep .p-menuitem-link-active {
+  border-left: 4px solid blue;
 }

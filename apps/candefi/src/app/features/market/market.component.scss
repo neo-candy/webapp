@@ -6,3 +6,6 @@
   background-color: #d3e7f8 !important;
 }
 
+::ng-deep .p-datatable .p-datatable-header {
+  background: none;
+}

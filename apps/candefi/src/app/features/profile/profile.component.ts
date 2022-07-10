@@ -1,20 +1,22 @@
 import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
-import { environment } from '../../../environments/environment';
 import {
-  filter,
   finalize,
   map,
   mergeAll,
   mergeMap,
   switchMap,
-  tap,
   toArray,
 } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
 import { RentfuseService, TokenDetails } from '../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
-import { ConfirmationService, ConfirmEventType, MenuItem } from 'primeng/api';
+import {
+  ConfirmationService,
+  ConfirmEventType,
+  MenuItem,
+  SelectItem,
+} from 'primeng/api';
 import { UiService } from '../../services/ui.service';
 
 interface ProfileState {
@@ -29,6 +31,7 @@ interface ProfileState {
   isLoadingOwned: boolean;
   selectedRentalCalls: TokenDetails[];
   selectedRentalPuts: TokenDetails[];
+  layouts: SelectItem[];
 }
 
 const DEFAULT_STATE: ProfileState = {
@@ -43,6 +46,10 @@ const DEFAULT_STATE: ProfileState = {
   ownedPuts: [],
   selectedRentalCalls: [],
   selectedRentalPuts: [],
+  layouts: [
+    { label: 'Calls', value: 'calls' },
+    { label: 'Puts', value: 'puts' },
+  ],
 };
 @Component({
   templateUrl: './profile.component.html',
@@ -50,6 +57,34 @@ const DEFAULT_STATE: ProfileState = {
   providers: [ConfirmationService],
 })
 export class ProfileComponent extends RxState<ProfileState> {
+  items: MenuItem[] = [
+    {
+      label: 'Statistics',
+      items: [
+        {
+          label: 'Earnings',
+          disabled: true,
+        },
+        { label: 'History', disabled: true },
+      ],
+    },
+    {
+      label: 'Listings',
+      items: [
+        {
+          label: 'Listed',
+          routerLink: ['listings'],
+          routerLinkActiveOptions: { exact: true },
+        },
+        { label: 'Active' },
+        { label: 'Claimable' },
+      ],
+    },
+    {
+      label: 'Rentals',
+      items: [{ label: 'Listed' }, { label: 'Active' }, { label: 'Claimable' }],
+    },
+  ];
   readonly state$ = this.select();
   callRentalsItems: MenuItem[] = [
     {

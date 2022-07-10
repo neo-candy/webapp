@@ -6,21 +6,22 @@ import { ProfileComponent } from './profile.component';
 import { SharedModule } from '../../shared/shared.module';
 import { TabViewModule } from 'primeng/tabview';
 import { BadgeModule } from 'primeng/badge';
-import { TagModule } from 'primeng/tag';
 import { MenuModule } from 'primeng/menu';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ListingsComponent } from './listings/listings.component';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @NgModule({
-  declarations: [ProfileComponent],
+  declarations: [ProfileComponent, ListingsComponent],
   imports: [
     CommonModule,
     ProfileRoutingModule,
     SharedModule,
     TabViewModule,
     BadgeModule,
-    TagModule,
     MenuModule,
     ConfirmDialogModule,
+    ToolbarModule,
   ],
   exports: [ProfileComponent],
 })

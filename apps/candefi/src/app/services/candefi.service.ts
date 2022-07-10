@@ -302,6 +302,20 @@ export class CandefiService {
       );
   }
 
+  public propertiesJson(tokenId: string): Observable<CandefiToken> {
+    const scriptHash = environment.testnet.candefi;
+    return this.neonjs
+      .rpcRequest(
+        'propertiesJson',
+        [sc.ContractParam.byteArray(tokenId)],
+        scriptHash
+      )
+      .pipe(
+        map((res) => JSON.parse(atob(res))),
+        map((parsed: TokenProperties) => this.mapToken(parsed))
+      );
+  }
+
   private mapToken(v: TokenProperties): CandefiToken {
     const strike = Number(
       v.attributes.filter((a) => a.trait_type === 'Strike')[0].value
@@ -328,10 +342,10 @@ export class CandefiService {
         CALL
           ? 'Call'
           : 'Put',
-      stake: stake,
-      strike: Number(
-        v.attributes.filter((a) => a.trait_type === 'Strike')[0].value
-      ),
+      stake: stake / Math.pow(10, 9),
+      strike:
+        Number(v.attributes.filter((a) => a.trait_type === 'Strike')[0].value) /
+        Math.pow(10, 8),
       writer: new wallet.Account(
         processBase64Hash160(
           v.attributes.filter((a) => a.trait_type === 'Writer')[0].value
@@ -354,7 +368,7 @@ export class CandefiService {
       volatility: Number(
         v.attributes.filter((a) => a.trait_type === 'Volatility')[0].value
       ),
-      value: updatedValue,
+      value: updatedValue / Math.pow(10, 9),
       created: Number(
         v.attributes.filter((a) => a.trait_type === 'Created')[0].value
       ),
