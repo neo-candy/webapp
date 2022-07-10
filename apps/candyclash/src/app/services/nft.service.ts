@@ -3,7 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { NeonJSService } from './neonjs.service';
-import { sc, wallet } from '@cityofzion/neon-js';
+import { sc, tx, wallet } from '@cityofzion/neon-js';
 import { NeolineService } from './neoline.service';
 import { NFT } from '../app.component';
 import { NeoInvokeWriteResponse } from '../models/n3';
@@ -153,7 +153,10 @@ export class NftService {
     return this.neoline
       .invokeMultiple({
         signers: [
-          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
         ],
         invokeArgs: [...args],
       })
@@ -225,7 +228,10 @@ export class NftService {
     return this.neoline
       .invokeMultiple({
         signers: [
-          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
         ],
         invokeArgs: [...args],
       })

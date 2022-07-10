@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { sc, wallet } from '@cityofzion/neon-js';
+import { Inject, Injectable } from '@angular/core';
+import { sc, tx, wallet } from '@cityofzion/neon-js';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -8,6 +8,8 @@ import { UiService } from './ui.service';
 import { NeolineService } from './neoline.service';
 import { NeonJSService } from './neonjs.service';
 import { processBase64Hash160 } from '../shared/utils';
+import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
+import { RxState } from '@rx-angular/state';
 
 const CALL = 1;
 const PUT = 2;
@@ -43,6 +45,7 @@ export interface CandefiToken {
   value: number;
   exercised: boolean;
   safe: boolean;
+  rentingStart: number;
 }
 
 export interface Earnings {
@@ -55,7 +58,8 @@ export class CandefiService {
   constructor(
     private neoline: NeolineService,
     private neonjs: NeonJSService,
-    private ui: UiService
+    private ui: UiService,
+    @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {}
   public mintCall(
     address: string,
@@ -70,9 +74,6 @@ export class CandefiService {
     maxDuration: number,
     feePerMinute: number
   ): Observable<NeoInvokeWriteResponse> {
-    console.log(address);
-    console.log(environment.testnet.candefi);
-    console.log(stake);
     stake += PROTOCOL_FEE;
     const args = [
       {
@@ -100,8 +101,16 @@ export class CandefiService {
     return this.neoline
       .invokeMultiple({
         signers: [
-          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CustomContracts,
+            allowedContracts: [
+              environment.testnet.candefi,
+              environment.testnet.neocandy,
+            ],
+          },
         ],
+
         invokeArgs: [...args],
       })
       .pipe(
@@ -154,7 +163,14 @@ export class CandefiService {
     return this.neoline
       .invokeMultiple({
         signers: [
-          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CustomContracts,
+            allowedContracts: [
+              environment.testnet.candefi,
+              environment.testnet.neocandy,
+            ],
+          },
         ],
         invokeArgs: [...args],
       })
@@ -188,7 +204,10 @@ export class CandefiService {
     return this.neoline
       .invokeMultiple({
         signers: [
-          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
         ],
         invokeArgs: [...args],
       })
@@ -223,7 +242,10 @@ export class CandefiService {
     return this.neoline
       .invokeMultiple({
         signers: [
-          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
         ],
         invokeArgs: [...args],
       })
@@ -281,6 +303,24 @@ export class CandefiService {
   }
 
   private mapToken(v: TokenProperties): CandefiToken {
+    const strike = Number(
+      v.attributes.filter((a) => a.trait_type === 'Strike')[0].value
+    );
+    const neoPrice = this.globalState.get('neoPrice') * Math.pow(10, 8);
+    const delta = neoPrice - strike;
+    const volatility = Number(
+      v.attributes.filter((a) => a.trait_type === 'Volatility')[0].value
+    );
+    const stake = Number(
+      v.attributes.filter((a) => a.trait_type === 'Stake')[0].value
+    );
+    const result = delta * volatility;
+    const value = Number(
+      v.attributes.filter((a) => a.trait_type === 'Value')[0].value
+    );
+    const updatedValue =
+      value + result > stake ? stake : value + result < 0 ? 0 : value + result;
+
     return {
       tokenId: btoa(v.tokenId),
       type:
@@ -288,9 +328,7 @@ export class CandefiService {
         CALL
           ? 'Call'
           : 'Put',
-      stake: Number(
-        v.attributes.filter((a) => a.trait_type === 'Stake')[0].value
-      ),
+      stake: stake,
       strike: Number(
         v.attributes.filter((a) => a.trait_type === 'Strike')[0].value
       ),
@@ -316,9 +354,7 @@ export class CandefiService {
       volatility: Number(
         v.attributes.filter((a) => a.trait_type === 'Volatility')[0].value
       ),
-      value: Number(
-        v.attributes.filter((a) => a.trait_type === 'Value')[0].value
-      ),
+      value: updatedValue,
       created: Number(
         v.attributes.filter((a) => a.trait_type === 'Created')[0].value
       ),
@@ -327,6 +363,9 @@ export class CandefiService {
       ),
       safe: Boolean(
         v.attributes.filter((a) => a.trait_type === 'Safe')[0].value
+      ),
+      rentingStart: Number(
+        v.attributes.filter((a) => a.trait_type === 'Renting Start')[0].value
       ),
     };
   }

@@ -15,8 +15,8 @@
         <th>Value</th>
         <th>Strike</th>
         <th>Duration</th>
-        <th>Vdot</th>
-        <th>Vi</th>
+        <th>Depreciation</th>
+        <th>Volatility</th>
         <th>Gas/Day</th>
         <th>Gas Collateral</th>
         <th>Safe</th>
@@ -33,19 +33,19 @@
         </td>
         <td>
           <div class="flex align-items-center">
-            {{ token.realValue / 1000000000 | number: '1.0-0' }}
+            {{ token.value / 1000000000 | number: '1.0-0' }}
             <img src="assets/images/candy.png" height="20" class="ml-2" />
           </div>
         </td>
         <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
         <td>
-          {{ token.minRentInMinutes / 60 / 24 }} -
-          {{ token.maxRentInMinutes / 60 / 24 }} days
+          {{ token.listing.minMinutes / 60 / 24 }} -
+          {{ token.listing.maxMinutes / 60 / 24 }} days
         </td>
-        <td>{{ token.vdot }}</td>
-        <td>{{ token.vi }}</td>
-        <td>{{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
-        <td>{{ token.collateral | number: '1.2-2' }}</td>
+        <td>{{ token.depreciation | number }}</td>
+        <td>{{ token.volatility | number }}</td>
+        <td>{{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
+        <td>{{ token.listing.collateral | number: '1.2-2' }}</td>
         <td>
           <span [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"></span>
         </td>

@@ -36,6 +36,7 @@ export interface NeoTxConfirmation {
 export interface NeoSigner {
   account: string;
   scopes: NeoScope;
+  allowedContracts?: string[];
 }
 
 export interface NeoProvider {

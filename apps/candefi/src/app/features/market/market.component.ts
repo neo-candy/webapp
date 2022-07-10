@@ -64,7 +64,6 @@ export class MarketComponent extends RxState<MarketState> {
 
   onCallsRowSelect(token: CandefiToken): void {
     const strike = token.strike;
-
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Calls',
       width: '90%',

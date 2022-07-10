@@ -23,7 +23,7 @@
         <td>Value</td>
         <td class="text-right">
           <div class="flex align-items-center justify-content-end">
-            {{ token.realValue / 1000000000 | number: '1.0-0' }}
+            {{ token.value / 1000000000 | number: '1.0-0' }}
             <img src="assets/images/candy.png" height="20" class="ml-2" />
           </div>
         </td>
@@ -37,27 +37,29 @@
       <tr>
         <td>Duration</td>
         <td class="text-right">
-          {{ token.minRentInMinutes / 60 / 24 }} -
-          {{ token.maxRentInMinutes / 60 / 24 }} days
+          {{ token.listing.minMinutes / 60 / 24 }} -
+          {{ token.listing.maxMinutes / 60 / 24 }} days
         </td>
       </tr>
       <tr>
-        <td>Vdot</td>
-        <td class="text-right">{{ token.vdot }}</td>
+        <td>Depreciation</td>
+        <td class="text-right">{{ token.depreciation }}</td>
       </tr>
       <tr>
-        <td>Vi</td>
-        <td class="text-right">{{ token.vi }}</td>
+        <td>Volatility</td>
+        <td class="text-right">{{ token.volatility }}</td>
       </tr>
       <tr>
         <td>Gas/Day</td>
         <td class="text-right">
-          {{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}
+          {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}
         </td>
       </tr>
       <tr>
         <td>Gas collateral</td>
-        <td class="text-right">{{ token.collateral | number: '1.2-2' }}</td>
+        <td class="text-right">
+          {{ token.listing.collateral | number: '1.2-2' }}
+        </td>
       </tr>
       <tr>
         <td>Safe</td>

@@ -21,8 +21,8 @@
               <th>Change</th>
               <th>Strike</th>
               <th>Remaining Time</th>
-              <th>Vdot</th>
-              <th>Vi</th>
+              <th>Depreciation</th>
+              <th>Volatility</th>
               <th>Earned fees</th>
               <th>Collateral</th>
               <th>Safe</th>
@@ -41,7 +41,7 @@
               </td>
               <td>
                 <div class="flex align-items-center">
-                  {{ token.realValue / 1000000000 | number: '1.0-0' }}
+                  {{ token.value / 1000000000 | number: '1.0-0' }}
                   <img src="assets/images/candy.png" height="20" class="ml-2" />
                 </div>
               </td>
@@ -67,8 +67,8 @@
               </td>
               <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
               <td>{{ token.duration }} - {{ token.startedAt }}</td>
-              <td>{{ token.vdot }}</td>
-              <td>{{ token.vi }}</td>
+              <td>{{ token.depreciation | number }}</td>
+              <td>{{ token.volatility | number }}</td>
               <td>
                 <div class="flex align-items-center">
                   {{ token.gasPerMinute * 60 * 24 | number: '1.2-2' }}

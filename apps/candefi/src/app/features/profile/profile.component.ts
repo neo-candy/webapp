@@ -8,6 +8,7 @@ import {
   mergeAll,
   mergeMap,
   switchMap,
+  tap,
   toArray,
 } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
@@ -74,17 +75,13 @@ export class ProfileComponent extends RxState<ProfileState> {
       command: () => this.finishRentalPuts(),
     },
   ];
-  /* readonly fetchListings$ = (address: string) =>
+  readonly fetchTokenDetails$ = (address: string) =>
     this.candefi.tokensOfWriterJson(address).pipe(
       mergeAll(),
-      mergeMap((token) => this.rentfuse.getListingForNft(token)),
-      map((listing) => this.mapStatus(listing)),
-      switchMap((listingWithStatus) =>
-        this.rentfuse.getRentingForListing(listingWithStatus)
-      ),
+      mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
       toArray(),
       finalize(() => this.set({ isLoadingListings: false }))
-    ); */
+    );
 
   constructor(
     private candefi: CandefiService,
@@ -97,12 +94,12 @@ export class ProfileComponent extends RxState<ProfileState> {
 
     this.set(DEFAULT_STATE);
     this.connect('address', this.globalState.select('address'));
-    /*  this.connect(
+    this.connect(
       'listings',
       this.globalState
         .select('address')
-        .pipe(switchMap((a) => this.fetchListings$(a)))
-    ); */
+        .pipe(switchMap((a) => this.fetchTokenDetails$(a)))
+    );
     this.connect(
       'listingsCalls',
       this.select('listings').pipe(

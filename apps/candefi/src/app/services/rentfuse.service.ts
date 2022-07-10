@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@angular/core';
-import { sc, wallet } from '@cityofzion/neon-js';
+import { sc, tx, wallet } from '@cityofzion/neon-js';
 import { RxState } from '@rx-angular/state';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { combineLatest, Observable, of, throwError } from 'rxjs';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { NeoInvokeWriteResponse } from '../models/n3';
 import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
@@ -65,7 +65,10 @@ export class RentfuseService {
     return this.neoline
       .invokeMultiple({
         signers: [
-          { account: new wallet.Account(address).scriptHash, scopes: 1 },
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
         ],
         invokeArgs: [...args],
       })
@@ -98,14 +101,10 @@ export class RentfuseService {
       .pipe(map((res) => this.mapListing(res)));
   }
 
-  getListingForToken(token: CandefiToken): Observable<TokenDetails> {
-    return this.getListingIdFromNft(token.tokenId).pipe(
-      switchMap((listingId) => this.getListing(listingId)),
-      map((listing) => this.addListingToToken(token, listing))
-    );
-  }
-
-  getRenting(rentingId: string): Observable<Renting> {
+  getRenting(rentingId: string): Observable<Renting | null> {
+    if (!rentingId) {
+      return of(null);
+    }
     const scriptHash = environment.testnet.rentfuseProtocol;
     return this.neonjs
       .rpcRequest(
@@ -116,17 +115,7 @@ export class RentfuseService {
       .pipe(map((v) => this.mapRenting(v)));
   }
 
-  /* getRentingForListing(
-    listing: TokenDetailsWithStatus
-  ): Observable<RentingWithTokenDetails> {
-    return this.getRentingId(listing.listingId).pipe(
-      filter((id) => id !== undefined),
-      switchMap((rentingId) => this.getRenting(rentingId)),
-      map((renting) => this.addRentingDetails(listing, renting))
-    );
-  } */
-
-  getLastRentingIdForListing(listingId: number): Observable<number> {
+  getLastRentingIdForListing(listingId: number): Observable<string> {
     const scriptHash = environment.testnet.rentfuseProtocol;
     return this.neonjs.rpcRequest(
       'getLastRentingIdForListing',
@@ -135,7 +124,49 @@ export class RentfuseService {
     );
   }
 
-  addListingToToken(token: CandefiToken, listing: Listing): TokenDetails {
+  /* CUSTOM METHODS */
+
+  getListingForToken(token: CandefiToken): Observable<TokenDetails> {
+    return this.getListingIdFromNft(token.tokenId).pipe(
+      filter((id) => id != 0),
+      switchMap((listingId) => this.getListing(listingId)),
+      map((listing) => this.addListingToToken(token, listing))
+    );
+  }
+
+  getRentingForToken(token: TokenDetails): Observable<TokenDetails> {
+    return this.getLastRentingIdForListing(token.listing.listingId).pipe(
+      switchMap((rentingId) => this.getRenting(rentingId)),
+      map((renting) => this.addRentingToToken(token, renting))
+    );
+  }
+
+  getListingAndRentingForToken(token: CandefiToken): Observable<TokenDetails> {
+    return this.getListingForToken(token).pipe(
+      switchMap((listing) => this.getRentingForToken(listing))
+    );
+  }
+
+  private addRentingToToken(
+    token: TokenDetails,
+    renting: Renting | null
+  ): TokenDetails {
+    if (!renting) {
+      return token;
+    }
+    return {
+      renting: {
+        duration: renting.duration,
+        startedAt: renting.startedAt,
+      },
+      ...token,
+    };
+  }
+
+  private addListingToToken(
+    token: CandefiToken,
+    listing: Listing
+  ): TokenDetails {
     return {
       listing: {
         collateral: listing.collateral / Math.pow(10, 8),
@@ -148,15 +179,12 @@ export class RentfuseService {
     };
   }
 
-  /* addRentingDetails(
-    listing: TokenDetailsWithStatus,
-    renting: Renting
-  ): RentingWithTokenDetails {
+  private mapRenting(v: any[]): Renting {
     return {
-      ...listing,
-      ...renting,
+      duration: v[3].value,
+      startedAt: v[4].value,
     };
-  } */
+  }
 
   private mapListing(v: any[]): Listing {
     return {
@@ -165,13 +193,6 @@ export class RentfuseService {
       maxMinutes: v[5].value,
       gasPerMinute: v[3].value[1].value,
       collateral: v[6].value,
-    };
-  }
-
-  private mapRenting(v: any[]): Renting {
-    return {
-      duration: v[3].value,
-      startedAt: v[4].value,
     };
   }
 }
