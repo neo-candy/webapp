@@ -48,6 +48,7 @@ export class MarketComponent extends RxState<MarketState> {
   constructor(
     private dialogService: DialogService,
     private candefi: CandefiService,
+    public theme: ThemeService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();

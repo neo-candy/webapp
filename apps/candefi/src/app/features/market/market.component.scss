@@ -2,8 +2,12 @@
   padding: 0px;
 }
 
-.highlight-row {
+.highlight-row-light-theme {
   background-color: #d3e7f8 !important;
+}
+
+.highlight-row-dark-theme {
+  background-color: #306089 !important;
 }
 
 ::ng-deep .p-datatable .p-datatable-header {

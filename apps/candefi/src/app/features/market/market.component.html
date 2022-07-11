@@ -34,7 +34,12 @@
                   (click)="onCallsRowSelect(token)"
                   class="cursor-pointer"
                   [ngClass]="{
-                    'highlight-row': token.strike < s.neoPrice
+                    'highlight-row-dark-theme':
+                      token.strike < s.neoPrice &&
+                      theme.current === 'lara-dark-indigo',
+                    'highlight-row-light-theme':
+                      token.strike < s.neoPrice &&
+                      theme.current === 'lara-light-indigo'
                   }"
                 >
                   <td>${{ token.strike | number: '1.2-2' }}</td>

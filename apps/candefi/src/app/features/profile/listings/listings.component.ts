@@ -15,6 +15,7 @@ import {
   RentfuseService,
   TokenDetails,
 } from '../../../services/rentfuse.service';
+import { ThemeService } from '../../../services/theme.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
 
 interface ListingState {
@@ -64,6 +65,7 @@ export class ListingsComponent extends RxState<ListingState> {
     private candefi: CandefiService,
     private rentfuse: RentfuseService,
     private router: Router,
+    public theme: ThemeService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
