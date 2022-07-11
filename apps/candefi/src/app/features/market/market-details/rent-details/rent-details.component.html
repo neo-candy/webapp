@@ -50,15 +50,21 @@
         <td class="text-right">{{ token.volatility }}</td>
       </tr>
       <tr>
-        <td>Gas/Day</td>
+        <td>Daily fee</td>
         <td class="text-right">
-          {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}
+          <div class="flex align-items-center justify-content-end">
+            {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}
+            <img src="assets/images/gas.png" height="20" class="ml-2" />
+          </div>
         </td>
       </tr>
       <tr>
-        <td>Gas collateral</td>
-        <td class="text-right">
-          {{ token.listing.collateral | number: '1.2-2' }}
+        <td>Collateral</td>
+        <td>
+          <div class="flex align-items-center justify-content-end">
+            {{ token.listing.collateral | number: '1.2-2' }}
+            <img src="assets/images/gas.png" height="20" class="ml-2" />
+          </div>
         </td>
       </tr>
       <tr>

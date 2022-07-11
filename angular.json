@@ -24,9 +24,18 @@
             "styles": [
               "apps/candefi/src/styles.scss",
               "node_modules/primeicons/primeicons.css",
-              "node_modules/primeng/resources/themes/lara-light-indigo/theme.css",
               "node_modules/primeng/resources/primeng.min.css",
-              "node_modules/primeflex/primeflex.css"
+              "node_modules/primeflex/primeflex.css",
+              {
+                "input": "apps/candefi/src/assets/themes/lara-light-indigo.scss",
+                "bundleName": "lara-light-indigo",
+                "inject": false
+              },
+              {
+                "input": "apps/candefi/src/assets/themes/lara-dark-indigo.scss",
+                "bundleName": "lara-dark-indigo",
+                "inject": false
+              }
             ],
             "scripts": []
           },

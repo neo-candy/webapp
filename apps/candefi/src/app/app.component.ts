@@ -2,7 +2,9 @@ import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { ContextService, THEME_CTX_KEY } from './services/context.service';
 import { PriceService } from './services/price.service';
+import { ThemeService } from './services/theme.service';
 import { GlobalState, GLOBAL_RX_STATE } from './state/global.state';
 
 @Component({
@@ -17,10 +19,13 @@ export class AppComponent {
   state$ = this.globalState.select();
   constructor(
     private price: PriceService,
+    private theme: ThemeService,
+    private context: ContextService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     this.globalState.connect('neoPrice', this.neoPrice$);
     this.globalState.connect('gasPrice', this.gasPrice$);
     this.globalState.connect('candyPrice', this.candyPrice$);
+    this.theme.switchTheme(this.context.get(THEME_CTX_KEY) ?? theme.current);
   }
 }

@@ -6,6 +6,7 @@ import { map, tap } from 'rxjs/operators';
 import { CandefiService, CandefiToken } from '../../services/candefi.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 import { MarketDetailsComponent } from './market-details/market-details.component';
+import { ThemeService } from '../../services/theme.service';
 
 interface MarketState {
   tokens: CandefiToken[];

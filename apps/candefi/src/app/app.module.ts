@@ -12,9 +12,10 @@ import { SharedModule } from './shared/shared.module';
 import { GlobalState, GLOBAL_RX_STATE } from './state/global.state';
 import { RxState } from '@rx-angular/state';
 import { MenuModule } from './menu/menu.module';
+import { FooterComponent } from './footer/footer.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, FooterComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

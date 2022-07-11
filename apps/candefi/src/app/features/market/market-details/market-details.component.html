@@ -17,8 +17,8 @@
         <th>Duration</th>
         <th>Depreciation</th>
         <th>Volatility</th>
-        <th>Gas/Day</th>
-        <th>Gas Collateral</th>
+        <th>Daily fee</th>
+        <th>Collateral</th>
         <th>Safe</th>
       </tr>
     </ng-template>
@@ -44,8 +44,18 @@
         </td>
         <td>{{ token.depreciation | number }}</td>
         <td>{{ token.volatility | number }}</td>
-        <td>{{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}</td>
-        <td>{{ token.listing.collateral | number: '1.2-2' }}</td>
+        <td>
+          <div class="flex align-items-center">
+            {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}
+            <img src="assets/images/gas.png" height="20" class="ml-2" />
+          </div>
+        </td>
+        <td>
+          <div class="flex align-items-center">
+            {{ token.listing.collateral | number: '1.2-2' }}
+            <img src="assets/images/gas.png" height="20" class="ml-2" />
+          </div>
+        </td>
         <td>
           <span [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"></span>
         </td>

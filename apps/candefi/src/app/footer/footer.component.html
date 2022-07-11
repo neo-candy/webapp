@@ -1,0 +1,9 @@
+<div class="flex justify-content-end p-4">
+  <span
+    class="cursor-pointer"
+    [ngClass]="
+      theme.current === 'lara-light-indigo' ? 'pi pi-moon' : 'pi pi-sun'
+    "
+    (click)="switchTheme()"
+  ></span>
+</div>
