@@ -2,27 +2,27 @@
   <div class="flex justify-content-between align-items-center pl-3 pr-3 bg">
     <div class="flex align-items-center cursor-pointer" routerLink="/markets">
       <img src="assets/images/candy-logo-sm.png" width="30" />
-      <h1 class="text-white">andefi</h1>
+      <h1 class="">andefi</h1>
     </div>
     <div>
       <ng-container *ngIf="s.address; else connect">
         <button
           pButton
           icon="pi pi-plus"
-          class="p-button-text text-white"
+          class="p-button-text"
           (click)="mintOverlayPanel.toggle($event)"
         ></button>
         <button
           pButton
           icon="pi pi-user"
-          class="p-button-text text-white"
+          class="p-button-text"
           routerLink="profile/listings"
         ></button>
         <button
           pButton
           pRipple
           [icon]="s.isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-copy'"
-          class="p-button-text text-white"
+          class="p-button-text"
           type="button"
           label="{{ s.address | truncateAddress }}"
         ></button>
@@ -31,7 +31,7 @@
         <button
           pButton
           pRipple
-          class="p-button-outlined text-white"
+          class="p-button-outlined"
           type="button"
           icon="pi pi-sign-in"
           (click)="connectWallet()"

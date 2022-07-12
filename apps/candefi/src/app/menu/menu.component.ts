@@ -5,6 +5,7 @@ import { MenuItem } from 'primeng/api';
 import { distinctUntilChanged, map, tap } from 'rxjs/operators';
 import { CandefiService } from '../services/candefi.service';
 import { NeolineService } from '../services/neoline.service';
+import { ThemeService } from '../services/theme.service';
 import { UiService } from '../services/ui.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
 
@@ -56,7 +57,8 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
     private ui: UiService,
     private neoline: NeolineService,
     private fb: FormBuilder,
-    private candefi: CandefiService
+    private candefi: CandefiService,
+    public theme: ThemeService
   ) {
     super();
     this.set(DEFAULT_STATE);

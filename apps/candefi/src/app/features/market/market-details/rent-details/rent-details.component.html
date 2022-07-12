@@ -14,7 +14,7 @@
         <td>Stake</td>
         <td class="text-right">
           <div class="flex align-items-center justify-content-end">
-            {{ token.stake / 1000000000 | number: '1.0-0' }}
+            {{ token.stake | number: '1.0-0' }}
             <img src="assets/images/candy.png" height="20" class="ml-2" />
           </div>
         </td>
@@ -23,16 +23,14 @@
         <td>Value</td>
         <td class="text-right">
           <div class="flex align-items-center justify-content-end">
-            {{ token.value / 1000000000 | number: '1.0-0' }}
+            {{ token.value | number: '1.0-0' }}
             <img src="assets/images/candy.png" height="20" class="ml-2" />
           </div>
         </td>
       </tr>
       <tr>
         <td>Strike</td>
-        <td class="text-right">
-          ${{ token.strike / 100000000 | number: '1.2-2' }}
-        </td>
+        <td class="text-right">${{ token.strike | number: '1.2-2' }}</td>
       </tr>
       <tr>
         <td>Duration</td>
