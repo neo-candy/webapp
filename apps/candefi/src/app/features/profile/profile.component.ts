@@ -69,47 +69,22 @@ export class ProfileComponent extends RxState<ProfileState> {
       ],
     },
     {
-      label: 'Listings',
+      label: 'Portfolio',
       items: [
         {
-          label: 'Listed',
+          label: 'Listings',
           routerLink: ['listings'],
           routerLinkActiveOptions: { exact: true },
         },
-        { label: 'Active' },
-        { label: 'Claimable' },
+        {
+          label: 'Rentals',
+          routerLink: ['rentals'],
+          routerLinkActiveOptions: { exact: true },
+        },
       ],
-    },
-    {
-      label: 'Rentals',
-      items: [{ label: 'Listed' }, { label: 'Active' }, { label: 'Claimable' }],
     },
   ];
   readonly state$ = this.select();
-  callRentalsItems: MenuItem[] = [
-    {
-      label: 'Exercise',
-      icon: 'pi pi-eject',
-      command: () => this.exerciseCalls(),
-    },
-    {
-      label: 'Cancel',
-      icon: 'pi pi-times',
-      command: () => this.finishRentalCalls(),
-    },
-  ];
-  putRentalsItems: MenuItem[] = [
-    {
-      label: 'Exercise',
-      icon: 'pi pi-eject',
-      command: () => this.exercisePuts(),
-    },
-    {
-      label: 'Cancel',
-      icon: 'pi pi-times',
-      command: () => this.finishRentalPuts(),
-    },
-  ];
   readonly fetchTokenDetails$ = (address: string) =>
     this.candefi.tokensOfWriterJson(address).pipe(
       mergeAll(),
@@ -161,24 +136,6 @@ export class ProfileComponent extends RxState<ProfileState> {
         )
       )
     ); */
-    this.connect(
-      'ownedCalls',
-      this.select('rentals').pipe(
-        map((t) => t.filter((t) => t.type === 'Call' && t.writer !== t.owner))
-      )
-    );
-    this.connect(
-      'ownedPuts',
-      this.select('rentals').pipe(
-        map((t) => t.filter((t) => t.type === 'Put' && t.writer !== t.owner))
-      )
-    );
-  }
-
-  cancelListing(tokenId: string): void {
-    /* this.candefi
-      .cancelListing(this.get('address'), tokenId)
-      .subscribe((res) => console.log(res)); */
   }
 
   finishRentalCalls(): void {

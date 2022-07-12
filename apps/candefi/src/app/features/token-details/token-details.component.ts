@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RxState } from '@rx-angular/state';
-import { MenuItem } from 'primeng/api';
-import { finalize, map, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
 import { TokenDetails, RentfuseService } from '../../services/rentfuse.service';
 
 interface TokenDetailsState {
   token: TokenDetails;
+  base64TokenId: string;
   isLoading: boolean;
 }
 
@@ -18,9 +18,7 @@ interface TokenDetailsState {
 })
 export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   readonly state$ = this.select();
-  readonly fetchTokenId$ = this.route.params.pipe(
-    map((res) => btoa(res['tokenId']))
-  );
+  readonly fetchTokenId$ = this.route.params.pipe(map((res) => res['tokenId']));
 
   constructor(
     private route: ActivatedRoute,
@@ -29,10 +27,11 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   ) {
     super();
     this.set({ isLoading: true });
+    this.connect('base64TokenId', this.fetchTokenId$);
     this.connect(
       'token',
       this.fetchTokenId$.pipe(
-        switchMap((id) => this.candefi.propertiesJson(id)),
+        switchMap((id) => this.candefi.propertiesJson(btoa(id))),
         switchMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
         tap(() => this.set({ isLoading: false }))
       )

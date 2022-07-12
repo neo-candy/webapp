@@ -27,12 +27,12 @@
               "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeflex/primeflex.css",
               {
-                "input": "apps/candefi/src/assets/themes/lara-light-indigo.scss",
+                "input": "apps/candefi/src/lara-light-indigo.scss",
                 "bundleName": "lara-light-indigo",
                 "inject": false
               },
               {
-                "input": "apps/candefi/src/assets/themes/lara-dark-indigo.scss",
+                "input": "apps/candefi/src/lara-dark-indigo.scss",
                 "bundleName": "lara-dark-indigo",
                 "inject": false
               }

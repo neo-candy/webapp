@@ -10,9 +10,10 @@ import { MenuModule } from 'primeng/menu';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ListingsComponent } from './listings/listings.component';
 import { ToolbarModule } from 'primeng/toolbar';
+import { RentalsComponent } from './rentals/rentals.component';
 
 @NgModule({
-  declarations: [ProfileComponent, ListingsComponent],
+  declarations: [ProfileComponent, ListingsComponent, RentalsComponent],
   imports: [
     CommonModule,
     ProfileRoutingModule,

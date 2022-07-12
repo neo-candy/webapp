@@ -45,7 +45,6 @@ export interface CandefiToken {
   value: number;
   exercised: boolean;
   safe: boolean;
-  rentingStart: number;
 }
 
 export interface Earnings {
@@ -377,9 +376,6 @@ export class CandefiService {
       ),
       safe: Boolean(
         v.attributes.filter((a) => a.trait_type === 'Safe')[0].value
-      ),
-      rentingStart: Number(
-        v.attributes.filter((a) => a.trait_type === 'Renting Start')[0].value
       ),
     };
   }

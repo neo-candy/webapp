@@ -6,6 +6,7 @@ import { TokenDetailsComponent } from './token-details.component';
 import { TokenDetailsRoutingModule } from './token-details-routing.module';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @NgModule({
   declarations: [TokenDetailsComponent],
@@ -15,6 +16,7 @@ import { TagModule } from 'primeng/tag';
     TokenDetailsRoutingModule,
     DividerModule,
     TagModule,
+    ToolbarModule,
   ],
 })
 export class TokenDetailsModule {}

@@ -4,11 +4,11 @@
       ><span class="mr-2 font-bold">Profile</span>
     </ng-template>
     <div class="small-profile-menu">
-      <p-menubar [model]="items"></p-menubar>
+      <p-menubar [model]="items" styleClass="cd-profile-menu"></p-menubar>
     </div>
     <div class="flex">
       <div class="hidden sm:block">
-        <p-menu [model]="items"></p-menu>
+        <p-menu [model]="items" styleClass="cd-profile-menu"></p-menu>
       </div>
       <div class="w-full">
         <router-outlet></router-outlet>
@@ -344,8 +344,6 @@
       </p-tabPanel>
     </p-tabView>
   </p-panel> -->
-  <p-menu #callRentalsMenu [popup]="true" [model]="callRentalsItems"></p-menu>
-  <p-menu #putRentalsMenu [popup]="true" [model]="putRentalsItems"></p-menu>
   <p-confirmDialog position="bottom" [baseZIndex]="10000"></p-confirmDialog>
 </ng-container>
 <br />

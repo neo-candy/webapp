@@ -19,7 +19,7 @@ import {
 import { ThemeService } from '../../../services/theme.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
 
-interface ListingState {
+interface RentalsState {
   layoutOptions: SelectItem[];
   selectedLayout: string;
   isLoading: boolean;
@@ -28,7 +28,7 @@ interface ListingState {
   neoPrice: number;
 }
 
-const DEFAULT_STATE: ListingState = {
+const DEFAULT_STATE: RentalsState = {
   layoutOptions: [
     {
       value: 'call',
@@ -47,18 +47,18 @@ const DEFAULT_STATE: ListingState = {
 };
 
 @Component({
-  selector: 'cd-listings',
-  templateUrl: './listings.component.html',
-  styleUrls: ['./listings.component.scss'],
+  selector: 'cd-rentals',
+  templateUrl: './rentals.component.html',
+  styleUrls: ['./rentals.component.scss'],
 })
-export class ListingsComponent extends RxState<ListingState> {
+export class RentalsComponent extends RxState<RentalsState> {
   atob = atob;
   readonly state$ = this.select();
-  readonly fetchListings$ = (address: string) =>
+  readonly fetchRentals$ = (address: string) =>
     this.candefi.tokensOfWriterJson(address).pipe(
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
-      filter((t) => !t.renting),
+      filter((t) => !!t.renting),
       toArray(),
       finalize(() => this.set({ isLoading: false }))
     );
@@ -75,7 +75,7 @@ export class ListingsComponent extends RxState<ListingState> {
     this.connect(
       'tokens',
       this.globalState.select('address').pipe(
-        switchMap((a) => this.fetchListings$(a)),
+        switchMap((a) => this.fetchRentals$(a)),
         map((v) => v.sort((a, b) => a.strike - b.strike))
       )
     );

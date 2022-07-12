@@ -1,5 +1,13 @@
 <ng-container *ngIf="state$ | async as s">
   <div *ngIf="!s.isLoading; else loading">
+    <p-toolbar>
+      <div class="flex">
+        <span class="mr-2"><a routerLink="/">Markets</a></span> /
+        <span class="mr-2 ml-2">NEO</span> /
+        <span class="mr-2 ml-2">{{ s.token.type }}s</span> /
+        <span class="ml-2">{{ s.base64TokenId }}</span>
+      </div>
+    </p-toolbar>
     <p-panel>
       <ng-template pTemplate="header">
         <div class="w-full flex justify-content-between">
@@ -19,12 +27,7 @@
             <input pInputText [value]="s.token.tokenId" />
           </div>
         </div>
-        <div class="col-3">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">Type</div>
-            <input pInputText [value]="s.token.type" />
-          </div>
-        </div>
+
         <div class="col-3">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Stake:</div>
@@ -70,6 +73,20 @@
           <div class="flex flex-column">
             <div class="font-bold mb-1">Safe:</div>
             <input pInputText [value]="s.token.safe ? 'Yes' : 'No'" />
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="flex flex-column">
+            <div class="font-bold mb-1">Duration:</div>
+            <input
+              pInputText
+              [value]="
+                s.token.listing.minMinutes / 60 / 24 +
+                '-' +
+                s.token.listing.maxMinutes / 60 / 24 +
+                ' days'
+              "
+            />
           </div>
         </div>
       </div>
