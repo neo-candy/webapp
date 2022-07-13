@@ -57,8 +57,7 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
     private ui: UiService,
     private neoline: NeolineService,
     private fb: FormBuilder,
-    private candefi: CandefiService,
-    public theme: ThemeService
+    private candefi: CandefiService
   ) {
     super();
     this.set(DEFAULT_STATE);

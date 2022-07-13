@@ -2,8 +2,8 @@ import { Component, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { RxState } from '@rx-angular/state';
 import { SelectItem } from 'primeng/api';
+import { BehaviorSubject, Subject } from 'rxjs';
 import {
-  filter,
   finalize,
   map,
   mergeAll,
@@ -13,36 +13,45 @@ import {
 } from 'rxjs/operators';
 import { CandefiService } from '../../../services/candefi.service';
 import {
+  ContextService,
+  LISTING_TYPE_FILTER_CTX_KEY,
+} from '../../../services/context.service';
+import {
   RentfuseService,
   TokenDetails,
 } from '../../../services/rentfuse.service';
 import { ThemeService } from '../../../services/theme.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
 
+type LayoutChangeEvent = { value: string };
+const FILTER_VALUE_CALL = 'call';
+const FILTER_VALUE_PUT = 'put';
 interface ListingState {
   layoutOptions: SelectItem[];
   selectedLayout: string;
   isLoading: boolean;
   tokens: TokenDetails[];
-  filteredTokens: TokenDetails[];
+  pendingTokens: TokenDetails[];
+  activeTokens: TokenDetails[];
   neoPrice: number;
 }
 
 const DEFAULT_STATE: ListingState = {
   layoutOptions: [
     {
-      value: 'call',
+      value: FILTER_VALUE_CALL,
       label: 'Calls',
     },
     {
-      value: 'put',
+      value: FILTER_VALUE_PUT,
       label: 'Puts',
     },
   ],
   isLoading: true,
   tokens: [],
+  pendingTokens: [],
+  activeTokens: [],
   selectedLayout: 'calls',
-  filteredTokens: [],
   neoPrice: 0,
 };
 
@@ -52,13 +61,14 @@ const DEFAULT_STATE: ListingState = {
   styleUrls: ['./listings.component.scss'],
 })
 export class ListingsComponent extends RxState<ListingState> {
-  atob = atob;
+  readonly onLayoutChange$: Subject<LayoutChangeEvent> = new BehaviorSubject({
+    value: FILTER_VALUE_CALL,
+  });
   readonly state$ = this.select();
   readonly fetchListings$ = (address: string) =>
     this.candefi.tokensOfWriterJson(address).pipe(
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
-      filter((t) => !t.renting),
       toArray(),
       finalize(() => this.set({ isLoading: false }))
     );
@@ -67,37 +77,60 @@ export class ListingsComponent extends RxState<ListingState> {
     private candefi: CandefiService,
     private rentfuse: RentfuseService,
     private router: Router,
+    private context: ContextService,
     public theme: ThemeService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
     this.set(DEFAULT_STATE);
+    this.set({
+      selectedLayout:
+        this.context.get(LISTING_TYPE_FILTER_CTX_KEY) ?? FILTER_VALUE_CALL,
+    });
+
     this.connect(
       'tokens',
       this.globalState.select('address').pipe(
         switchMap((a) => this.fetchListings$(a)),
-        map((v) => v.sort((a, b) => a.strike - b.strike))
+        map((listings) => listings.sort((a, b) => a.strike - b.strike))
       )
     );
+
     this.connect(
-      'filteredTokens',
-      this.select('tokens').pipe(
-        map((tokens) =>
-          tokens.filter(
-            (token) => token.type.toLowerCase() === this.get('selectedLayout')
+      'pendingTokens',
+      this.onLayoutChange$.pipe(
+        switchMap((layout) =>
+          this.select('tokens').pipe(
+            map((listings) =>
+              listings.filter(
+                (listing) =>
+                  listing.type.toLowerCase() === layout.value.toLowerCase() &&
+                  !listing.renting
+              )
+            )
           )
         )
       )
     );
-    this.connect('neoPrice', this.globalState.select('neoPrice'));
-  }
 
-  onLayoutChange(event: { value: string }): void {
-    this.set({
-      filteredTokens: this.get('tokens').filter(
-        (token) => token.type.toLowerCase() === event.value.toLowerCase()
-      ),
-    });
+    this.connect(
+      'activeTokens',
+      this.onLayoutChange$.pipe(
+        switchMap((layout) =>
+          this.select('tokens').pipe(
+            map((listings) =>
+              listings.filter(
+                (listing) =>
+                  listing.type.toLowerCase() === layout.value.toLowerCase() &&
+                  listing.renting
+              )
+            )
+          )
+        )
+      )
+    );
+
+    this.connect('neoPrice', this.globalState.select('neoPrice'));
   }
 
   goToTokenDetails(tokenId: string) {

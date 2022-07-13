@@ -2,7 +2,7 @@
   <p-panel>
     <ng-template pTemplate="header"
       ><span class="mr-2 font-bold">Listings</span>
-      <p-badge [value]="s.tokens.length.toString()"></p-badge>
+      <!-- <p-badge [value]="s.tokens.length.toString()"></p-badge> -->
     </ng-template>
     <p-toolbar>
       <div class="p-toolbar-group-left">
@@ -10,7 +10,7 @@
           [(ngModel)]="s.selectedLayout"
           [disabled]="s.isLoading"
           [options]="s.layoutOptions"
-          (onChange)="onLayoutChange($event)"
+          (onChange)="onLayoutChange$.next($event)"
         ></p-dropdown>
       </div>
     </p-toolbar>
@@ -25,7 +25,7 @@
         <p-panel header="Pending" [toggleable]="true">
           <p-table
             [loading]="s.isLoading"
-            [value]="s.filteredTokens"
+            [value]="s.pendingTokens"
             responsiveLayout="scroll"
             styleClass="p-datatable-sm"
             selectionMode="single"
@@ -47,11 +47,19 @@
               <tr
                 [ngClass]="{
                   'highlight-row-dark-theme':
-                    token.strike < s.neoPrice &&
-                    theme.current === 'lara-dark-indigo',
+                    (token.strike < s.neoPrice &&
+                      token.type === 'Call' &&
+                      theme.current === 'lara-dark-indigo') ||
+                    (token.strike > s.neoPrice &&
+                      token.type === 'Put' &&
+                      theme.current === 'lara-dark-indigo'),
                   'highlight-row-light-theme':
-                    token.strike < s.neoPrice &&
-                    theme.current === 'lara-light-indigo'
+                    (token.strike < s.neoPrice &&
+                      token.type === 'Call' &&
+                      theme.current === 'lara-light-indigo') ||
+                    (token.strike > s.neoPrice &&
+                      token.type === 'Put' &&
+                      theme.current === 'lara-light-indigo')
                 }"
                 class="cursor-pointer"
                 (click)="goToTokenDetails(token.tokenId)"
@@ -115,7 +123,7 @@
         <p-panel header="Active" [toggleable]="true">
           <p-table
             [loading]="s.isLoading"
-            [value]="s.filteredTokens"
+            [value]="s.activeTokens"
             responsiveLayout="scroll"
             styleClass="p-datatable-sm"
             selectionMode="single"

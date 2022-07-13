@@ -31,6 +31,13 @@ const routes: Routes = [
         (m) => m.TokenDetailsModule
       ),
   },
+  {
+    path: '**',
+    loadChildren: () =>
+      import('./features/not-found/not-found.module').then(
+        (m) => m.NotFoundModule
+      ),
+  },
 ];
 
 @NgModule({
