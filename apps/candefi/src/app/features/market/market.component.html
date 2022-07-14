@@ -1,5 +1,5 @@
 <p-panel header="Markets">
-  <p-tabView>
+  <p-tabView [scrollable]="true">
     <p-tabPanel>
       <ng-template pTemplate="header">
         <div class="flex justify-content-center align-items-center">
@@ -93,13 +93,18 @@
                   (click)="onPutsRowSelect(token)"
                   class="cursor-pointer"
                   [ngClass]="{
-                    'highlight-row': token.strike / 100000000 > s.neoPrice
+                    'highlight-row-dark-theme':
+                      token.strike > s.neoPrice &&
+                      theme.current === 'lara-dark-indigo',
+                    'highlight-row-light-theme':
+                      token.strike > s.neoPrice &&
+                      theme.current === 'lara-light-indigo'
                   }"
                 >
-                  <td>${{ token.strike / 100000000 | number: '1.2-2' }}</td>
+                  <td>${{ token.strike | number: '1.2-2' }}</td>
                   <td>
                     <div class="flex align-items-center">
-                      {{ token.stake / 1000000000 | number: '1.0-0' }}
+                      {{ token.stake | number: '1.0-0' }}
                       <img
                         src="assets/images/candy.png"
                         height="20"
@@ -135,6 +140,54 @@
       <ng-template pTemplate="header">
         <div class="flex justify-content-center align-items-center">
           <img src="assets/images/flm.png" height="20" class="mr-2" /> FLM
+        </div>
+      </ng-template>
+    </p-tabPanel>
+
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex justify-content-center align-items-center">
+          <img src="assets/images/btc.png" height="20" class="mr-2" /> BTC
+        </div>
+      </ng-template>
+    </p-tabPanel>
+
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex justify-content-center align-items-center">
+          <img src="assets/images/eth.png" height="20" class="mr-2" /> ETH
+        </div>
+      </ng-template>
+    </p-tabPanel>
+
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex justify-content-center align-items-center">
+          <img src="assets/images/bnb.png" height="20" class="mr-2" /> BNB
+        </div>
+      </ng-template>
+    </p-tabPanel>
+
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex justify-content-center align-items-center">
+          <img src="assets/images/ada.png" height="20" class="mr-2" /> ADA
+        </div>
+      </ng-template>
+    </p-tabPanel>
+
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex justify-content-center align-items-center">
+          <img src="assets/images/sol.png" height="20" class="mr-2" /> SOL
+        </div>
+      </ng-template>
+    </p-tabPanel>
+
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex justify-content-center align-items-center">
+          <img src="assets/images/xrp.png" height="20" class="mr-2" /> XRP
         </div>
       </ng-template>
     </p-tabPanel>

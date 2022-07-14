@@ -67,8 +67,14 @@
       </tr>
       <tr>
         <td>Safe</td>
-        <td class="text-right">
-          <span [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"></span>
+        <td>
+          <div class="text-right">
+            <p-checkbox
+              [ngModel]="token.safe"
+              [binary]="true"
+              [readonly]="true"
+            ></p-checkbox>
+          </div>
         </td>
       </tr>
     </ng-template>

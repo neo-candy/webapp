@@ -5,11 +5,9 @@ import { ProfileRoutingModule } from './profile-routing.module';
 import { ProfileComponent } from './profile.component';
 import { SharedModule } from '../../shared/shared.module';
 import { TabViewModule } from 'primeng/tabview';
-import { BadgeModule } from 'primeng/badge';
 import { MenuModule } from 'primeng/menu';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ListingsComponent } from './listings/listings.component';
-import { ToolbarModule } from 'primeng/toolbar';
 import { RentalsComponent } from './rentals/rentals.component';
 
 @NgModule({
@@ -19,10 +17,8 @@ import { RentalsComponent } from './rentals/rentals.component';
     ProfileRoutingModule,
     SharedModule,
     TabViewModule,
-    BadgeModule,
     MenuModule,
     ConfirmDialogModule,
-    ToolbarModule,
   ],
   exports: [ProfileComponent],
 })

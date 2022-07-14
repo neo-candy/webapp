@@ -22,6 +22,7 @@ export interface Listing {
 export interface Renting {
   duration: number;
   startedAt: number;
+  remainingSeconds: number;
 }
 
 export interface RentfuseTokenDetails {
@@ -109,7 +110,7 @@ export class RentfuseService {
     return this.neonjs
       .rpcRequest(
         'getRenting',
-        [sc.ContractParam.string(rentingId)],
+        [sc.ContractParam.byteArray(rentingId)],
         scriptHash
       )
       .pipe(map((v) => this.mapRenting(v)));
@@ -158,6 +159,11 @@ export class RentfuseService {
       renting: {
         duration: renting.duration,
         startedAt: renting.startedAt,
+        remainingSeconds:
+          (renting.startedAt +
+            renting.duration * 60 * 1000 -
+            new Date().getTime()) /
+          1000,
       },
       ...token,
     };
@@ -181,18 +187,19 @@ export class RentfuseService {
 
   private mapRenting(v: any[]): Renting {
     return {
-      duration: v[3].value,
-      startedAt: v[4].value,
+      duration: Number(v[3].value),
+      startedAt: Number(v[4].value),
+      remainingSeconds: 0,
     };
   }
 
   private mapListing(v: any[]): Listing {
     return {
       listingId: v[0].value,
-      minMinutes: v[4].value,
-      maxMinutes: v[5].value,
-      gasPerMinute: v[3].value[1].value,
-      collateral: v[6].value,
+      minMinutes: Number(v[4].value),
+      maxMinutes: Number(v[5].value),
+      gasPerMinute: Number(v[3].value[1].value),
+      collateral: Number(v[6].value),
     };
   }
 }

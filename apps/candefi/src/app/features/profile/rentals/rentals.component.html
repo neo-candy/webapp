@@ -2,7 +2,6 @@
   <p-panel>
     <ng-template pTemplate="header"
       ><span class="mr-2 font-bold">Rentals</span>
-      <p-badge [value]="s.tokens.length.toString()"></p-badge>
     </ng-template>
     <p-toolbar>
       <div class="p-toolbar-group-left">
@@ -15,7 +14,7 @@
       </div>
     </p-toolbar>
 
-    <p-tabView>
+    <p-tabView [scrollable]="true">
       <p-tabPanel>
         <ng-template pTemplate="header">
           <div class="flex justify-content-center align-items-center">
@@ -85,9 +84,11 @@
                 </div>
               </td>
               <td>
-                <span
-                  [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"
-                ></span>
+                <p-checkbox
+                  [ngModel]="token.safe"
+                  [binary]="true"
+                  [readonly]="true"
+                ></p-checkbox>
               </td>
             </tr>
           </ng-template>
@@ -114,6 +115,54 @@
         <ng-template pTemplate="header">
           <div class="flex justify-content-center align-items-center">
             <img src="assets/images/flm.png" height="20" class="mr-2" /> FLM
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/btc.png" height="20" class="mr-2" /> BTC
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/eth.png" height="20" class="mr-2" /> ETH
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/bnb.png" height="20" class="mr-2" /> BNB
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/ada.png" height="20" class="mr-2" /> ADA
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/sol.png" height="20" class="mr-2" /> SOL
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/xrp.png" height="20" class="mr-2" /> XRP
           </div>
         </ng-template>
       </p-tabPanel>

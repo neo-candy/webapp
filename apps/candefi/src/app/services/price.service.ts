@@ -20,16 +20,55 @@ export class PriceService {
   }
 
   public gasPrice(): Observable<number> {
+    return this.btcPrice().pipe(
+      switchMap((btcusdt: number) => {
+        return this.http
+          .get<BinanceResponse>(this.BINANCE_ENDPOINT + 'GASBTC')
+          .pipe(map((res) => btcusdt * parseFloat(res.price)));
+      })
+    );
+  }
+
+  public flmPrice(): Observable<number> {
+    return this.http
+      .get<BinanceResponse>(this.BINANCE_ENDPOINT + 'FLMUSDT')
+      .pipe(map((res) => parseFloat(res.price)));
+  }
+
+  public btcPrice(): Observable<number> {
     return this.http
       .get<BinanceResponse>(this.BINANCE_ENDPOINT + 'BTCUSDT')
-      .pipe(
-        map((res) => parseFloat(res.price)),
-        switchMap((btcusdt: number) => {
-          return this.http
-            .get<BinanceResponse>(this.BINANCE_ENDPOINT + 'GASBTC')
-            .pipe(map((res) => btcusdt * parseFloat(res.price)));
-        })
-      );
+      .pipe(map((res) => parseFloat(res.price)));
+  }
+
+  public ethPrice(): Observable<number> {
+    return this.http
+      .get<BinanceResponse>(this.BINANCE_ENDPOINT + 'ETHUSDT')
+      .pipe(map((res) => parseFloat(res.price)));
+  }
+
+  public bnbPrice(): Observable<number> {
+    return this.http
+      .get<BinanceResponse>(this.BINANCE_ENDPOINT + 'BNBUSDT')
+      .pipe(map((res) => parseFloat(res.price)));
+  }
+
+  public xrpPrice(): Observable<number> {
+    return this.http
+      .get<BinanceResponse>(this.BINANCE_ENDPOINT + 'XRPUSDT')
+      .pipe(map((res) => parseFloat(res.price)));
+  }
+
+  public adaPrice(): Observable<number> {
+    return this.http
+      .get<BinanceResponse>(this.BINANCE_ENDPOINT + 'ADAUSDT')
+      .pipe(map((res) => parseFloat(res.price)));
+  }
+
+  public solPrice(): Observable<number> {
+    return this.http
+      .get<BinanceResponse>(this.BINANCE_ENDPOINT + 'SOLUSDT')
+      .pipe(map((res) => parseFloat(res.price)));
   }
 
   public candyPrice(): Observable<number> {

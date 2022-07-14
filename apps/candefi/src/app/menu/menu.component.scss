@@ -6,3 +6,20 @@
 .twitter {
  color: #1DA1F2;
 }
+
+::ng-deep .price-widget-tabview .p-tabview-nav-link{
+  padding: .75rem !important;
+  padding-right: 1rem !important;
+}
+
+::ng-deep .price-widget-tabview .p-disabled {
+  opacity: 1;
+}
+
+.negative-price {
+  color: #DB6074;
+}
+
+.positive-price {
+  color: #16C784;
+}

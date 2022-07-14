@@ -4,7 +4,7 @@ import { environment } from '../../../environments/environment';
 import { DialogService } from 'primeng/dynamicdialog';
 import { map, tap } from 'rxjs/operators';
 import { CandefiService, CandefiToken } from '../../services/candefi.service';
-import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
+import { GlobalState, GLOBAL_RX_STATE, Price } from '../../state/global.state';
 import { MarketDetailsComponent } from './market-details/market-details.component';
 import { ThemeService } from '../../services/theme.service';
 
@@ -12,7 +12,7 @@ interface MarketState {
   tokens: CandefiToken[];
   calls: OptionOverview[];
   puts: OptionOverview[];
-  neoPrice: number;
+  neoPrice: Price;
   isLoading: boolean;
 }
 
@@ -20,7 +20,7 @@ const DEFAULT_STATE: MarketState = {
   tokens: [],
   calls: [],
   puts: [],
-  neoPrice: 0,
+  neoPrice: { curr: 0, prev: 0 },
   isLoading: true,
 };
 

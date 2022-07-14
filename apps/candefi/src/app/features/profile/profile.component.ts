@@ -148,7 +148,7 @@ export class ProfileComponent extends RxState<ProfileState> {
     const neoPrice = this.globalState.get('neoPrice');
     const unsafeTokens = tokens.filter((t) => !t.safe);
     const aboveStrikeTokens = tokens.filter(
-      (t) => t.safe && t.strike < neoPrice
+      (t) => t.safe && t.strike < neoPrice.curr
     );
     const warningAmount = unsafeTokens.length + aboveStrikeTokens.length;
     let message = '';
@@ -190,7 +190,7 @@ export class ProfileComponent extends RxState<ProfileState> {
 
     const unsafeTokens = tokens.filter((t) => !t.safe);
     const belowStrikeTokens = tokens.filter(
-      (t) => t.safe && t.strike > neoPrice
+      (t) => t.safe && t.strike > neoPrice.curr
     );
     const warningAmount = unsafeTokens.length + belowStrikeTokens.length;
     let message = '';

@@ -21,7 +21,11 @@ import {
   TokenDetails,
 } from '../../../services/rentfuse.service';
 import { ThemeService } from '../../../services/theme.service';
-import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
+import {
+  GlobalState,
+  GLOBAL_RX_STATE,
+  Price,
+} from '../../../state/global.state';
 
 type LayoutChangeEvent = { value: string };
 const FILTER_VALUE_CALL = 'call';
@@ -33,7 +37,7 @@ interface ListingState {
   tokens: TokenDetails[];
   pendingTokens: TokenDetails[];
   activeTokens: TokenDetails[];
-  neoPrice: number;
+  neoPrice: Price;
 }
 
 const DEFAULT_STATE: ListingState = {
@@ -52,7 +56,7 @@ const DEFAULT_STATE: ListingState = {
   pendingTokens: [],
   activeTokens: [],
   selectedLayout: 'calls',
-  neoPrice: 0,
+  neoPrice: { curr: 0, prev: 0 },
 };
 
 @Component({

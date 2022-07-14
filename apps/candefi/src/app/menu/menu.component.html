@@ -28,15 +28,30 @@
         ></button>
       </ng-container>
       <ng-template #connect>
-        <button
-          pButton
-          pRipple
-          class="p-button-outlined"
-          type="button"
-          icon="pi pi-sign-in"
-          (click)="connectWallet()"
-          label="Connect Wallet"
-        ></button>
+        <p-dropdown
+          [options]="connectOptions"
+          [(ngModel)]="s.selectedWallet"
+          placeholder="Select a wallet"
+          (onChange)="connectWallet()"
+        >
+          <ng-template pTemplate="selectedItem">
+            <div
+              class="country-item country-item-value"
+              *ngIf="s.selectedWallet"
+            >
+              <div class="flex align-items-center">
+                <img src="assets/ui/neoline.png" width="25" class="mr-2" />
+                <div>{{ s.selectedWallet }}</div>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template let-wallet pTemplate="item">
+            <div class="flex align-items-center">
+              <img src="assets/ui/neoline.png" width="35" class="mr-2" />
+              <div>{{ wallet.label }}</div>
+            </div>
+          </ng-template></p-dropdown
+        >
       </ng-template>
     </div>
   </div>
@@ -61,11 +76,282 @@
     </ng-template>
   </p-menubar>
 
-  <div class="flex justify-content-center align-items-center p-2">
-    <span class="text-sm mr-5">NEO: ${{ s.neoPrice }}</span>
-    <span class="text-sm mr-5">GAS: ${{ s.gasPrice | number: '1.8-8' }}</span>
-    <span class="text-sm">CANDY: ${{ s.candyPrice | number: '1.9-9' }}</span>
-  </div>
+  <p-tabView
+    [scrollable]="true"
+    styleClass="price-widget-tabview"
+    [activeIndex]="-1"
+  >
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex flex-column justify-content-between">
+          <div class="flex align-items-center text-xs mb-2">
+            <img src="assets/images/candy.png" height="13" class="mr-2" />
+            <div>CANDY/USD</div>
+          </div>
+          <div
+            class="flex align-items-center text-lg"
+            [ngClass]="{
+              'negative-price': s.candyPrice.curr < s.candyPrice.prev,
+              'positive-price': s.candyPrice.curr >= s.candyPrice.prev
+            }"
+          >
+            <span
+              [ngClass]="{
+                'pi-angle-down': s.candyPrice.curr < s.candyPrice.prev,
+                'pi-angle-up': s.candyPrice.curr >= s.candyPrice.prev
+              }"
+              class="mr-2 pi"
+            >
+            </span
+            >{{ s.candyPrice.curr | number: '1.9-9' }}
+          </div>
+        </div>
+      </ng-template></p-tabPanel
+    >
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex flex-column justify-content-between">
+          <div class="flex align-items-center text-xs mb-2">
+            <img src="assets/images/neo.png" height="13" class="mr-2" />
+            <div>NEO/USD</div>
+          </div>
+          <div
+            class="flex align-items-center text-lg"
+            [ngClass]="{
+              'negative-price': s.neoPrice.curr < s.neoPrice.prev,
+              'positive-price': s.neoPrice.curr >= s.neoPrice.prev
+            }"
+          >
+            <span
+              [ngClass]="{
+                'pi-angle-down': s.neoPrice.curr < s.neoPrice.prev,
+                'pi-angle-up': s.neoPrice.curr >= s.neoPrice.prev
+              }"
+              class="mr-2 pi"
+            >
+            </span
+            >{{ s.neoPrice.curr | number: '1.8-8' }}
+          </div>
+        </div>
+      </ng-template></p-tabPanel
+    >
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex flex-column justify-content-between">
+          <div class="flex align-items-center text-xs mb-2">
+            <img src="assets/images/gas.png" height="13" class="mr-2" />
+            <div>GAS/USD</div>
+          </div>
+          <div
+            class="flex align-items-center text-lg"
+            [ngClass]="{
+              'negative-price': s.gasPrice.curr < s.gasPrice.prev,
+              'positive-price': s.gasPrice.curr >= s.gasPrice.prev
+            }"
+          >
+            <span
+              [ngClass]="{
+                'pi-angle-down': s.gasPrice.curr < s.gasPrice.prev,
+                'pi-angle-up': s.gasPrice.curr >= s.gasPrice.prev
+              }"
+              class="mr-2 pi"
+            >
+            </span
+            >{{ s.gasPrice.curr | number: '1.8-8' }}
+          </div>
+        </div>
+      </ng-template></p-tabPanel
+    >
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex flex-column justify-content-between">
+          <div class="flex align-items-center text-xs mb-2">
+            <img src="assets/images/flm.png" height="13" class="mr-2" />
+            <div>FLM/USD</div>
+          </div>
+          <div
+            class="flex align-items-center text-lg"
+            [ngClass]="{
+              'negative-price': s.flmPrice.curr < s.flmPrice.prev,
+              'positive-price': s.flmPrice.curr >= s.flmPrice.prev
+            }"
+          >
+            <span
+              [ngClass]="{
+                'pi-angle-down': s.flmPrice.curr < s.flmPrice.prev,
+                'pi-angle-up': s.flmPrice.curr >= s.flmPrice.prev
+              }"
+              class="mr-2 pi"
+            >
+            </span
+            >{{ s.flmPrice.curr | number: '1.4-4' }}
+          </div>
+        </div>
+      </ng-template></p-tabPanel
+    >
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex flex-column justify-content-between">
+          <div class="flex align-items-center text-xs mb-2">
+            <img src="assets/images/btc.png" height="13" class="mr-2" />
+            <div>BTC/USD</div>
+          </div>
+          <div
+            class="flex align-items-center text-lg"
+            [ngClass]="{
+              'negative-price': s.btcPrice.curr < s.btcPrice.prev,
+              'positive-price': s.btcPrice.curr >= s.btcPrice.prev
+            }"
+          >
+            <span
+              [ngClass]="{
+                'pi-angle-down': s.btcPrice.curr < s.btcPrice.prev,
+                'pi-angle-up': s.btcPrice.curr >= s.btcPrice.prev
+              }"
+              class="mr-2 pi"
+            >
+            </span
+            >{{ s.btcPrice.curr | number: '1.2-2' }}
+          </div>
+        </div>
+      </ng-template></p-tabPanel
+    >
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex flex-column justify-content-between">
+          <div class="flex align-items-center text-xs mb-2">
+            <img src="assets/images/eth.png" height="13" class="mr-2" />
+            <div>ETH/USD</div>
+          </div>
+          <div
+            class="flex align-items-center text-lg"
+            [ngClass]="{
+              'negative-price': s.ethPrice.curr < s.ethPrice.prev,
+              'positive-price': s.ethPrice.curr >= s.ethPrice.prev
+            }"
+          >
+            <span
+              [ngClass]="{
+                'pi-angle-down': s.ethPrice.curr < s.ethPrice.prev,
+                'pi-angle-up': s.ethPrice.curr >= s.ethPrice.prev
+              }"
+              class="mr-2 pi"
+            >
+            </span
+            >{{ s.ethPrice.curr | number: '1.2-2' }}
+          </div>
+        </div>
+      </ng-template></p-tabPanel
+    >
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex flex-column justify-content-between">
+          <div class="flex align-items-center text-xs mb-2">
+            <img src="assets/images/bnb.png" height="13" class="mr-2" />
+            <div>BNB/USD</div>
+          </div>
+          <div
+            class="flex align-items-center text-lg"
+            [ngClass]="{
+              'negative-price': s.bnbPrice.curr < s.bnbPrice.prev,
+              'positive-price': s.bnbPrice.curr >= s.bnbPrice.prev
+            }"
+          >
+            <span
+              [ngClass]="{
+                'pi-angle-down': s.bnbPrice.curr < s.bnbPrice.prev,
+                'pi-angle-up': s.bnbPrice.curr >= s.bnbPrice.prev
+              }"
+              class="mr-2 pi"
+            >
+            </span
+            >{{ s.bnbPrice.curr | number: '1.2-2' }}
+          </div>
+        </div>
+      </ng-template></p-tabPanel
+    >
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex flex-column justify-content-between">
+          <div class="flex align-items-center text-xs mb-2">
+            <img src="assets/images/ada.png" height="13" class="mr-2" />
+            <div>ADA/USD</div>
+          </div>
+          <div
+            class="flex align-items-center text-lg"
+            [ngClass]="{
+              'negative-price': s.adaPrice.curr < s.adaPrice.prev,
+              'positive-price': s.adaPrice.curr >= s.adaPrice.prev
+            }"
+          >
+            <span
+              [ngClass]="{
+                'pi-angle-down': s.adaPrice.curr < s.adaPrice.prev,
+                'pi-angle-up': s.adaPrice.curr >= s.adaPrice.prev
+              }"
+              class="mr-2 pi"
+            >
+            </span
+            >{{ s.adaPrice.curr | number: '1.4-4' }}
+          </div>
+        </div>
+      </ng-template></p-tabPanel
+    >
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex flex-column justify-content-between">
+          <div class="flex align-items-center text-xs mb-2">
+            <img src="assets/images/sol.png" height="13" class="mr-2" />
+            <div>SOL/USD</div>
+          </div>
+          <div
+            class="flex align-items-center text-lg"
+            [ngClass]="{
+              'negative-price': s.solPrice.curr < s.solPrice.prev,
+              'positive-price': s.solPrice.curr >= s.solPrice.prev
+            }"
+          >
+            <span
+              [ngClass]="{
+                'pi-angle-down': s.solPrice.curr < s.solPrice.prev,
+                'pi-angle-up': s.solPrice.curr >= s.solPrice.prev
+              }"
+              class="mr-2 pi"
+            >
+            </span
+            >{{ s.solPrice.curr | number: '1.2-2' }}
+          </div>
+        </div>
+      </ng-template></p-tabPanel
+    >
+    <p-tabPanel [disabled]="true">
+      <ng-template pTemplate="header">
+        <div class="flex flex-column justify-content-between">
+          <div class="flex align-items-center text-xs mb-2">
+            <img src="assets/images/xrp.png" height="13" class="mr-2" />
+            <div>XRP/USD</div>
+          </div>
+          <div
+            class="flex align-items-center text-lg"
+            [ngClass]="{
+              'negative-price': s.xrpPrice.curr < s.xrpPrice.prev,
+              'positive-price': s.xrpPrice.curr >= s.xrpPrice.prev
+            }"
+          >
+            <span
+              [ngClass]="{
+                'pi-angle-down': s.xrpPrice.curr < s.xrpPrice.prev,
+                'pi-angle-up': s.xrpPrice.curr >= s.xrpPrice.prev
+              }"
+              class="mr-2 pi"
+            >
+            </span
+            >{{ s.xrpPrice.curr | number: '1.4-4' }}
+          </div>
+        </div>
+      </ng-template></p-tabPanel
+    >
+  </p-tabView>
 
   <p-dialog
     header="Mint NFT"

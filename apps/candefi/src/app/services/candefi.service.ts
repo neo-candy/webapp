@@ -319,7 +319,7 @@ export class CandefiService {
     const strike = Number(
       v.attributes.filter((a) => a.trait_type === 'Strike')[0].value
     );
-    const neoPrice = this.globalState.get('neoPrice') * Math.pow(10, 8);
+    const neoPrice = this.globalState.get('neoPrice').curr * Math.pow(10, 8);
     const delta = neoPrice - strike;
     const volatility = Number(
       v.attributes.filter((a) => a.trait_type === 'Volatility')[0].value

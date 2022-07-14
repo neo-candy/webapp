@@ -17,7 +17,11 @@ import {
   TokenDetails,
 } from '../../../services/rentfuse.service';
 import { ThemeService } from '../../../services/theme.service';
-import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
+import {
+  GlobalState,
+  GLOBAL_RX_STATE,
+  Price,
+} from '../../../state/global.state';
 
 interface RentalsState {
   layoutOptions: SelectItem[];
@@ -25,7 +29,7 @@ interface RentalsState {
   isLoading: boolean;
   tokens: TokenDetails[];
   filteredTokens: TokenDetails[];
-  neoPrice: number;
+  neoPrice: Price;
 }
 
 const DEFAULT_STATE: RentalsState = {
@@ -43,7 +47,7 @@ const DEFAULT_STATE: RentalsState = {
   tokens: [],
   selectedLayout: 'calls',
   filteredTokens: [],
-  neoPrice: 0,
+  neoPrice: { curr: 0, prev: 0 },
 };
 
 @Component({

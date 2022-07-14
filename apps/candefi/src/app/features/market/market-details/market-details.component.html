@@ -1,4 +1,15 @@
 <ng-container *ngIf="state$ | async as s">
+  <p-toolbar>
+    <div>
+      <p-checkbox
+        [binary]="true"
+        label="Hide rented NFTs"
+        class="mr-3"
+      ></p-checkbox>
+      <p-checkbox [binary]="true" label="Hide my NFTs"></p-checkbox>
+    </div>
+  </p-toolbar>
+  <br />
   <p-table
     [loading]="s.isLoading"
     selectionMode="single"
@@ -6,7 +17,11 @@
     responsiveLayout="scroll"
     styleClass="p-datatable-sm"
   >
-    <ng-template pTemplate="caption">Details</ng-template>
+    <ng-template pTemplate="caption">
+      <div class="flex justify-content-between">
+        <div>Details</div>
+      </div>
+    </ng-template>
 
     <ng-template pTemplate="header">
       <tr>
@@ -57,26 +72,13 @@
           </div>
         </td>
         <td>
-          <span [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"></span>
+          <p-checkbox
+            [ngModel]="token.safe"
+            [binary]="true"
+            [readonly]="true"
+          ></p-checkbox>
         </td>
       </tr>
     </ng-template>
   </p-table>
-
-  <!-- <p-dialog
-    [visible]="s.displayRentModal"
-    [resizable]="false"
-    header="Rent NFT"
-  >
-    <form [formGroup]="formGroup">
-      <span class="p-float-label">
-        <input type="text" pInputText [value]="duration" readonly />
-        <p-slider
-          formControlName="duration"
-          [min]="s.selectedNft ? s.selectedNft.minRentInMinutes / 24 / 60 : 1"
-        ></p-slider>
-        <label for="duration">Duration</label>
-      </span>
-    </form>
-  </p-dialog> -->
 </ng-container>

@@ -1,30 +1,45 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RxState } from '@rx-angular/state';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, SelectItem } from 'primeng/api';
 import { distinctUntilChanged, map, tap } from 'rxjs/operators';
 import { CandefiService } from '../services/candefi.service';
 import { NeolineService } from '../services/neoline.service';
-import { ThemeService } from '../services/theme.service';
 import { UiService } from '../services/ui.service';
-import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
+import { GlobalState, GLOBAL_RX_STATE, Price } from '../state/global.state';
 
 interface MenuState {
   isLoading: boolean;
   address: string;
-  neoPrice: number;
-  gasPrice: number;
-  candyPrice: number;
+  neoPrice: Price;
+  gasPrice: Price;
+  candyPrice: Price;
+  flmPrice: Price;
+  adaPrice: Price;
+  solPrice: Price;
+  xrpPrice: Price;
+  btcPrice: Price;
+  ethPrice: Price;
+  bnbPrice: Price;
   displayMintModal: boolean;
+  selectedWallet: string;
 }
 
 const DEFAULT_STATE: MenuState = {
   isLoading: false,
   address: '',
-  neoPrice: 0,
-  gasPrice: 0,
-  candyPrice: 0,
+  neoPrice: { curr: 0, prev: 0 },
+  gasPrice: { curr: 0, prev: 0 },
+  candyPrice: { curr: 0, prev: 0 },
+  flmPrice: { curr: 0, prev: 0 },
+  adaPrice: { curr: 0, prev: 0 },
+  solPrice: { curr: 0, prev: 0 },
+  xrpPrice: { curr: 0, prev: 0 },
+  bnbPrice: { curr: 0, prev: 0 },
+  btcPrice: { curr: 0, prev: 0 },
+  ethPrice: { curr: 0, prev: 0 },
   displayMintModal: false,
+  selectedWallet: '',
 };
 @Component({
   selector: 'cd-menu',
@@ -34,6 +49,12 @@ const DEFAULT_STATE: MenuState = {
 export class MenuComponent extends RxState<MenuState> implements OnInit {
   readonly state$ = this.select();
   form: FormGroup = new FormGroup({});
+  connectOptions: SelectItem[] = [
+    {
+      label: 'NeoLine',
+      value: 'NeoLine',
+    },
+  ];
 
   items: MenuItem[] = [
     {
@@ -72,6 +93,13 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
     this.connect('neoPrice', this.globalState.select('neoPrice'));
     this.connect('gasPrice', this.globalState.select('gasPrice'));
     this.connect('candyPrice', this.globalState.select('candyPrice'));
+    this.connect('btcPrice', this.globalState.select('btcPrice'));
+    this.connect('ethPrice', this.globalState.select('ethPrice'));
+    this.connect('solPrice', this.globalState.select('solPrice'));
+    this.connect('adaPrice', this.globalState.select('adaPrice'));
+    this.connect('bnbPrice', this.globalState.select('bnbPrice'));
+    this.connect('xrpPrice', this.globalState.select('xrpPrice'));
+    this.connect('flmPrice', this.globalState.select('flmPrice'));
   }
 
   connectWallet(): void {
@@ -118,7 +146,7 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
   displayMintCallModal(): void {
     this.form.patchValue({
       type: 'Call',
-      strike: Math.ceil(this.globalState.get('neoPrice') + 0.5),
+      strike: Math.ceil(this.globalState.get('neoPrice').curr + 0.5),
       value: this.stake / 2,
     });
     this.set({ displayMintModal: true });
@@ -127,7 +155,7 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
   displayMintPutModal(): void {
     this.form.patchValue({
       type: 'Put',
-      strike: Math.floor(this.globalState.get('neoPrice') - 0.5),
+      strike: Math.floor(this.globalState.get('neoPrice').curr - 0.5),
       value: this.stake / 2,
     });
     this.set({ displayMintModal: true });

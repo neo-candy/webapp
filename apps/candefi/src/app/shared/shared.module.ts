@@ -15,6 +15,8 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { SliderModule } from 'primeng/slider';
 import { MonitorComponent } from './components/monitor/monitor.component';
 import { MenubarModule } from 'primeng/menubar';
+import { ToolbarModule } from 'primeng/toolbar';
+import { CdTimerModule } from 'angular-cd-timer';
 
 @NgModule({
   declarations: [TruncateAddressPipe, MonitorComponent],
@@ -33,6 +35,8 @@ import { MenubarModule } from 'primeng/menubar';
     CheckboxModule,
     SliderModule,
     MenubarModule,
+    ToolbarModule,
+    CdTimerModule,
   ],
   exports: [
     CommonModule,
@@ -51,6 +55,8 @@ import { MenubarModule } from 'primeng/menubar';
     SliderModule,
     MonitorComponent,
     MenubarModule,
+    ToolbarModule,
+    CdTimerModule,
   ],
 })
 export class SharedModule {}

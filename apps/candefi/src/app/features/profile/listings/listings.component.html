@@ -2,7 +2,6 @@
   <p-panel>
     <ng-template pTemplate="header"
       ><span class="mr-2 font-bold">Listings</span>
-      <!-- <p-badge [value]="s.tokens.length.toString()"></p-badge> -->
     </ng-template>
     <p-toolbar>
       <div class="p-toolbar-group-left">
@@ -15,7 +14,7 @@
       </div>
     </p-toolbar>
 
-    <p-tabView>
+    <p-tabView [scrollable]="true">
       <p-tabPanel>
         <ng-template pTemplate="header">
           <div class="flex justify-content-center align-items-center">
@@ -38,6 +37,7 @@
                 <th>Strike</th>
                 <th>Depreciation</th>
                 <th>Volatility</th>
+                <th>Duration</th>
                 <th>Collateral</th>
                 <th>Daily fee</th>
                 <th>Safe</th>
@@ -90,6 +90,10 @@
                 <td>{{ token.depreciation | number }}</td>
                 <td>{{ token.volatility | number }}</td>
                 <td>
+                  {{ token.listing.minMinutes / 60 / 24 }} -
+                  {{ token.listing.maxMinutes / 60 / 24 }} days
+                </td>
+                <td>
                   <div class="flex align-items-center">
                     {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}
                     <img src="assets/images/gas.png" height="20" class="ml-2" />
@@ -102,9 +106,11 @@
                   </div>
                 </td>
                 <td>
-                  <span
-                    [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"
-                  ></span>
+                  <p-checkbox
+                    [ngModel]="token.safe"
+                    [binary]="true"
+                    [readonly]="true"
+                  ></p-checkbox>
                 </td>
               </tr>
             </ng-template>
@@ -134,10 +140,9 @@
                 <th>Stake</th>
                 <th>Value</th>
                 <th>Strike</th>
-                <th>Depreciation</th>
-                <th>Volatility</th>
-                <th>Collateral</th>
-                <th>Daily fee</th>
+                <th>Duration</th>
+                <th>Remaining</th>
+                <th>Earned fees</th>
                 <th>Safe</th>
               </tr>
             </ng-template>
@@ -177,24 +182,34 @@
                 </td>
 
                 <td>${{ token.strike | number: '1.2-2' }}</td>
-                <td>{{ token.depreciation | number }}</td>
-                <td>{{ token.volatility | number }}</td>
+                <td>
+                  {{ token.renting.duration / 60 / 24 }} day<span
+                    *ngIf="token.renting.duration > 1440"
+                    >s</span
+                  >
+                </td>
+                <td>
+                  <cd-timer
+                    [startTime]="token.renting.remainingSeconds"
+                    [endTime]="0"
+                    [countdown]="true"
+                  ></cd-timer>
+                </td>
                 <td>
                   <div class="flex align-items-center">
-                    {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}
+                    {{
+                      token.listing.gasPerMinute * token.renting.duration +
+                        token.listing.collateral | number: '1.2-2'
+                    }}
                     <img src="assets/images/gas.png" height="20" class="ml-2" />
                   </div>
                 </td>
                 <td>
-                  <div class="flex align-items-center">
-                    {{ token.listing.collateral | number: '1.2-2' }}
-                    <img src="assets/images/gas.png" height="20" class="ml-2" />
-                  </div>
-                </td>
-                <td>
-                  <span
-                    [ngClass]="token.safe ? 'pi pi-check' : 'pi pi-times'"
-                  ></span>
+                  <p-checkbox
+                    [ngModel]="token.safe"
+                    [binary]="true"
+                    [readonly]="true"
+                  ></p-checkbox>
                 </td>
               </tr>
             </ng-template>
@@ -222,6 +237,54 @@
         <ng-template pTemplate="header">
           <div class="flex justify-content-center align-items-center">
             <img src="assets/images/flm.png" height="20" class="mr-2" /> FLM
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/btc.png" height="20" class="mr-2" /> BTC
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/eth.png" height="20" class="mr-2" /> ETH
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/bnb.png" height="20" class="mr-2" /> BNB
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/ada.png" height="20" class="mr-2" /> ADA
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/sol.png" height="20" class="mr-2" /> SOL
+          </div>
+        </ng-template>
+      </p-tabPanel>
+
+      <p-tabPanel [disabled]="true">
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-center align-items-center">
+            <img src="assets/images/xrp.png" height="20" class="mr-2" /> XRP
           </div>
         </ng-template>
       </p-tabPanel>
