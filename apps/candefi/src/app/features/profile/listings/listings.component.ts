@@ -37,6 +37,7 @@ interface ListingState {
   tokens: TokenDetails[];
   pendingTokens: TokenDetails[];
   activeTokens: TokenDetails[];
+  expiredTokens: TokenDetails[];
   neoPrice: Price;
 }
 
@@ -55,6 +56,7 @@ const DEFAULT_STATE: ListingState = {
   tokens: [],
   pendingTokens: [],
   activeTokens: [],
+  expiredTokens: [],
   selectedLayout: 'calls',
   neoPrice: { curr: 0, prev: 0 },
 };

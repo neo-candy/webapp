@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { sc, tx, wallet } from '@cityofzion/neon-js';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { NeoInvokeWriteResponse, NeoTypedValue } from '../models/n3';
 import { UiService } from './ui.service';
@@ -13,7 +13,6 @@ import { RxState } from '@rx-angular/state';
 
 const CALL = 1;
 const PUT = 2;
-const PROTOCOL_FEE = 1000_000000000;
 
 interface TokenProperties {
   tokenId: string;
@@ -73,15 +72,14 @@ export class CandefiService {
     maxDuration: number,
     feePerMinute: number
   ): Observable<NeoInvokeWriteResponse> {
-    stake += PROTOCOL_FEE;
-    const args = [
-      {
+    return this.candyProtocolFee().pipe(
+      map((fee) => ({
         scriptHash: environment.testnet.neocandy,
         operation: 'transfer',
         args: [
           NeolineService.address(address),
           NeolineService.hash160(environment.testnet.candefi),
-          NeolineService.int(stake),
+          NeolineService.int(stake + fee),
           NeolineService.array([
             NeolineService.int(CALL),
             NeolineService.int(strike),
@@ -95,31 +93,33 @@ export class CandefiService {
             NeolineService.int(collateral),
           ]),
         ],
-      },
-    ];
-    return this.neoline
-      .invokeMultiple({
-        signers: [
-          {
-            account: new wallet.Account(address).scriptHash,
-            scopes: tx.WitnessScope.CustomContracts,
-            allowedContracts: [
-              environment.testnet.candefi,
-              environment.testnet.neocandy,
+      })),
+      mergeMap((arg) =>
+        this.neoline
+          .invokeMultiple({
+            signers: [
+              {
+                account: new wallet.Account(address).scriptHash,
+                scopes: tx.WitnessScope.CustomContracts,
+                allowedContracts: [
+                  environment.testnet.candefi,
+                  environment.testnet.neocandy,
+                ],
+              },
             ],
-          },
-        ],
 
-        invokeArgs: [...args],
-      })
-      .pipe(
-        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() => this.ui.displaySuccess('You listed a new call NFT')),
-        catchError((e) => {
-          this.ui.displayError(e);
-          return throwError(e);
-        })
-      );
+            invokeArgs: [arg],
+          })
+          .pipe(
+            switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+            tap(() => this.ui.displaySuccess('You listed a new call NFT')),
+            catchError((e) => {
+              this.ui.displayError(e);
+              return throwError(e);
+            })
+          )
+      )
+    );
   }
 
   public mintPut(
@@ -135,15 +135,14 @@ export class CandefiService {
     maxDuration: number,
     dailyFee: number
   ): Observable<NeoInvokeWriteResponse> {
-    stake += PROTOCOL_FEE;
-    const args = [
-      {
+    return this.candyProtocolFee().pipe(
+      map((fee) => ({
         scriptHash: environment.testnet.neocandy,
         operation: 'transfer',
         args: [
           NeolineService.address(address),
           NeolineService.hash160(environment.testnet.candefi),
-          NeolineService.int(stake),
+          NeolineService.int(stake + fee),
           NeolineService.array([
             NeolineService.int(PUT),
             NeolineService.int(strike),
@@ -157,30 +156,32 @@ export class CandefiService {
             NeolineService.int(collateral),
           ]),
         ],
-      },
-    ];
-    return this.neoline
-      .invokeMultiple({
-        signers: [
-          {
-            account: new wallet.Account(address).scriptHash,
-            scopes: tx.WitnessScope.CustomContracts,
-            allowedContracts: [
-              environment.testnet.candefi,
-              environment.testnet.neocandy,
+      })),
+      mergeMap((arg) =>
+        this.neoline
+          .invokeMultiple({
+            signers: [
+              {
+                account: new wallet.Account(address).scriptHash,
+                scopes: tx.WitnessScope.CustomContracts,
+                allowedContracts: [
+                  environment.testnet.candefi,
+                  environment.testnet.neocandy,
+                ],
+              },
             ],
-          },
-        ],
-        invokeArgs: [...args],
-      })
-      .pipe(
-        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() => this.ui.displaySuccess('You listed a new put NFT')),
-        catchError((e) => {
-          this.ui.displayError(e);
-          return throwError(e);
-        })
-      );
+            invokeArgs: [arg],
+          })
+          .pipe(
+            switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+            tap(() => this.ui.displaySuccess('You listed a new put NFT')),
+            catchError((e) => {
+              this.ui.displayError(e);
+              return throwError(e);
+            })
+          )
+      )
+    );
   }
 
   public exercise(
@@ -222,22 +223,22 @@ export class CandefiService {
       );
   }
 
-  public cancelListing(
+  public closeListing(
     address: string,
-    tokenIds: string[]
+    tokenId: string
   ): Observable<NeoInvokeWriteResponse> {
     const args: {
       scriptHash: string;
       operation: string;
       args: NeoTypedValue[];
-    }[] = [];
-    tokenIds.forEach((tokenId) => {
-      args.push({
+    }[] = [
+      {
         scriptHash: environment.testnet.candefi,
-        operation: 'cancelListing',
+        operation: 'closeListing',
         args: [NeolineService.byteArray(tokenId)],
-      });
-    });
+      },
+    ];
+
     return this.neoline
       .invokeMultiple({
         signers: [
@@ -250,9 +251,7 @@ export class CandefiService {
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() =>
-          this.ui.displaySuccess(`You cancelled ${tokenIds.length} position(s)`)
-        ),
+        tap(() => this.ui.displaySuccess(`You closed 1 listing`)),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);
@@ -282,6 +281,13 @@ export class CandefiService {
     return this.neonjs
       .rpcRequest('earnings', [], scriptHash)
       .pipe(map((res) => JSON.parse(atob(res))));
+  }
+
+  public candyProtocolFee(): Observable<number> {
+    const scriptHash = environment.testnet.candefi;
+    return this.neonjs
+      .rpcRequest('candyProtocolFee', [], scriptHash)
+      .pipe(map((res) => JSON.parse(res)));
   }
 
   public tokensOfWriterJson(address: string): Observable<CandefiToken[]> {

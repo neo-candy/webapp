@@ -140,8 +140,8 @@
                 <th>Stake</th>
                 <th>Value</th>
                 <th>Strike</th>
-                <th>Duration</th>
                 <th>Remaining</th>
+                <th>Effective date</th>
                 <th>Earned fees</th>
                 <th>Safe</th>
               </tr>
@@ -182,24 +182,33 @@
                 </td>
 
                 <td>${{ token.strike | number: '1.2-2' }}</td>
+
                 <td>
-                  {{ token.renting.duration / 60 / 24 }} day<span
-                    *ngIf="token.renting.duration > 1440"
-                    >s</span
+                  <ng-container
+                    *ngIf="
+                      token.renting.remainingSeconds !== 0;
+                      else defaultTimer
+                    "
                   >
+                    <cd-timer
+                      [startTime]="token.renting.remainingSeconds"
+                      [endTime]="0"
+                      [countdown]="true"
+                    ></cd-timer>
+                  </ng-container>
+                  <ng-template #defaultTimer>0d 0h 0m 0s</ng-template>
                 </td>
                 <td>
-                  <cd-timer
-                    [startTime]="token.renting.remainingSeconds"
-                    [endTime]="0"
-                    [countdown]="true"
-                  ></cd-timer>
+                  {{
+                    token.renting.startedAt + token.renting.duration * 60 * 1000
+                      | date: 'medium'
+                  }}
                 </td>
                 <td>
                   <div class="flex align-items-center">
                     {{
-                      token.listing.gasPerMinute * token.renting.duration +
-                        token.listing.collateral | number: '1.2-2'
+                      token.listing.gasPerMinute * token.renting.duration
+                        | number: '1.2-2'
                     }}
                     <img src="assets/images/gas.png" height="20" class="ml-2" />
                   </div>
@@ -218,6 +227,82 @@
                 <td colspan="12">
                   <div class="p-1">
                     Could not find listed
+                    {{ s.selectedLayout }} NFTs for this account.
+                  </div>
+                </td>
+              </tr>
+            </ng-template></p-table
+          >
+        </p-panel>
+        <p-panel header="Expired" [toggleable]="true">
+          <p-table
+            [loading]="s.isLoading"
+            [value]="s.activeTokens"
+            responsiveLayout="scroll"
+            styleClass="p-datatable-sm"
+            selectionMode="single"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>ID</th>
+                <th>Stake</th>
+                <th>Value</th>
+                <th>Strike</th>
+                <th>Earned fees</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-token>
+              <tr
+                [ngClass]="{
+                  'highlight-row-dark-theme':
+                    token.strike < s.neoPrice &&
+                    theme.current === 'lara-dark-indigo',
+                  'highlight-row-light-theme':
+                    token.strike < s.neoPrice &&
+                    theme.current === 'lara-light-indigo'
+                }"
+                class="cursor-pointer"
+                (click)="goToTokenDetails(token.tokenId)"
+              >
+                <td>{{ token.tokenId }}</td>
+                <td>
+                  <div class="flex align-items-center">
+                    {{ token.stake | number: '1.0-0' }}
+                    <img
+                      src="assets/images/candy.png"
+                      height="20"
+                      class="ml-2"
+                    />
+                  </div>
+                </td>
+                <td>
+                  <div class="flex align-items-center">
+                    {{ token.value | number: '1.0-0' }}
+                    <img
+                      src="assets/images/candy.png"
+                      height="20"
+                      class="ml-2"
+                    />
+                  </div>
+                </td>
+
+                <td>${{ token.strike | number: '1.2-2' }}</td>
+                <td>
+                  <div class="flex align-items-center">
+                    {{
+                      token.listing.gasPerMinute * token.renting.duration
+                        | number: '1.2-2'
+                    }}
+                    <img src="assets/images/gas.png" height="20" class="ml-2" />
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="12">
+                  <div class="p-1">
+                    Could not find expired
                     {{ s.selectedLayout }} NFTs for this account.
                   </div>
                 </td>

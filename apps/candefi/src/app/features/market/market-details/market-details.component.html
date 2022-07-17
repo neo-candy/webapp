@@ -4,9 +4,9 @@
       <p-checkbox
         [binary]="true"
         label="Hide rented NFTs"
-        class="mr-3"
+        [(ngModel)]="s.hideRented"
+        (onChange)="onHideRentedSelected$.next($event)"
       ></p-checkbox>
-      <p-checkbox [binary]="true" label="Hide my NFTs"></p-checkbox>
     </div>
   </p-toolbar>
   <br />

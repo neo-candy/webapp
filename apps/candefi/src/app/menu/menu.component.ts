@@ -23,6 +23,7 @@ interface MenuState {
   bnbPrice: Price;
   displayMintModal: boolean;
   selectedWallet: string;
+  protocolFee: number;
 }
 
 const DEFAULT_STATE: MenuState = {
@@ -40,6 +41,7 @@ const DEFAULT_STATE: MenuState = {
   ethPrice: { curr: 0, prev: 0 },
   displayMintModal: false,
   selectedWallet: '',
+  protocolFee: 0,
 };
 @Component({
   selector: 'cd-menu',
@@ -71,6 +73,10 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
       icon: 'pi pi-chart-line',
       routerLink: 'leaderboard',
     },
+    {
+      label: 'Profit Calculator',
+      icon: 'pi pi-sliders-v',
+    },
   ];
 
   constructor(
@@ -89,6 +95,7 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
         tap(() => this.ui.displaySuccess('Account changed'))
       )
     );
+    this.connect('protocolFee', this.candefi.candyProtocolFee());
     this.connect('address', this.globalState.select('address'));
     this.connect('neoPrice', this.globalState.select('neoPrice'));
     this.connect('gasPrice', this.globalState.select('gasPrice'));
@@ -131,7 +138,7 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
       asset: [{ value: 'NEO', disabled: true }],
       strike: [0, Validators.required],
       stake: [5000, Validators.required],
-      fee: [{ value: 1000, disabled: true }],
+      fee: [{ value: this.get('protocolFee'), disabled: true }],
       depreciation: [0],
       value: [0],
       volatility: [0],
@@ -236,7 +243,6 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
       )
       .subscribe((txid) => {
         this.set({ displayMintModal: false });
-        //this.refreshWriterTokens();
         console.log(txid);
       });
   }

@@ -155,15 +155,13 @@ export class RentfuseService {
     if (!renting) {
       return token;
     }
+    const now = new Date().getTime();
+    const msLeft = renting.startedAt + renting.duration * 60 * 1000 - now;
     return {
       renting: {
         duration: renting.duration,
         startedAt: renting.startedAt,
-        remainingSeconds:
-          (renting.startedAt +
-            renting.duration * 60 * 1000 -
-            new Date().getTime()) /
-          1000,
+        remainingSeconds: msLeft > 0 ? msLeft / 1000 : 0,
       },
       ...token,
     };

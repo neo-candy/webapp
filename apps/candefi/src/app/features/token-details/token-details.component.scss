@@ -1,0 +1,15 @@
+::ng-deep .token-details-panel .p-panel-content {
+  padding: 0;
+}
+
+.loading-icon-dark {
+  height: 80px;
+  margin: 10rem;
+}
+
+.loading-icon-light {
+  height: 80px;
+  margin: 10rem;
+  filter: invert(90%) sepia(22%) saturate(0%) hue-rotate(305deg) brightness(110%) contrast(100%);
+}
+

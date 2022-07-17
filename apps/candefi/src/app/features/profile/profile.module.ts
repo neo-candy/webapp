@@ -5,7 +5,6 @@ import { ProfileRoutingModule } from './profile-routing.module';
 import { ProfileComponent } from './profile.component';
 import { SharedModule } from '../../shared/shared.module';
 import { TabViewModule } from 'primeng/tabview';
-import { MenuModule } from 'primeng/menu';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ListingsComponent } from './listings/listings.component';
 import { RentalsComponent } from './rentals/rentals.component';
@@ -17,7 +16,6 @@ import { RentalsComponent } from './rentals/rentals.component';
     ProfileRoutingModule,
     SharedModule,
     TabViewModule,
-    MenuModule,
     ConfirmDialogModule,
   ],
   exports: [ProfileComponent],

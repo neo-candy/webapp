@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RxState } from '@rx-angular/state';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
 import { TokenDetails, RentfuseService } from '../../services/rentfuse.service';
+import { ThemeService } from '../../services/theme.service';
+import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 
 interface TokenDetailsState {
   token: TokenDetails;
@@ -20,10 +22,26 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   readonly state$ = this.select();
   readonly fetchTokenId$ = this.route.params.pipe(map((res) => res['tokenId']));
 
+  items = [
+    {
+      label: 'Options',
+      icon: 'pi pi-cog',
+      items: [
+        {
+          label: 'Close listing',
+          icon: 'pi pi-trash',
+          command: () => this.closeListing(),
+        },
+      ],
+    },
+    { label: 'Profit Calculator', icon: 'pi pi-sliders-v' },
+  ];
   constructor(
     private route: ActivatedRoute,
     private candefi: CandefiService,
-    private rentfuse: RentfuseService
+    private rentfuse: RentfuseService,
+    public theme: ThemeService,
+    @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
     this.set({ isLoading: true });
@@ -36,5 +54,11 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
         tap(() => this.set({ isLoading: false }))
       )
     );
+  }
+
+  private closeListing(): void {
+    this.candefi
+      .closeListing(this.globalState.get('address'), this.get('token').tokenId)
+      .subscribe();
   }
 }

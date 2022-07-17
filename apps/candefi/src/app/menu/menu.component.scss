@@ -7,13 +7,24 @@
  color: #1DA1F2;
 }
 
-::ng-deep .price-widget-tabview .p-tabview-nav-link{
-  padding: .75rem !important;
-  padding-right: 1rem !important;
-}
 
-::ng-deep .price-widget-tabview .p-disabled {
-  opacity: 1;
+::ng-deep .price-widget-tabview {
+  .p-disabled {
+    opacity: 1;
+  }
+  .p-tabview-panels {
+    padding: 0rem;
+  }
+  .p-tabview-nav {
+    border: 0;
+  }
+  .p-tabview-panels {
+    padding: 0rem;
+  }
+  .p-tabview-nav-link{
+    padding: .75rem !important;
+    padding-right: 1rem !important;
+  }
 }
 
 .negative-price {

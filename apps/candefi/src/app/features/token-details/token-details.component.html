@@ -1,26 +1,29 @@
 <ng-container *ngIf="state$ | async as s">
   <div *ngIf="!s.isLoading; else loading">
     <p-toolbar>
-      <div class="flex">
+      <div class="flex align-items-center">
         <span class="mr-2"><a routerLink="/">Markets</a></span> /
         <span class="mr-2 ml-2">NEO</span> /
         <span class="mr-2 ml-2">{{ s.token.type }}s</span> /
         <span class="ml-2">{{ s.base64TokenId }}</span>
+        <span class="ml-2"><p-tag>PLACEHOLDER</p-tag></span>
       </div>
     </p-toolbar>
-    <p-panel>
+    <p-panel styleClass="token-details-panel">
       <ng-template pTemplate="header">
         <div class="w-full flex justify-content-between">
           <div class="font-bold">Token Details</div>
           <div class="hidden sm:inline">
             <span class="font-bold">Writer: </span
-            ><a href="">{{ s.token.writer | truncateAddress }}</a>
-            <span class="ml-2 font-bold">Created at: </span>
+            ><a href="">{{ s.token.writer | truncateAddress }}</a
+            >,
             {{ s.token.created | date }}
           </div>
         </div>
       </ng-template>
-      <div class="grid p-fluid">
+      <p-menubar [model]="items"></p-menubar>
+
+      <div class="grid p-fluid p-3">
         <div class="col-3">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Token ID:</div>
@@ -91,7 +94,7 @@
         </div>
       </div>
       <p-divider><p-tag value="Renting Costs"></p-tag></p-divider>
-      <div class="grid p-fluid">
+      <div class="grid p-fluid p-3">
         <div class="col-3">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Daily fee:</div>
@@ -118,5 +121,15 @@
       </div>
     </p-panel>
   </div>
-  <ng-template #loading> Skeleton </ng-template>
+  <ng-template #loading>
+    <div class="flex w-full justify-content-center align-items-center">
+      <img
+        src="assets/ui/blocks-scale.svg"
+        [ngClass]="{
+          'loading-icon-dark': theme.current === 'lara-light-indigo',
+          'loading-icon-light': theme.current === 'lara-dark-indigo'
+        }"
+      />
+    </div>
+  </ng-template>
 </ng-container>
