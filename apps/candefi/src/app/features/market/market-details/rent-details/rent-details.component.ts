@@ -6,12 +6,12 @@ import { Subject } from 'rxjs';
 import { CandefiToken } from '../../../../services/candefi.service';
 import {
   RentfuseService,
-  TokenDetails,
+  TokenWithListingOptionalRenting,
 } from '../../../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../../../state/global.state';
 
 interface RentDetailsState {
-  token: TokenDetails;
+  token: TokenWithListingOptionalRenting;
   isLoading: boolean;
 }
 
@@ -38,7 +38,7 @@ export class RentDetailsComponent
   formGroup: FormGroup = new FormGroup({});
 
   ngOnInit(): void {
-    const token = this.config.data.token as TokenDetails;
+    const token = this.config.data.token as TokenWithListingOptionalRenting;
     this.set({ token });
     this.formGroup = this.fb.group({
       duration: [token.listing.minMinutes / 24 / 60, Validators.required],

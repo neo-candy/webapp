@@ -3,12 +3,15 @@ import { ActivatedRoute } from '@angular/router';
 import { RxState } from '@rx-angular/state';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
-import { TokenDetails, RentfuseService } from '../../services/rentfuse.service';
+import {
+  TokenWithListingOptionalRenting,
+  RentfuseService,
+} from '../../services/rentfuse.service';
 import { ThemeService } from '../../services/theme.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 
 interface TokenDetailsState {
-  token: TokenDetails;
+  token: TokenWithListingOptionalRenting;
   base64TokenId: string;
   isLoading: boolean;
 }
@@ -57,6 +60,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   }
 
   private closeListing(): void {
+    console.log(this.get('token').listing.listingId);
     this.candefi
       .closeListing(this.globalState.get('address'), this.get('token').tokenId)
       .subscribe();

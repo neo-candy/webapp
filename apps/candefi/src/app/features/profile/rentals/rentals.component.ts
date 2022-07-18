@@ -4,6 +4,7 @@ import { RxState } from '@rx-angular/state';
 import { SelectItem } from 'primeng/api';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
+  filter,
   finalize,
   map,
   mergeAll,
@@ -18,7 +19,7 @@ import {
 } from '../../../services/context.service';
 import {
   RentfuseService,
-  TokenDetails,
+  TokenWithListingOptionalRenting,
 } from '../../../services/rentfuse.service';
 import { ThemeService } from '../../../services/theme.service';
 import {
@@ -34,9 +35,8 @@ interface RentalState {
   layoutOptions: SelectItem[];
   selectedLayout: string;
   isLoading: boolean;
-  tokens: TokenDetails[];
-  pendingTokens: TokenDetails[];
-  activeTokens: TokenDetails[];
+  tokens: TokenWithListingOptionalRenting[];
+  activeTokens: TokenWithListingOptionalRenting[];
   neoPrice: Price;
 }
 
@@ -53,7 +53,6 @@ const DEFAULT_STATE: RentalState = {
   ],
   isLoading: true,
   tokens: [],
-  pendingTokens: [],
   activeTokens: [],
   selectedLayout: 'calls',
   neoPrice: { curr: 0, prev: 0 },
@@ -69,10 +68,11 @@ export class RentalsComponent extends RxState<RentalState> {
     value: FILTER_VALUE_CALL,
   });
   readonly state$ = this.select();
-  readonly fetchListings$ = (address: string) =>
-    this.candefi.tokensOfWriterJson(address).pipe(
+  readonly fetchRentings$ = (address: string) =>
+    this.candefi.tokensOfJson(address).pipe(
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
+      filter((token) => !!token.renting && token.owner !== token.writer),
       toArray(),
       finalize(() => this.set({ isLoading: false }))
     );
@@ -95,25 +95,8 @@ export class RentalsComponent extends RxState<RentalState> {
     this.connect(
       'tokens',
       this.globalState.select('address').pipe(
-        switchMap((a) => this.fetchListings$(a)),
+        switchMap((a) => this.fetchRentings$(a)),
         map((listings) => listings.sort((a, b) => a.strike - b.strike))
-      )
-    );
-
-    this.connect(
-      'pendingTokens',
-      this.onLayoutChange$.pipe(
-        switchMap((layout) =>
-          this.select('tokens').pipe(
-            map((listings) =>
-              listings.filter(
-                (listing) =>
-                  listing.type.toLowerCase() === layout.value.toLowerCase() &&
-                  !listing.renting
-              )
-            )
-          )
-        )
       )
     );
 
@@ -125,8 +108,7 @@ export class RentalsComponent extends RxState<RentalState> {
             map((listings) =>
               listings.filter(
                 (listing) =>
-                  listing.type.toLowerCase() === layout.value.toLowerCase() &&
-                  listing.renting
+                  listing.type.toLowerCase() === layout.value.toLowerCase()
               )
             )
           )
@@ -135,6 +117,12 @@ export class RentalsComponent extends RxState<RentalState> {
     );
 
     this.connect('neoPrice', this.globalState.select('neoPrice'));
+  }
+
+  calculateBorrowerProfit(token: TokenWithListingOptionalRenting): number {
+    const profit = this.candefi.calculateProfit(token, true);
+    token.profit = profit;
+    return profit;
   }
 
   goToTokenDetails(tokenId: string) {

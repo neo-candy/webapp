@@ -16,6 +16,8 @@
           <div class="hidden sm:inline">
             <span class="font-bold">Writer: </span
             ><a href="">{{ s.token.writer | truncateAddress }}</a
+            >, <span class="font-bold">Owner: </span
+            ><a href="">{{ s.token.owner | truncateAddress }}</a
             >,
             {{ s.token.created | date }}
           </div>
@@ -24,14 +26,14 @@
       <p-menubar [model]="items"></p-menubar>
 
       <div class="grid p-fluid p-3">
-        <div class="col-3">
+        <div class="lg:col-3 md:col-6 col-12">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Token ID:</div>
             <input pInputText [value]="s.token.tokenId" />
           </div>
         </div>
 
-        <div class="col-3">
+        <div class="lg:col-3 md:col-6 col-12">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Stake:</div>
             <p-inputNumber
@@ -40,7 +42,7 @@
             ></p-inputNumber>
           </div>
         </div>
-        <div class="col-3">
+        <div class="lg:col-3 md:col-6 col-12">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Value:</div>
             <p-inputNumber
@@ -49,7 +51,7 @@
             ></p-inputNumber>
           </div>
         </div>
-        <div class="col-3">
+        <div class="lg:col-3 md:col-6 col-12">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Strike:</div>
             <p-inputNumber
@@ -60,25 +62,25 @@
             ></p-inputNumber>
           </div>
         </div>
-        <div class="col-3">
+        <div class="md:col-3 col-12">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Depreciation:</div>
             <p-inputNumber [ngModel]="s.token.depreciation"></p-inputNumber>
           </div>
         </div>
-        <div class="col-3">
+        <div class="md:col-3 col-12">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Volatility:</div>
             <p-inputNumber [ngModel]="s.token.volatility"></p-inputNumber>
           </div>
         </div>
-        <div class="col-3">
+        <div class="md:col-3 col-12">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Safe:</div>
             <input pInputText [value]="s.token.safe ? 'Yes' : 'No'" />
           </div>
         </div>
-        <div class="col-3">
+        <div class="md:col-3 col-12">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Duration:</div>
             <input
@@ -95,7 +97,7 @@
       </div>
       <p-divider><p-tag value="Renting Costs"></p-tag></p-divider>
       <div class="grid p-fluid p-3">
-        <div class="col-3">
+        <div class="md:col-3 col-12">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Daily fee:</div>
             <p-inputNumber
@@ -107,7 +109,7 @@
             ></p-inputNumber>
           </div>
         </div>
-        <div class="col-3">
+        <div class="md:col-3 col-12">
           <div class="flex flex-column">
             <div class="font-bold mb-1">Collateral:</div>
             <p-inputNumber

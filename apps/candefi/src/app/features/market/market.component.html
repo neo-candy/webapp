@@ -25,7 +25,7 @@
               <ng-template pTemplate="header">
                 <tr>
                   <th>Strike</th>
-                  <th>Total stakes</th>
+                  <th>Stakes</th>
                   <th>Volume</th>
                 </tr>
               </ng-template>
@@ -35,10 +35,10 @@
                   class="cursor-pointer"
                   [ngClass]="{
                     'highlight-row-dark-theme':
-                      token.strike < s.neoPrice &&
+                      token.strike < s.neoPrice.curr &&
                       theme.current === 'lara-dark-indigo',
                     'highlight-row-light-theme':
-                      token.strike < s.neoPrice &&
+                      token.strike < s.neoPrice.curr &&
                       theme.current === 'lara-light-indigo'
                   }"
                 >
@@ -84,7 +84,7 @@
               <ng-template pTemplate="header">
                 <tr>
                   <th>Strike</th>
-                  <th>Total stakes</th>
+                  <th>Stakes</th>
                   <th>Volume</th>
                 </tr>
               </ng-template>
@@ -94,10 +94,10 @@
                   class="cursor-pointer"
                   [ngClass]="{
                     'highlight-row-dark-theme':
-                      token.strike > s.neoPrice &&
+                      token.strike > s.neoPrice.curr &&
                       theme.current === 'lara-dark-indigo',
                     'highlight-row-light-theme':
-                      token.strike > s.neoPrice &&
+                      token.strike > s.neoPrice.curr &&
                       theme.current === 'lara-light-indigo'
                   }"
                 >

@@ -19,7 +19,7 @@ const routes: Routes = [
         component: ListingsComponent,
       },
       {
-        path: 'rentals',
+        path: 'rentings',
         component: RentalsComponent,
       },
     ],

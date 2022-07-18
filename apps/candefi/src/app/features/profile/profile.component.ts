@@ -9,7 +9,10 @@ import {
   toArray,
 } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
-import { RentfuseService, TokenDetails } from '../../services/rentfuse.service';
+import {
+  RentfuseService,
+  TokenWithListingOptionalRenting,
+} from '../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 import {
   ConfirmationService,
@@ -21,31 +24,11 @@ import { UiService } from '../../services/ui.service';
 
 interface ProfileState {
   address: string;
-  rentals: TokenDetails[];
-  ownedCalls: TokenDetails[];
-  ownedPuts: TokenDetails[];
-  listings: any[];
-  listingsCalls: any[];
-  listingsPuts: any[];
-  isLoadingListings: boolean;
-  isLoadingOwned: boolean;
-  selectedRentalCalls: TokenDetails[];
-  selectedRentalPuts: TokenDetails[];
   layouts: SelectItem[];
 }
 
 const DEFAULT_STATE: ProfileState = {
   address: '',
-  rentals: [],
-  listings: [],
-  isLoadingListings: true,
-  isLoadingOwned: true,
-  listingsCalls: [],
-  listingsPuts: [],
-  ownedCalls: [],
-  ownedPuts: [],
-  selectedRentalCalls: [],
-  selectedRentalPuts: [],
   layouts: [
     { label: 'Calls', value: 'calls' },
     { label: 'Puts', value: 'puts' },
@@ -77,21 +60,14 @@ export class ProfileComponent extends RxState<ProfileState> {
           routerLinkActiveOptions: { exact: true },
         },
         {
-          label: 'Rentals',
-          routerLink: ['rentals'],
+          label: 'Rentings',
+          routerLink: ['rentings'],
           routerLinkActiveOptions: { exact: true },
         },
       ],
     },
   ];
   readonly state$ = this.select();
-  readonly fetchTokenDetails$ = (address: string) =>
-    this.candefi.tokensOfWriterJson(address).pipe(
-      mergeAll(),
-      mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
-      toArray(),
-      finalize(() => this.set({ isLoadingListings: false }))
-    );
 
   constructor(
     private candefi: CandefiService,
@@ -104,41 +80,9 @@ export class ProfileComponent extends RxState<ProfileState> {
 
     this.set(DEFAULT_STATE);
     this.connect('address', this.globalState.select('address'));
-    this.connect(
-      'listings',
-      this.globalState
-        .select('address')
-        .pipe(switchMap((a) => this.fetchTokenDetails$(a)))
-    );
-    this.connect(
-      'listingsCalls',
-      this.select('listings').pipe(
-        map((t) => t.filter((t) => t.type === 'Call'))
-      )
-    );
-    this.connect(
-      'listingsPuts',
-      this.select('listings').pipe(
-        map((t) => t.filter((t) => t.type === 'Put'))
-      )
-    );
-    /* this.connect(
-      'rentals',
-      this.globalState.select('address').pipe(
-        switchMap((a) =>
-          this.candefi.tokensOfJson(a).pipe(
-            mergeAll(),
-            mergeMap((token) => this.rentfuse.getListingForNft(token)),
-            filter((v) => v.owner !== v.writer),
-            toArray(),
-            finalize(() => this.set({ isLoadingOwned: false }))
-          )
-        )
-      )
-    ); */
   }
 
-  finishRentalCalls(): void {
+  /*  finishRentalCalls(): void {
     const tokens: TokenDetails[] = this.get('selectedRentalCalls');
 
     if (tokens.length < 1) {
@@ -245,5 +189,5 @@ export class ProfileComponent extends RxState<ProfileState> {
     this.candefi
       .exercise(this.get('address'), tokenIds)
       .subscribe((res) => console.log(res));
-  }
+  } */
 }

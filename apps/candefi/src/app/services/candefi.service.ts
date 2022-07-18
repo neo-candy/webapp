@@ -10,6 +10,7 @@ import { NeonJSService } from './neonjs.service';
 import { processBase64Hash160 } from '../shared/utils';
 import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
 import { RxState } from '@rx-angular/state';
+import { TokenWithListingOptionalRenting } from './rentfuse.service';
 
 const CALL = 1;
 const PUT = 2;
@@ -42,7 +43,7 @@ export interface CandefiToken {
   depreciation: number;
   volatility: number;
   value: number;
-  exercised: boolean;
+  isExercised: boolean;
   safe: boolean;
 }
 
@@ -321,6 +322,24 @@ export class CandefiService {
       );
   }
 
+  public calculateProfit(
+    token: TokenWithListingOptionalRenting,
+    borrower: boolean
+  ): number {
+    if (!token.renting) {
+      throw new Error('calculateBorrowerProfit_noRenting');
+    }
+    const gasValue =
+      token.listing.gasPerMinute *
+      token.renting?.duration *
+      this.globalState.get('gasPrice').curr;
+    const candyValue = token.stake * this.globalState.get('candyPrice').curr;
+    if (borrower) {
+      return candyValue - gasValue;
+    }
+    return gasValue - candyValue;
+  }
+
   private mapToken(v: TokenProperties): CandefiToken {
     const strike = Number(
       v.attributes.filter((a) => a.trait_type === 'Strike')[0].value
@@ -377,7 +396,7 @@ export class CandefiService {
       created: Number(
         v.attributes.filter((a) => a.trait_type === 'Created')[0].value
       ),
-      exercised: Boolean(
+      isExercised: Boolean(
         v.attributes.filter((a) => a.trait_type === 'Exercised')[0].value
       ),
       safe: Boolean(

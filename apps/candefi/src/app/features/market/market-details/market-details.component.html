@@ -1,15 +1,4 @@
 <ng-container *ngIf="state$ | async as s">
-  <p-toolbar>
-    <div>
-      <p-checkbox
-        [binary]="true"
-        label="Hide rented NFTs"
-        [(ngModel)]="s.hideRented"
-        (onChange)="onHideRentedSelected$.next($event)"
-      ></p-checkbox>
-    </div>
-  </p-toolbar>
-  <br />
   <p-table
     [loading]="s.isLoading"
     selectionMode="single"
@@ -35,6 +24,7 @@
         <th>Daily fee</th>
         <th>Collateral</th>
         <th>Safe</th>
+        <th>Writer</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-token>
@@ -78,6 +68,7 @@
             [readonly]="true"
           ></p-checkbox>
         </td>
+        <td>{{ token.writer | truncateAddress }}</td>
       </tr>
     </ng-template>
   </p-table>

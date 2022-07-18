@@ -1,11 +1,10 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { sc, tx, wallet } from '@cityofzion/neon-js';
-import { RxState } from '@rx-angular/state';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { NeoInvokeWriteResponse } from '../models/n3';
-import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
+import { processBase64Hash160 } from '../shared/utils';
 import { CandefiToken } from './candefi.service';
 import { NeolineService } from './neoline.service';
 import { NeonJSService } from './neonjs.service';
@@ -23,22 +22,21 @@ export interface Renting {
   duration: number;
   startedAt: number;
   remainingSeconds: number;
+  borrower: string;
 }
 
-export interface RentfuseTokenDetails {
+export type TokenWithListingOptionalRenting = CandefiToken & {
   listing: Listing;
   renting?: Renting;
-}
-
-export type TokenDetails = CandefiToken & RentfuseTokenDetails;
+  profit?: number;
+};
 
 @Injectable({ providedIn: 'root' })
 export class RentfuseService {
   constructor(
     private neonjs: NeonJSService,
     private neoline: NeolineService,
-    private ui: UiService,
-    @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
+    private ui: UiService
   ) {}
 
   public startRenting(
@@ -125,33 +123,57 @@ export class RentfuseService {
     );
   }
 
+  getClaimableAmount(
+    address: string,
+    paymentTokenHash: string
+  ): Observable<number> {
+    const scriptHash = environment.testnet.rentfuseProtocol;
+    return this.neonjs.rpcRequest(
+      'getClaimableAmount',
+      [
+        sc.ContractParam.hash160(address),
+        sc.ContractParam.hash160(paymentTokenHash),
+      ],
+      scriptHash
+    );
+  }
+
   /* CUSTOM METHODS */
 
-  getListingForToken(token: CandefiToken): Observable<TokenDetails> {
+  getListingForToken(
+    token: CandefiToken
+  ): Observable<TokenWithListingOptionalRenting> {
     return this.getListingIdFromNft(token.tokenId).pipe(
-      filter((id) => id != 0),
+      filter((listingId) => listingId != 0),
       switchMap((listingId) => this.getListing(listingId)),
       map((listing) => this.addListingToToken(token, listing))
     );
   }
 
-  getRentingForToken(token: TokenDetails): Observable<TokenDetails> {
+  getRentingForToken(
+    token: TokenWithListingOptionalRenting
+  ): Observable<TokenWithListingOptionalRenting> {
+    if (!token.listing) {
+      throw new Error('getRentingForToken_noListing');
+    }
     return this.getLastRentingIdForListing(token.listing.listingId).pipe(
       switchMap((rentingId) => this.getRenting(rentingId)),
       map((renting) => this.addRentingToToken(token, renting))
     );
   }
 
-  getListingAndRentingForToken(token: CandefiToken): Observable<TokenDetails> {
+  getListingAndRentingForToken(
+    token: CandefiToken
+  ): Observable<TokenWithListingOptionalRenting> {
     return this.getListingForToken(token).pipe(
       switchMap((listing) => this.getRentingForToken(listing))
     );
   }
 
   private addRentingToToken(
-    token: TokenDetails,
+    token: TokenWithListingOptionalRenting,
     renting: Renting | null
-  ): TokenDetails {
+  ): TokenWithListingOptionalRenting {
     if (!renting) {
       return token;
     }
@@ -159,6 +181,7 @@ export class RentfuseService {
     const msLeft = renting.startedAt + renting.duration * 60 * 1000 - now;
     return {
       renting: {
+        borrower: renting.borrower,
         duration: renting.duration,
         startedAt: renting.startedAt,
         remainingSeconds: msLeft > 0 ? msLeft / 1000 : 0,
@@ -170,7 +193,7 @@ export class RentfuseService {
   private addListingToToken(
     token: CandefiToken,
     listing: Listing
-  ): TokenDetails {
+  ): TokenWithListingOptionalRenting {
     return {
       listing: {
         collateral: listing.collateral / Math.pow(10, 8),
@@ -185,6 +208,7 @@ export class RentfuseService {
 
   private mapRenting(v: any[]): Renting {
     return {
+      borrower: new wallet.Account(processBase64Hash160(v[2].value)).address,
       duration: Number(v[3].value),
       startedAt: Number(v[4].value),
       remainingSeconds: 0,
@@ -193,7 +217,7 @@ export class RentfuseService {
 
   private mapListing(v: any[]): Listing {
     return {
-      listingId: v[0].value,
+      listingId: Number(v[0].value),
       minMinutes: Number(v[4].value),
       maxMinutes: Number(v[5].value),
       gasPerMinute: Number(v[3].value[1].value),

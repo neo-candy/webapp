@@ -47,17 +47,17 @@
               <tr
                 [ngClass]="{
                   'highlight-row-dark-theme':
-                    (token.strike < s.neoPrice &&
+                    (token.strike < s.neoPrice.curr &&
                       token.type === 'Call' &&
                       theme.current === 'lara-dark-indigo') ||
-                    (token.strike > s.neoPrice &&
+                    (token.strike > s.neoPrice.curr &&
                       token.type === 'Put' &&
                       theme.current === 'lara-dark-indigo'),
                   'highlight-row-light-theme':
-                    (token.strike < s.neoPrice &&
+                    (token.strike < s.neoPrice.curr &&
                       token.type === 'Call' &&
                       theme.current === 'lara-light-indigo') ||
-                    (token.strike > s.neoPrice &&
+                    (token.strike > s.neoPrice.curr &&
                       token.type === 'Put' &&
                       theme.current === 'lara-light-indigo')
                 }"
@@ -142,18 +142,18 @@
                 <th>Strike</th>
                 <th>Remaining</th>
                 <th>Effective date</th>
-                <th>Earned fees</th>
                 <th>Safe</th>
+                <th>Profit</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-token>
               <tr
                 [ngClass]="{
                   'highlight-row-dark-theme':
-                    token.strike < s.neoPrice &&
+                    token.strike < s.neoPrice.curr &&
                     theme.current === 'lara-dark-indigo',
                   'highlight-row-light-theme':
-                    token.strike < s.neoPrice &&
+                    token.strike < s.neoPrice.curr &&
                     theme.current === 'lara-light-indigo'
                 }"
                 class="cursor-pointer"
@@ -204,21 +204,24 @@
                       | date: 'medium'
                   }}
                 </td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{
-                      token.listing.gasPerMinute * token.renting.duration
-                        | number: '1.2-2'
-                    }}
-                    <img src="assets/images/gas.png" height="20" class="ml-2" />
-                  </div>
-                </td>
+
                 <td>
                   <p-checkbox
                     [ngModel]="token.safe"
                     [binary]="true"
                     [readonly]="true"
                   ></p-checkbox>
+                </td>
+                <td>
+                  <div
+                    class="flex align-items-center"
+                    [ngClass]="{
+                      'negative-price': token.profit < 0,
+                      'positive-price': token.profit >= 0
+                    }"
+                  >
+                    {{ calculateLenderProfit(token) | currency }}
+                  </div>
                 </td>
               </tr>
             </ng-template>
@@ -255,10 +258,10 @@
               <tr
                 [ngClass]="{
                   'highlight-row-dark-theme':
-                    token.strike < s.neoPrice &&
+                    token.strike < s.neoPrice.curr &&
                     theme.current === 'lara-dark-indigo',
                   'highlight-row-light-theme':
-                    token.strike < s.neoPrice &&
+                    token.strike < s.neoPrice.curr &&
                     theme.current === 'lara-light-indigo'
                 }"
                 class="cursor-pointer"

@@ -37,11 +37,11 @@ interface OptionOverview {
 export class MarketComponent extends RxState<MarketState> {
   readonly state$ = this.select();
   readonly calls$ = this.select('tokens').pipe(
-    map((t) => t.filter((t) => t.type === 'Call' && !t.exercised)),
+    map((t) => t.filter((t) => t.type === 'Call' && !t.isExercised)),
     map((t) => this.summarize(t).sort((a, b) => a.strike - b.strike))
   );
   readonly puts$ = this.select('tokens').pipe(
-    map((t) => t.filter((t) => t.type === 'Put' && !t.exercised)),
+    map((t) => t.filter((t) => t.type === 'Put' && !t.isExercised)),
     map((t) => this.summarize(t).sort((a, b) => a.strike - b.strike))
   );
 
@@ -68,7 +68,7 @@ export class MarketComponent extends RxState<MarketState> {
     const strike = token.strike;
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Calls',
-      width: '90%',
+      width: '99%',
       data: {
         tokens: this.get('tokens')
           .filter((t) => t.type === 'Call')
@@ -81,7 +81,7 @@ export class MarketComponent extends RxState<MarketState> {
     const strike = token.strike;
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Puts',
-      width: '70%',
+      width: '99%',
       data: {
         tokens: this.get('tokens')
           .filter((t) => t.type === 'Put')

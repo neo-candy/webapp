@@ -18,7 +18,7 @@ import {
 } from '../../../services/context.service';
 import {
   RentfuseService,
-  TokenDetails,
+  TokenWithListingOptionalRenting,
 } from '../../../services/rentfuse.service';
 import { ThemeService } from '../../../services/theme.service';
 import {
@@ -34,10 +34,10 @@ interface ListingState {
   layoutOptions: SelectItem[];
   selectedLayout: string;
   isLoading: boolean;
-  tokens: TokenDetails[];
-  pendingTokens: TokenDetails[];
-  activeTokens: TokenDetails[];
-  expiredTokens: TokenDetails[];
+  tokens: TokenWithListingOptionalRenting[];
+  pendingTokens: TokenWithListingOptionalRenting[];
+  activeTokens: TokenWithListingOptionalRenting[];
+  expiredTokens: TokenWithListingOptionalRenting[];
   neoPrice: Price;
 }
 
@@ -107,11 +107,11 @@ export class ListingsComponent extends RxState<ListingState> {
       this.onLayoutChange$.pipe(
         switchMap((layout) =>
           this.select('tokens').pipe(
-            map((listings) =>
-              listings.filter(
-                (listing) =>
-                  listing.type.toLowerCase() === layout.value.toLowerCase() &&
-                  !listing.renting
+            map((tokens) =>
+              tokens.filter(
+                (token) =>
+                  token.type.toLowerCase() === layout.value.toLowerCase() &&
+                  !token.renting
               )
             )
           )
@@ -128,7 +128,8 @@ export class ListingsComponent extends RxState<ListingState> {
               listings.filter(
                 (listing) =>
                   listing.type.toLowerCase() === layout.value.toLowerCase() &&
-                  listing.renting
+                  listing.renting &&
+                  listing.owner === listing.renting.borrower
               )
             )
           )
@@ -141,5 +142,11 @@ export class ListingsComponent extends RxState<ListingState> {
 
   goToTokenDetails(tokenId: string) {
     this.router.navigate(['/tokens/' + atob(tokenId)]);
+  }
+
+  calculateLenderProfit(token: TokenWithListingOptionalRenting): number {
+    const profit = this.candefi.calculateProfit(token, false);
+    token.profit = profit;
+    return profit;
   }
 }
