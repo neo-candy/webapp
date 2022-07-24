@@ -35,8 +35,8 @@
                 <th>Stake</th>
                 <th>Value</th>
                 <th>Strike</th>
-                <th>Depreciation</th>
-                <th>Volatility</th>
+                <th>Time Decay</th>
+                <th>Leverage</th>
                 <th>Remaining</th>
                 <th>Effective date</th>
                 <th>Safe</th>
@@ -87,8 +87,8 @@
                 </td>
 
                 <td>${{ token.strike | number: '1.2-2' }}</td>
-                <td>{{ token.depreciation | number }}</td>
-                <td>{{ token.volatility | number }}</td>
+                <td>{{ token.timeDecay | number }}</td>
+                <td>{{ token.leverage | number }}</td>
                 <td>
                   <ng-container
                     *ngIf="

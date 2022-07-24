@@ -22,6 +22,7 @@ import {
   TokenWithListingOptionalRenting,
 } from '../../../services/rentfuse.service';
 import { ThemeService } from '../../../services/theme.service';
+import { isExpired } from '../../../shared/utils';
 import {
   GlobalState,
   GLOBAL_RX_STATE,
@@ -72,7 +73,10 @@ export class RentalsComponent extends RxState<RentalState> {
     this.candefi.tokensOfJson(address).pipe(
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
-      filter((token) => !!token.renting && token.owner !== token.writer),
+      filter(
+        (token) =>
+          !!token.renting && token.owner !== token.writer && !isExpired(token)
+      ),
       toArray(),
       finalize(() => this.set({ isLoading: false }))
     );
@@ -120,7 +124,7 @@ export class RentalsComponent extends RxState<RentalState> {
   }
 
   calculateBorrowerProfit(token: TokenWithListingOptionalRenting): number {
-    const profit = this.candefi.calculateProfit(token, true);
+    const profit = this.candefi.calculateProfit(token, true, isExpired(token));
     token.profit = profit;
     return profit;
   }

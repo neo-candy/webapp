@@ -4,6 +4,7 @@ import { RxState } from '@rx-angular/state';
 import { SelectItem } from 'primeng/api';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
+  filter,
   finalize,
   map,
   mergeAll,
@@ -21,6 +22,7 @@ import {
   TokenWithListingOptionalRenting,
 } from '../../../services/rentfuse.service';
 import { ThemeService } from '../../../services/theme.service';
+import { isExpired } from '../../../shared/utils';
 import {
   GlobalState,
   GLOBAL_RX_STATE,
@@ -129,6 +131,26 @@ export class ListingsComponent extends RxState<ListingState> {
                 (listing) =>
                   listing.type.toLowerCase() === layout.value.toLowerCase() &&
                   listing.renting &&
+                  !isExpired(listing) &&
+                  listing.owner === listing.renting.borrower
+              )
+            )
+          )
+        )
+      )
+    );
+
+    this.connect(
+      'expiredTokens',
+      this.onLayoutChange$.pipe(
+        switchMap((layout) =>
+          this.select('tokens').pipe(
+            map((listings) =>
+              listings.filter(
+                (listing) =>
+                  listing.type.toLowerCase() === layout.value.toLowerCase() &&
+                  listing.renting &&
+                  isExpired(listing) &&
                   listing.owner === listing.renting.borrower
               )
             )
@@ -145,7 +167,7 @@ export class ListingsComponent extends RxState<ListingState> {
   }
 
   calculateLenderProfit(token: TokenWithListingOptionalRenting): number {
-    const profit = this.candefi.calculateProfit(token, false);
+    const profit = this.candefi.calculateProfit(token, false, isExpired(token));
     token.profit = profit;
     return profit;
   }

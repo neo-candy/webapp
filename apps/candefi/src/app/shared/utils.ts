@@ -1,3 +1,5 @@
+import { TokenWithListingOptionalRenting } from '../services/rentfuse.service';
+
 export function processBase64Hash160(base64: string): string {
   const binaryString = window.atob(base64);
   const len = binaryString.length;
@@ -8,4 +10,14 @@ export function processBase64Hash160(base64: string): string {
   return Array.from(bytes)
     .map((x) => x.toString(16).padStart(2, '0'))
     .join('');
+}
+
+export function isExpired(token: TokenWithListingOptionalRenting): boolean {
+  if (!token.renting) {
+    return false;
+  }
+  return (
+    token.renting.startedAt + token.renting.duration * 60 * 1000 <
+    new Date().getTime()
+  );
 }

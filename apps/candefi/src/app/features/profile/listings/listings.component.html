@@ -35,8 +35,8 @@
                 <th>Stake</th>
                 <th>Value</th>
                 <th>Strike</th>
-                <th>Depreciation</th>
-                <th>Volatility</th>
+                <th>Time Decay</th>
+                <th>Leverage</th>
                 <th>Duration</th>
                 <th>Collateral</th>
                 <th>Daily fee</th>
@@ -87,8 +87,8 @@
                 </td>
 
                 <td>${{ token.strike | number: '1.2-2' }}</td>
-                <td>{{ token.depreciation | number }}</td>
-                <td>{{ token.volatility | number }}</td>
+                <td>{{ token.timeDecay | number }}</td>
+                <td>{{ token.leverage | number }}</td>
                 <td>
                   {{ token.listing.minMinutes / 60 / 24 }} -
                   {{ token.listing.maxMinutes / 60 / 24 }} days
@@ -118,8 +118,8 @@
               <tr>
                 <td colspan="12">
                   <div class="p-1">
-                    Could not find listed
-                    {{ s.selectedLayout }} NFTs for this account.
+                    Could not find pending
+                    {{ s.selectedLayout }} NFTs for this address.
                   </div>
                 </td>
               </tr>
@@ -229,8 +229,8 @@
               <tr>
                 <td colspan="12">
                   <div class="p-1">
-                    Could not find listed
-                    {{ s.selectedLayout }} NFTs for this account.
+                    Could not find active
+                    {{ s.selectedLayout }} NFTs for this address.
                   </div>
                 </td>
               </tr>
@@ -240,7 +240,7 @@
         <p-panel header="Expired" [toggleable]="true">
           <p-table
             [loading]="s.isLoading"
-            [value]="s.activeTokens"
+            [value]="s.expiredTokens"
             responsiveLayout="scroll"
             styleClass="p-datatable-sm"
             selectionMode="single"
@@ -250,20 +250,12 @@
                 <th>ID</th>
                 <th>Stake</th>
                 <th>Value</th>
-                <th>Strike</th>
-                <th>Earned fees</th>
+                <th>Effective date</th>
+                <th>Profit</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-token>
               <tr
-                [ngClass]="{
-                  'highlight-row-dark-theme':
-                    token.strike < s.neoPrice.curr &&
-                    theme.current === 'lara-dark-indigo',
-                  'highlight-row-light-theme':
-                    token.strike < s.neoPrice.curr &&
-                    theme.current === 'lara-light-indigo'
-                }"
                 class="cursor-pointer"
                 (click)="goToTokenDetails(token.tokenId)"
               >
@@ -288,15 +280,22 @@
                     />
                   </div>
                 </td>
-
-                <td>${{ token.strike | number: '1.2-2' }}</td>
                 <td>
-                  <div class="flex align-items-center">
-                    {{
-                      token.listing.gasPerMinute * token.renting.duration
-                        | number: '1.2-2'
-                    }}
-                    <img src="assets/images/gas.png" height="20" class="ml-2" />
+                  {{
+                    token.renting.startedAt + token.renting.duration * 60 * 1000
+                      | date: 'medium'
+                  }}
+                </td>
+
+                <td>
+                  <div
+                    class="flex align-items-center"
+                    [ngClass]="{
+                      'negative-price': token.profit < 0,
+                      'positive-price': token.profit >= 0
+                    }"
+                  >
+                    {{ calculateLenderProfit(token) | currency }}
                   </div>
                 </td>
               </tr>
@@ -306,7 +305,7 @@
                 <td colspan="12">
                   <div class="p-1">
                     Could not find expired
-                    {{ s.selectedLayout }} NFTs for this account.
+                    {{ s.selectedLayout }} NFTs for this address.
                   </div>
                 </td>
               </tr>

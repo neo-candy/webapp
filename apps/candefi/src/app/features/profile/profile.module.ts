@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { ProfileRoutingModule } from './profile-routing.module';
 import { ProfileComponent } from './profile.component';
 import { SharedModule } from '../../shared/shared.module';
-import { TabViewModule } from 'primeng/tabview';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ListingsComponent } from './listings/listings.component';
 import { RentalsComponent } from './rentals/rentals.component';
@@ -15,7 +14,6 @@ import { RentalsComponent } from './rentals/rentals.component';
     CommonModule,
     ProfileRoutingModule,
     SharedModule,
-    TabViewModule,
     ConfirmDialogModule,
   ],
   exports: [ProfileComponent],

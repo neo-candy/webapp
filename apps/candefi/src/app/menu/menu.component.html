@@ -10,7 +10,7 @@
           pButton
           icon="pi pi-plus"
           class="p-button-text"
-          (click)="mintOverlayPanel.toggle($event)"
+          (click)="displayMintModal()"
         ></button>
         <button
           pButton
@@ -35,19 +35,16 @@
           (onChange)="connectWallet()"
         >
           <ng-template pTemplate="selectedItem">
-            <div
-              class="country-item country-item-value"
-              *ngIf="s.selectedWallet"
-            >
+            <div *ngIf="s.selectedWallet">
               <div class="flex align-items-center">
-                <img src="assets/ui/neoline.png" width="25" class="mr-2" />
+                <img src="assets/ui/neoline.png" width="15" class="mr-2" />
                 <div>{{ s.selectedWallet }}</div>
               </div>
             </div>
           </ng-template>
           <ng-template let-wallet pTemplate="item">
             <div class="flex align-items-center">
-              <img src="assets/ui/neoline.png" width="35" class="mr-2" />
+              <img src="assets/ui/neoline.png" width="25" class="mr-2" />
               <div>{{ wallet.label }}</div>
             </div>
           </ng-template></p-dropdown
@@ -352,187 +349,4 @@
       </ng-template></p-tabPanel
     >
   </p-tabView>
-
-  <p-dialog
-    header="Mint NFT"
-    [(visible)]="s.displayMintModal"
-    [modal]="true"
-    [draggable]="true"
-    [resizable]="false"
-  >
-    <form [formGroup]="form" (ngSubmit)="mint()">
-      <div class="mb-5 mt-4">
-        <span class="p-float-label">
-          <input pInputText id="type" formControlName="type" />
-          <label for="type">Type</label>
-        </span>
-      </div>
-      <div class="mb-5">
-        <span class="p-float-label">
-          <input pInputText id="asset" formControlName="asset" readonly />
-          <label for="asset">Asset</label>
-        </span>
-      </div>
-      <div class="mb-5">
-        <span class="p-float-label">
-          <p-inputNumber
-            formControlName="strike"
-            prefix="$"
-            [min]="0"
-            id="strike"
-          ></p-inputNumber>
-          <label for="strike">Strike Price</label>
-        </span>
-      </div>
-      <div class="mb-5">
-        <span class="p-float-label">
-          <p-inputNumber
-            formControlName="stake"
-            mode="decimal"
-            suffix=" $CANDY"
-            [maxFractionDigits]="0"
-            [minFractionDigits]="0"
-            [min]="5000"
-            id="stake"
-          ></p-inputNumber>
-          <label for="stake">Stake</label>
-        </span>
-      </div>
-      <div class="mb-5">
-        <span class="p-float-label">
-          <p-inputNumber
-            formControlName="value"
-            suffix=" $CANDY"
-            [min]="0"
-            id="value"
-          ></p-inputNumber>
-          <label for="stake">Initial Value</label>
-        </span>
-      </div>
-      <div class="mb-5">
-        <span class="p-float-label">
-          <input
-            type="text"
-            id="duration"
-            pInputText
-            [value]="duration[0] + ' - ' + duration[1] + ' days'"
-            readonly
-          />
-          <p-slider
-            formControlName="duration"
-            [min]="1"
-            [max]="180"
-            [range]="true"
-            [step]="1"
-          >
-          </p-slider>
-          <label for="duration">Duration</label>
-        </span>
-      </div>
-      <div class="mb-5">
-        <span class="p-float-label">
-          <p-inputNumber
-            mode="decimal"
-            [minFractionDigits]="2"
-            [maxFractionDigits]="2"
-            formControlName="dailyFee"
-            [min]="0.01"
-            suffix=" GAS"
-            id="dailyFee"
-          ></p-inputNumber>
-          <label for="dailyFee">Daily fee</label>
-        </span>
-      </div>
-      <div class="mb-5">
-        <span class="p-float-label">
-          <p-inputNumber
-            mode="decimal"
-            [minFractionDigits]="2"
-            [maxFractionDigits]="2"
-            formControlName="collateral"
-            [min]="0.01"
-            suffix=" GAS"
-            id="collateral"
-          ></p-inputNumber>
-          <label for="collateral">Collateral</label>
-        </span>
-      </div>
-      <div class="mb-5">
-        <span class="p-float-label">
-          <p-inputNumber
-            formControlName="depreciation"
-            [min]="0"
-            id="vdot"
-          ></p-inputNumber>
-          <label for="depreciation">Depreciation</label>
-        </span>
-      </div>
-      <div class="mb-5">
-        <span class="p-float-label">
-          <p-inputNumber
-            formControlName="volatility"
-            [min]="0"
-            id="volatility"
-          ></p-inputNumber>
-          <label for="volatility">Volatility</label>
-        </span>
-      </div>
-      <div class="mb-5">
-        <span class="p-float-label">
-          <p-inputNumber
-            formControlName="fee"
-            suffix=" $CANDY"
-            id="fee"
-          ></p-inputNumber>
-          <label for="fee">Protocol Fee</label>
-        </span>
-      </div>
-
-      <div class="mb-5">
-        <p-checkbox
-          label="Safe exercise"
-          [binary]="true"
-          formControlName="safe"
-        ></p-checkbox>
-      </div>
-
-      <div class="mb-5">
-        <div class="flex">
-          <p-checkbox [binary]="true" formControlName="agreement"></p-checkbox>
-          <span class="ml-2">I am aware of the <a href="">risks</a></span>
-        </div>
-      </div>
-      <div class="text-center p-fluid">
-        <button
-          pButton
-          [disabled]="!form.valid"
-          icon="pi pi-check"
-          label="Confirm"
-          type="submit"
-          styleClass="p-button-text"
-        ></button>
-      </div>
-    </form>
-  </p-dialog>
 </ng-container>
-
-<p-overlayPanel #mintOverlayPanel>
-  <ng-template pTemplate>
-    <div class="flex flex-column p-fluid">
-      <button
-        pButton
-        label="Mint Call"
-        icon="pi pi-arrow-circle-up"
-        class="p-button-success mb-3"
-        (click)="displayMintCallModal()"
-      ></button>
-      <button
-        pButton
-        label="Mint Put"
-        icon="pi pi-arrow-circle-down"
-        class="p-button-danger"
-        (click)="displayMintPutModal()"
-      ></button>
-    </div>
-  </ng-template>
-</p-overlayPanel>

@@ -19,8 +19,8 @@
         <th>Value</th>
         <th>Strike</th>
         <th>Duration</th>
-        <th>Depreciation</th>
-        <th>Volatility</th>
+        <th>Time Decay</th>
+        <th>Leverage</th>
         <th>Daily fee</th>
         <th>Collateral</th>
         <th>Safe</th>
@@ -47,8 +47,8 @@
           {{ token.listing.minMinutes / 60 / 24 }} -
           {{ token.listing.maxMinutes / 60 / 24 }} days
         </td>
-        <td>{{ token.depreciation | number }}</td>
-        <td>{{ token.volatility | number }}</td>
+        <td>{{ token.timeDecay | number }}</td>
+        <td>{{ token.leverage | number }}</td>
         <td>
           <div class="flex align-items-center">
             {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}

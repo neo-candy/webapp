@@ -23,7 +23,7 @@
           </div>
         </div>
       </ng-template>
-      <p-menubar [model]="items"></p-menubar>
+      <p-menubar [model]="s.optionItems"></p-menubar>
 
       <div class="grid p-fluid p-3">
         <div class="lg:col-3 md:col-6 col-12">
@@ -64,14 +64,14 @@
         </div>
         <div class="md:col-3 col-12">
           <div class="flex flex-column">
-            <div class="font-bold mb-1">Depreciation:</div>
-            <p-inputNumber [ngModel]="s.token.depreciation"></p-inputNumber>
+            <div class="font-bold mb-1">Time Decay:</div>
+            <p-inputNumber [ngModel]="s.token.timeDecay"></p-inputNumber>
           </div>
         </div>
         <div class="md:col-3 col-12">
           <div class="flex flex-column">
-            <div class="font-bold mb-1">Volatility:</div>
-            <p-inputNumber [ngModel]="s.token.volatility"></p-inputNumber>
+            <div class="font-bold mb-1">Leverage:</div>
+            <p-inputNumber [ngModel]="s.token.leverage"></p-inputNumber>
           </div>
         </div>
         <div class="md:col-3 col-12">

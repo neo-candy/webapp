@@ -15,6 +15,8 @@ import { TokenWithListingOptionalRenting } from './rentfuse.service';
 const CALL = 1;
 const PUT = 2;
 
+export type NFTType = 'Call' | 'Put';
+
 interface TokenProperties {
   tokenId: string;
   name: string;
@@ -38,10 +40,10 @@ export interface CandefiToken {
   strike: number;
   writer: string;
   owner: string;
-  type: 'Call' | 'Put';
+  type: NFTType;
   created: number;
-  depreciation: number;
-  volatility: number;
+  timeDecay: number;
+  leverage: number;
   value: number;
   isExercised: boolean;
   safe: boolean;
@@ -64,9 +66,9 @@ export class CandefiService {
     address: string,
     strike: number,
     stake: number,
-    depreciation: number,
+    timeDecay: number,
     value: number,
-    volatility: number,
+    leverage: number,
     safe: boolean,
     collateral: number,
     minDuration: number,
@@ -84,9 +86,9 @@ export class CandefiService {
           NeolineService.array([
             NeolineService.int(CALL),
             NeolineService.int(strike),
-            NeolineService.int(depreciation),
+            NeolineService.int(timeDecay),
             NeolineService.int(value),
-            NeolineService.int(volatility),
+            NeolineService.int(leverage),
             NeolineService.bool(safe),
             NeolineService.int(feePerMinute),
             NeolineService.int(minDuration),
@@ -127,9 +129,9 @@ export class CandefiService {
     address: string,
     strike: number,
     stake: number,
-    depreciation: number,
+    timeDecay: number,
     value: number,
-    volatility: number,
+    leverage: number,
     safe: boolean,
     collateral: number,
     minDuration: number,
@@ -147,9 +149,9 @@ export class CandefiService {
           NeolineService.array([
             NeolineService.int(PUT),
             NeolineService.int(strike),
-            NeolineService.int(depreciation),
+            NeolineService.int(timeDecay),
             NeolineService.int(value),
-            NeolineService.int(volatility),
+            NeolineService.int(leverage),
             NeolineService.bool(safe),
             NeolineService.int(dailyFee),
             NeolineService.int(minDuration),
@@ -324,15 +326,19 @@ export class CandefiService {
 
   public calculateProfit(
     token: TokenWithListingOptionalRenting,
-    borrower: boolean
+    borrower: boolean,
+    expired?: boolean
   ): number {
     if (!token.renting) {
       throw new Error('calculateBorrowerProfit_noRenting');
     }
     const gasValue =
       token.listing.gasPerMinute *
-      token.renting?.duration *
+      token.renting.duration *
       this.globalState.get('gasPrice').curr;
+    if (expired) {
+      return borrower ? -gasValue : gasValue;
+    }
     const candyValue = token.stake * this.globalState.get('candyPrice').curr;
     if (borrower) {
       return candyValue - gasValue;
@@ -346,13 +352,13 @@ export class CandefiService {
     );
     const neoPrice = this.globalState.get('neoPrice').curr * Math.pow(10, 8);
     const delta = neoPrice - strike;
-    const volatility = Number(
-      v.attributes.filter((a) => a.trait_type === 'Volatility')[0].value
+    const leverage = Number(
+      v.attributes.filter((a) => a.trait_type === 'Leverage')[0].value
     );
     const stake = Number(
       v.attributes.filter((a) => a.trait_type === 'Stake')[0].value
     );
-    const result = delta * volatility;
+    const result = delta * leverage;
     const value = Number(
       v.attributes.filter((a) => a.trait_type === 'Value')[0].value
     );
@@ -380,17 +386,17 @@ export class CandefiService {
           v.attributes.filter((a) => a.trait_type === 'Owner')[0].value
         )
       ).address,
-      depreciation:
+      timeDecay:
         (Number(
-          v.attributes.filter((a) => a.trait_type === 'Depreciation')[0].value
+          v.attributes.filter((a) => a.trait_type === 'Time Decay')[0].value
         ) *
           1000 *
           60 *
           60 *
           24) /
         Math.pow(10, 9),
-      volatility: Number(
-        v.attributes.filter((a) => a.trait_type === 'Volatility')[0].value
+      leverage: Number(
+        v.attributes.filter((a) => a.trait_type === 'Leverage')[0].value
       ),
       value: updatedValue / Math.pow(10, 9),
       created: Number(

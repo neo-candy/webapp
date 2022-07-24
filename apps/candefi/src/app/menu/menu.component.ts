@@ -1,12 +1,13 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { MenuItem, SelectItem } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 import { distinctUntilChanged, map, tap } from 'rxjs/operators';
 import { CandefiService } from '../services/candefi.service';
 import { NeolineService } from '../services/neoline.service';
 import { UiService } from '../services/ui.service';
 import { GlobalState, GLOBAL_RX_STATE, Price } from '../state/global.state';
+import { MintComponent } from './mint/mint.component';
 
 interface MenuState {
   isLoading: boolean;
@@ -21,9 +22,7 @@ interface MenuState {
   btcPrice: Price;
   ethPrice: Price;
   bnbPrice: Price;
-  displayMintModal: boolean;
   selectedWallet: string;
-  protocolFee: number;
 }
 
 const DEFAULT_STATE: MenuState = {
@@ -39,18 +38,16 @@ const DEFAULT_STATE: MenuState = {
   bnbPrice: { curr: 0, prev: 0 },
   btcPrice: { curr: 0, prev: 0 },
   ethPrice: { curr: 0, prev: 0 },
-  displayMintModal: false,
   selectedWallet: '',
-  protocolFee: 0,
 };
 @Component({
   selector: 'cd-menu',
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
+  providers: [DialogService],
 })
-export class MenuComponent extends RxState<MenuState> implements OnInit {
+export class MenuComponent extends RxState<MenuState> {
   readonly state$ = this.select();
-  form: FormGroup = new FormGroup({});
   connectOptions: SelectItem[] = [
     {
       label: 'NeoLine',
@@ -83,8 +80,8 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>,
     private ui: UiService,
     private neoline: NeolineService,
-    private fb: FormBuilder,
-    private candefi: CandefiService
+    private candefi: CandefiService,
+    private dialogService: DialogService
   ) {
     super();
     this.set(DEFAULT_STATE);
@@ -95,7 +92,6 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
         tap(() => this.ui.displaySuccess('Account changed'))
       )
     );
-    this.connect('protocolFee', this.candefi.candyProtocolFee());
     this.connect('address', this.globalState.select('address'));
     this.connect('neoPrice', this.globalState.select('neoPrice'));
     this.connect('gasPrice', this.globalState.select('gasPrice'));
@@ -132,148 +128,10 @@ export class MenuComponent extends RxState<MenuState> implements OnInit {
     window.open('https://neocandy.io', '_blank');
   }
 
-  ngOnInit(): void {
-    this.form = this.fb.group({
-      type: [{ value: 'Call', disabled: true }],
-      asset: [{ value: 'NEO', disabled: true }],
-      strike: [0, Validators.required],
-      stake: [5000, Validators.required],
-      fee: [{ value: this.get('protocolFee'), disabled: true }],
-      depreciation: [0],
-      value: [0],
-      volatility: [0],
-      safe: [false],
-      agreement: [false, Validators.requiredTrue],
-      duration: [[1, 28]],
-      dailyFee: [0.01],
-      collateral: [0.01],
+  displayMintModal(): void {
+    this.dialogService.open(MintComponent, {
+      header: 'Mint NFT',
+      width: '90%',
     });
-  }
-
-  displayMintCallModal(): void {
-    this.form.patchValue({
-      type: 'Call',
-      strike: Math.ceil(this.globalState.get('neoPrice').curr + 0.5),
-      value: this.stake / 2,
-    });
-    this.set({ displayMintModal: true });
-  }
-
-  displayMintPutModal(): void {
-    this.form.patchValue({
-      type: 'Put',
-      strike: Math.floor(this.globalState.get('neoPrice').curr - 0.5),
-      value: this.stake / 2,
-    });
-    this.set({ displayMintModal: true });
-  }
-
-  mint(): void {
-    if (this.type == 'Call') {
-      this.mintCall();
-    } else if (this.type == 'Put') {
-      this.mintPut();
-    }
-  }
-
-  get stake(): number {
-    return this.form.get('stake')?.value;
-  }
-
-  get type(): string {
-    return this.form.get('type')?.value;
-  }
-
-  get strike(): number {
-    return this.form.get('strike')?.value;
-  }
-
-  get depreciation(): number {
-    return this.form.get('depreciation')?.value;
-  }
-
-  get volatility(): number {
-    return this.form.get('volatility')?.value;
-  }
-
-  get value(): number {
-    return this.form.get('value')?.value;
-  }
-
-  get safe(): boolean {
-    return this.form.get('safe')?.value;
-  }
-
-  get duration(): number[] {
-    return this.form.get('duration')?.value;
-  }
-
-  get dailyFee(): number {
-    return this.form.get('dailyFee')?.value;
-  }
-
-  get collateral(): number {
-    return this.form.get('collateral')?.value;
-  }
-
-  private mintCall(): void {
-    const stake = this.stake * Math.pow(10, 9);
-    const strike = this.strike * Math.pow(10, 8);
-    const value = this.value * Math.pow(10, 9);
-    const minMinutes = this.duration[0] * 24 * 60;
-    const maxMinutes = this.duration[1] * 24 * 60;
-    const feePerMinute = Math.round(
-      (this.dailyFee * Math.pow(10, 8)) / 24 / 60
-    );
-    const collateral = this.collateral * Math.pow(10, 8);
-
-    this.candefi
-      .mintCall(
-        this.get('address'),
-        strike,
-        stake,
-        this.depreciation,
-        value,
-        this.volatility,
-        this.safe,
-        collateral,
-        minMinutes,
-        maxMinutes,
-        feePerMinute
-      )
-      .subscribe((txid) => {
-        this.set({ displayMintModal: false });
-        console.log(txid);
-      });
-  }
-
-  private mintPut(): void {
-    const stake = this.stake * Math.pow(10, 9);
-    const strike = this.strike * Math.pow(10, 8);
-    const value = this.value * Math.pow(10, 9);
-    const minDurationInMinutes = this.duration[0] * 24 * 60;
-    const maxDurationInMinutes = this.duration[1] * 24 * 60;
-    const feePerMinute = Math.round(
-      (this.dailyFee * Math.pow(10, 8)) / 24 / 60
-    );
-    const collateral = this.collateral * Math.pow(10, 8);
-    this.candefi
-      .mintPut(
-        this.get('address'),
-        strike,
-        stake,
-        this.depreciation,
-        value,
-        this.volatility,
-        this.safe,
-        collateral,
-        minDurationInMinutes,
-        maxDurationInMinutes,
-        feePerMinute
-      )
-      .subscribe((txid) => {
-        this.set({ displayMintModal: false });
-        console.log(txid);
-      });
   }
 }

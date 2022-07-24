@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RxState } from '@rx-angular/state';
+import { MenuItem } from 'primeng/api';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
 import {
@@ -14,6 +15,7 @@ interface TokenDetailsState {
   token: TokenWithListingOptionalRenting;
   base64TokenId: string;
   isLoading: boolean;
+  optionItems: MenuItem[];
 }
 
 @Component({
@@ -25,20 +27,6 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   readonly state$ = this.select();
   readonly fetchTokenId$ = this.route.params.pipe(map((res) => res['tokenId']));
 
-  items = [
-    {
-      label: 'Options',
-      icon: 'pi pi-cog',
-      items: [
-        {
-          label: 'Close listing',
-          icon: 'pi pi-trash',
-          command: () => this.closeListing(),
-        },
-      ],
-    },
-    { label: 'Profit Calculator', icon: 'pi pi-sliders-v' },
-  ];
   constructor(
     private route: ActivatedRoute,
     private candefi: CandefiService,
@@ -48,6 +36,22 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   ) {
     super();
     this.set({ isLoading: true });
+    this.set({
+      optionItems: [
+        {
+          label: 'Options',
+          icon: 'pi pi-cog',
+          items: [
+            {
+              label: 'Close listing',
+              icon: 'pi pi-trash',
+              command: () => this.closeListing(),
+            },
+          ],
+        },
+        { label: 'Profit Calculator', icon: 'pi pi-sliders-v' },
+      ],
+    });
     this.connect('base64TokenId', this.fetchTokenId$);
     this.connect(
       'token',
@@ -60,9 +64,11 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   }
 
   private closeListing(): void {
-    console.log(this.get('token').listing.listingId);
-    this.candefi
-      .closeListing(this.globalState.get('address'), this.get('token').tokenId)
+    this.rentfuse
+      .closeListing(
+        this.globalState.get('address'),
+        this.get('token').listing.listingId
+      )
       .subscribe();
   }
 }
