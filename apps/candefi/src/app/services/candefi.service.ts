@@ -62,8 +62,9 @@ export class CandefiService {
     private ui: UiService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {}
-  public mintCall(
+  public mint(
     address: string,
+    type: NFTType,
     strike: number,
     stake: number,
     timeDecay: number,
@@ -84,16 +85,16 @@ export class CandefiService {
           NeolineService.hash160(environment.testnet.candefi),
           NeolineService.int(stake + fee),
           NeolineService.array([
-            NeolineService.int(CALL),
+            NeolineService.int(type === 'Call' ? CALL : PUT),
             NeolineService.int(strike),
             NeolineService.int(timeDecay),
             NeolineService.int(value),
             NeolineService.int(leverage),
             NeolineService.bool(safe),
+            NeolineService.int(collateral),
+            NeolineService.int(minDuration),
+            NeolineService.int(maxDuration),
             NeolineService.int(feePerMinute),
-            NeolineService.int(minDuration),
-            NeolineService.int(maxDuration),
-            NeolineService.int(collateral),
           ]),
         ],
       })),
@@ -115,69 +116,9 @@ export class CandefiService {
           })
           .pipe(
             switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-            tap(() => this.ui.displaySuccess('You listed a new call NFT')),
-            catchError((e) => {
-              this.ui.displayError(e);
-              return throwError(e);
-            })
-          )
-      )
-    );
-  }
-
-  public mintPut(
-    address: string,
-    strike: number,
-    stake: number,
-    timeDecay: number,
-    value: number,
-    leverage: number,
-    safe: boolean,
-    collateral: number,
-    minDuration: number,
-    maxDuration: number,
-    dailyFee: number
-  ): Observable<NeoInvokeWriteResponse> {
-    return this.candyProtocolFee().pipe(
-      map((fee) => ({
-        scriptHash: environment.testnet.neocandy,
-        operation: 'transfer',
-        args: [
-          NeolineService.address(address),
-          NeolineService.hash160(environment.testnet.candefi),
-          NeolineService.int(stake + fee),
-          NeolineService.array([
-            NeolineService.int(PUT),
-            NeolineService.int(strike),
-            NeolineService.int(timeDecay),
-            NeolineService.int(value),
-            NeolineService.int(leverage),
-            NeolineService.bool(safe),
-            NeolineService.int(dailyFee),
-            NeolineService.int(minDuration),
-            NeolineService.int(maxDuration),
-            NeolineService.int(collateral),
-          ]),
-        ],
-      })),
-      mergeMap((arg) =>
-        this.neoline
-          .invokeMultiple({
-            signers: [
-              {
-                account: new wallet.Account(address).scriptHash,
-                scopes: tx.WitnessScope.CustomContracts,
-                allowedContracts: [
-                  environment.testnet.candefi,
-                  environment.testnet.neocandy,
-                ],
-              },
-            ],
-            invokeArgs: [arg],
-          })
-          .pipe(
-            switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-            tap(() => this.ui.displaySuccess('You listed a new put NFT')),
+            tap(() =>
+              this.ui.displaySuccess('You listed a new ' + type + ' NFT')
+            ),
             catchError((e) => {
               this.ui.displayError(e);
               return throwError(e);
@@ -254,7 +195,7 @@ export class CandefiService {
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() => this.ui.displaySuccess(`You closed 1 listing`)),
+        tap(() => this.ui.displaySuccess('You closed 1 listing')),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);
@@ -290,6 +231,13 @@ export class CandefiService {
     const scriptHash = environment.testnet.candefi;
     return this.neonjs
       .rpcRequest('candyProtocolFee', [], scriptHash)
+      .pipe(map((res) => JSON.parse(res)));
+  }
+
+  public minStake(): Observable<number> {
+    const scriptHash = environment.testnet.candefi;
+    return this.neonjs
+      .rpcRequest('minStake', [], scriptHash)
       .pipe(map((res) => JSON.parse(res)));
   }
 

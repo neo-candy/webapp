@@ -10,83 +10,400 @@
     <div class="flex align-items-center justify-content-center">
       <div [hidden]="s.activeMenuIndex !== 0">
         <form [formGroup]="form">
-          <div class="mb-5 p-fluid">
-            <p-selectButton
-              [options]="s.selectBtnOptions"
-              formControlName="type"
-              optionValue="value"
-              optionLabel="label"
-            ></p-selectButton>
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <div class="mb-5 p-fluid">
+                <p-selectButton
+                  [options]="s.typeOptions"
+                  formControlName="type"
+                  optionValue="value"
+                  optionLabel="label"
+                ></p-selectButton>
+              </div>
+            </div>
+            <div class="col-12 md:col-6">
+              <div class="mb-5 p-fluid">
+                <p-dropdown
+                  appendTo="body"
+                  formControlName="market"
+                  [options]="s.marketOptions"
+                >
+                  <ng-template pTemplate="selectedItem" let-item>
+                    <div *ngIf="market">
+                      <div class="flex align-items-center">
+                        <img
+                          [src]="'assets/images/' + item.value + '.png'"
+                          width="15"
+                        />
+                        <div class="ml-2">{{ item.label }}</div>
+                      </div>
+                    </div>
+                  </ng-template>
+                  <ng-template let-item pTemplate="item">
+                    <div class="flex align-items-center">
+                      <img
+                        [src]="'assets/images/' + item.value + '.png'"
+                        width="15"
+                      />
+                      <div class="ml-2">{{ item.label }}</div>
+                    </div>
+                  </ng-template>
+                </p-dropdown>
+              </div>
+            </div>
+            <div class="col-12 md:col-6">
+              <div class="mb-5 p-fluid">
+                <span class="p-float-label">
+                  <p-inputNumber
+                    formControlName="strike"
+                    prefix="$"
+                    [min]="0"
+                    id="strike"
+                    [ngClass]="{'ng-invalid ng-dirty': form.errors?.['strikePrice']}"
+                  ></p-inputNumber>
+                  <label for="strike">Strike Price</label>
+                </span>
+                <div
+                  class="text-sm p-error pt-2"
+                  *ngIf="strike.errors?.['required']"
+                >
+                  This field is required
+                </div>
+                <div
+                  class="text-sm p-error pt-2"
+                  *ngIf="strike.errors?.['nonZero']"
+                >
+                  Value must be greater than 0
+                </div>
+                <div
+                  class="text-sm p-error pt-2"
+                  *ngIf="strike.value && form.errors?.['strikePrice']"
+                >
+                  <span *ngIf="type.value === 'call'">
+                    Strike price too low. Adjust leverage
+                  </span>
+                  <span *ngIf="type.value === 'put'">
+                    Strike price too high. Adjust leverage
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 md:col-6">
+              <div class="mb-5 p-fluid">
+                <span class="p-float-label">
+                  <p-inputNumber
+                    formControlName="stake"
+                    suffix=" $CANDY"
+                    [min]="0"
+                    id="stake"
+                  ></p-inputNumber>
+                  <label for="stake">Stake</label>
+                </span>
+                <div
+                  class="text-sm p-error pt-2"
+                  *ngIf="stake.errors?.['required']"
+                >
+                  This field is required
+                </div>
+                <div
+                  class="text-sm p-error pt-2"
+                  *ngIf="stake.errors?.['minimumStake']"
+                >
+                  Value must be at least {{ s.minStake | number }}
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="mb-5 p-fluid">
-            <p-dropdown
-              appendTo="body"
-              formControlName="market"
-              [options]="s.marketOptions"
-            >
-              <ng-template pTemplate="selectedItem" let-item>
-                <div *ngIf="market">
-                  <div class="flex align-items-center">
-                    <img
-                      [src]="'assets/images/' + item.value + '.png'"
-                      width="15"
-                    />
-                    <div class="ml-2">{{ item.label }}</div>
+          <p-accordion>
+            <p-accordionTab header="Advanced">
+              <div class="grid mt-2">
+                <div class="col-12 md:col-6">
+                  <div class="mb-2 p-fluid">
+                    <span class="p-float-label">
+                      <p-inputNumber
+                        formControlName="timeDecay"
+                        [min]="0"
+                        id="vdot"
+                      ></p-inputNumber>
+                      <label for="timeDecay">Time Decay</label>
+                    </span>
+                    <div
+                      class="text-sm p-error pt-2"
+                      *ngIf="timeDecay.errors?.['required']"
+                    >
+                      This field is required
+                    </div>
                   </div>
                 </div>
-              </ng-template>
-              <ng-template let-item pTemplate="item">
-                <div class="flex align-items-center">
-                  <img
-                    [src]="'assets/images/' + item.value + '.png'"
-                    width="15"
-                  />
-                  <div class="ml-2">{{ item.label }}</div>
+              </div>
+              <p-divider align="center"
+                ><p-tag>Leverage Options</p-tag></p-divider
+              >
+              <div class="grid mt-5">
+                <div class="col-12 md:col-6">
+                  <div class="mb-5 p-fluid">
+                    <span class="p-float-label">
+                      <p-inputNumber
+                        formControlName="leverage"
+                        [min]="0"
+                        id="leverage"
+                      ></p-inputNumber>
+                      <label for="leverage">Leverage</label>
+                    </span>
+                    <div
+                      class="text-sm p-error pt-2"
+                      *ngIf="leverage.errors?.['required']"
+                    >
+                      This field is required
+                    </div>
+                  </div>
                 </div>
-              </ng-template>
-            </p-dropdown>
-          </div>
-          <div class="mb-5">
-            <span class="p-float-label">
-              <p-inputNumber
-                formControlName="strike"
-                prefix="$"
-                [min]="0"
-                id="strike"
-              ></p-inputNumber>
-              <label for="strike">Strike Price</label>
-            </span>
-          </div>
-          <div class="mb-5">
-            <span class="p-float-label">
-              <p-inputNumber
-                formControlName="stake"
-                mode="decimal"
-                suffix=" $CANDY"
-                [maxFractionDigits]="0"
-                [minFractionDigits]="0"
-                [min]="5000"
-                id="stake"
-              ></p-inputNumber>
-              <label for="stake">Stake</label>
-            </span>
-          </div>
-          <div class="mb-5">
-            <span class="p-float-label">
-              <p-inputNumber
-                formControlName="value"
-                suffix=" $CANDY"
-                [min]="0"
-                id="value"
-              ></p-inputNumber>
-              <label for="stake">Initial Value</label>
-            </span>
-          </div>
+                <div class="col-12 md:col-6">
+                  <div class="mb-5 p-fluid">
+                    <span class="p-float-label">
+                      <p-inputNumber
+                        formControlName="value"
+                        suffix=" $CANDY"
+                        [min]="0"
+                        [max]="stake.value"
+                        id="value"
+                        [ngClass]="{'ng-invalid ng-dirty': form.errors?.['initialValueReqLeverage']}"
+                      ></p-inputNumber>
+                      <label for="stake">Initial Value</label>
+                    </span>
+                    <div
+                      class="text-sm p-error pt-2"
+                      *ngIf="value.errors?.['required']"
+                    >
+                      This field is required
+                    </div>
+                    <div
+                      class="text-sm p-error pt-2"
+                      *ngIf="form.errors?.['initialValueReqLeverage']"
+                    >
+                      Requires a leverage value greater than 0
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="mb-5 text-right">
+                    <p-checkbox
+                      [ngClass]="{'ng-invalid ng-dirty': form.errors?.['safeLeverage']}"
+                      label="Safe exercise"
+                      [binary]="true"
+                      formControlName="safe"
+                    ></p-checkbox>
+                    <div
+                      class="text-sm p-error pt-2"
+                      *ngIf="form.errors?.['safeLeverage']"
+                    >
+                      Requires a leverage value greater than 0
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+          </p-accordion>
         </form>
       </div>
     </div>
 
-    <div [hidden]="s.activeMenuIndex !== 1">Strike</div>
+    <div [hidden]="s.activeMenuIndex !== 1">
+      <form [formGroup]="form">
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <div class="mb-5 p-fluid">
+              <span class="p-float-label">
+                <input
+                  type="text"
+                  id="duration"
+                  pInputText
+                  [value]="
+                    duration.value[0] + ' - ' + duration.value[1] + ' days'
+                  "
+                  readonly
+                />
+                <p-slider
+                  formControlName="duration"
+                  [min]="1"
+                  [max]="180"
+                  [range]="true"
+                  [step]="1"
+                >
+                </p-slider>
+                <label for="duration">Duration</label>
+              </span>
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="mb-5 p-fluid">
+              <span class="p-float-label">
+                <p-inputNumber
+                  mode="decimal"
+                  [minFractionDigits]="2"
+                  [maxFractionDigits]="2"
+                  formControlName="dailyFee"
+                  [min]="0.01"
+                  suffix=" GAS"
+                  id="dailyFee"
+                ></p-inputNumber>
+                <label for="dailyFee">Daily fee</label>
+              </span>
+              <div
+                class="text-sm p-error pt-2"
+                *ngIf="dailyFee.errors?.['required']"
+              >
+                This field is required
+              </div>
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="mb-5 p-fluid">
+              <span class="p-float-label">
+                <p-inputNumber
+                  mode="decimal"
+                  [minFractionDigits]="2"
+                  [maxFractionDigits]="2"
+                  formControlName="collateral"
+                  [min]="0.01"
+                  suffix=" GAS"
+                  id="collateral"
+                  [ngClass]="{'ng-invalid ng-dirty': collateral.value && form.errors?.['minCollateral']}"
+                ></p-inputNumber>
+                <label for="collateral">Collateral</label>
+              </span>
+              <p-selectButton
+                [options]="s.collateralOptions1"
+                styleClass="collateral-select-btn"
+                formControlName="collateralOption1"
+              ></p-selectButton>
+              <p-selectButton
+                [options]="s.collateralOptions2"
+                styleClass="collateral-select-btn"
+                formControlName="collateralOption2"
+              ></p-selectButton>
+
+              <div
+                class="text-sm p-error pt-2"
+                *ngIf="collateral.errors?.['required']"
+              >
+                This field is required
+              </div>
+              <div
+                class="text-sm p-error pt-2"
+                *ngIf="collateral.value && form.errors?.['minCollateral']"
+              >
+                Collateral must be at least 200% of the staking value
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div [hidden]="s.activeMenuIndex !== 2">
+      <p-panel header="General"
+        ><p-table [value]="[0]">
+          <ng-template pTemplate="body">
+            <tr>
+              <td>Type</td>
+              <td class="text-right">
+                {{ type.value === 'call' ? 'Call' : 'Put' }}
+              </td>
+            </tr>
+            <tr>
+              <td>Market</td>
+              <td class="text-right">{{ market.value | uppercase }}</td>
+            </tr>
+            <tr>
+              <td>Strike</td>
+              <td class="text-right">{{ strike.value | currency }}</td>
+            </tr>
+            <tr>
+              <td>Stake</td>
+              <td class="text-right">{{ stake.value | number }} $CANDY</td>
+            </tr>
+          </ng-template>
+        </p-table></p-panel
+      ><br />
+      <p-panel
+        header="Advanced"
+        *ngIf="leverage.value > 0 || timeDecay.value > 0"
+        ><p-table [value]="[0]">
+          <ng-template pTemplate="body">
+            <tr>
+              <td>Time Decay</td>
+              <td class="text-right">{{ timeDecay.value | number }}</td>
+            </tr>
+            <tr>
+              <td>Leverage</td>
+              <td class="text-right">{{ leverage.value | number }}</td>
+            </tr>
+            <tr>
+              <td>Initial value</td>
+              <td class="text-right">{{ value.value | number }} $CANDY</td>
+            </tr>
+            <tr>
+              <td>Safe exercise</td>
+              <td class="text-right">{{ safe.value ? 'Yes' : 'No' }}</td>
+            </tr>
+          </ng-template>
+        </p-table></p-panel
+      ><br />
+      <p-panel header="Renting">
+        <p-table [value]="[0]">
+          <ng-template pTemplate="body">
+            <tr>
+              <td>Duration</td>
+              <td class="text-right">
+                {{ duration.value[0] }} - {{ duration.value[1] }} days
+              </td>
+            </tr>
+            <tr>
+              <td>Daily fee</td>
+              <td class="text-right">{{ dailyFee.value | number }} GAS</td>
+            </tr>
+            <tr>
+              <td>Collateral</td>
+              <td class="text-right">{{ collateral.value | number }} GAS</td>
+            </tr>
+          </ng-template>
+        </p-table></p-panel
+      ><br />
+      <p-panel header="Additional fees">
+        <p-table [value]="[0]">
+          <ng-template pTemplate="body">
+            <tr>
+              <td>Protocol fee</td>
+              <td class="text-right">{{ s.protocolFee | number }} $CANDY</td>
+            </tr>
+            <tr>
+              <td>
+                Lollipop NFT discount
+                <span class="text-sm"
+                  ><a href="https://neocandy.io/#nfts" target="_blank"
+                    >(mint)</a
+                  ></span
+                >
+              </td>
+              <td class="text-right line-through">
+                -{{ s.protocolFee | number }} $CANDY
+              </td>
+            </tr>
+            <tr>
+              <td>Total</td>
+              <td class="text-right">{{ s.protocolFee | number }} $CANDY</td>
+            </tr>
+          </ng-template>
+        </p-table></p-panel
+      ><br />
+
+      <div class="flex flex-column align-items-end mb-5 mt-3">
+        <form [formGroup]="form">
+          <p-checkbox [binary]="true" formControlName="agreement"></p-checkbox>
+          <span class="ml-2">I understand the <a href="">risks</a></span>
+        </form>
+      </div>
+    </div>
     <div
       class="flex"
       [ngClass]="
@@ -101,172 +418,30 @@
           icon="pi pi-angle-left"
           iconPos="left"
           label="Back"
-          (click)="s.activeMenuIndex = s.activeMenuIndex - 1"
+          (click)="goToPrevPage()"
         ></button>
       </div>
       <div [hidden]="s.activeMenuIndex === s.steps.length - 1">
         <button
+          [disabled]="!form.valid"
           pButton
           icon="pi pi-angle-right"
           iconPos="right"
           label="Next"
-          (click)="s.activeMenuIndex = s.activeMenuIndex + 1"
+          (click)="goToNextPage()"
+        ></button>
+      </div>
+      <div [hidden]="s.activeMenuIndex !== s.steps.length - 1">
+        <button
+          pButton
+          [disabled]="!form.valid"
+          icon="pi pi-check"
+          label="Confirm"
+          type="submit"
+          class="p-button-outlined"
+          (click)="mint()"
         ></button>
       </div>
     </div>
   </div>
-
-  <!-- <form [formGroup]="form" (ngSubmit)="mint()">
-    <div class="mb-5 mt-4">
-      <span class="p-float-label">
-        <input pInputText id="type" formControlName="type" />
-        <label for="type">Type</label>
-      </span>
-    </div>
-    <div class="mb-5">
-      <span class="p-float-label">
-        <input pInputText id="asset" formControlName="asset" readonly />
-        <label for="asset">Asset</label>
-      </span>
-    </div>
-    <div class="mb-5">
-      <span class="p-float-label">
-        <p-inputNumber
-          formControlName="strike"
-          prefix="$"
-          [min]="0"
-          id="strike"
-        ></p-inputNumber>
-        <label for="strike">Strike Price</label>
-      </span>
-    </div>
-    <div class="mb-5">
-      <span class="p-float-label">
-        <p-inputNumber
-          formControlName="stake"
-          mode="decimal"
-          suffix=" $CANDY"
-          [maxFractionDigits]="0"
-          [minFractionDigits]="0"
-          [min]="5000"
-          id="stake"
-        ></p-inputNumber>
-        <label for="stake">Stake</label>
-      </span>
-    </div>
-    <div class="mb-5">
-      <span class="p-float-label">
-        <p-inputNumber
-          formControlName="value"
-          suffix=" $CANDY"
-          [min]="0"
-          id="value"
-        ></p-inputNumber>
-        <label for="stake">Initial Value</label>
-      </span>
-    </div>
-    <div class="mb-5">
-      <span class="p-float-label">
-        <input
-          type="text"
-          id="duration"
-          pInputText
-          [value]="duration[0] + ' - ' + duration[1] + ' days'"
-          readonly
-        />
-        <p-slider
-          formControlName="duration"
-          [min]="1"
-          [max]="180"
-          [range]="true"
-          [step]="1"
-        >
-        </p-slider>
-        <label for="duration">Duration</label>
-      </span>
-    </div>
-    <div class="mb-5">
-      <span class="p-float-label">
-        <p-inputNumber
-          mode="decimal"
-          [minFractionDigits]="2"
-          [maxFractionDigits]="2"
-          formControlName="dailyFee"
-          [min]="0.01"
-          suffix=" GAS"
-          id="dailyFee"
-        ></p-inputNumber>
-        <label for="dailyFee">Daily fee</label>
-      </span>
-    </div>
-    <div class="mb-5">
-      <span class="p-float-label">
-        <p-inputNumber
-          mode="decimal"
-          [minFractionDigits]="2"
-          [maxFractionDigits]="2"
-          formControlName="collateral"
-          [min]="0.01"
-          suffix=" GAS"
-          id="collateral"
-        ></p-inputNumber>
-        <label for="collateral">Collateral</label>
-      </span>
-    </div>
-    <div class="mb-5">
-      <span class="p-float-label">
-        <p-inputNumber
-          formControlName="timeDecay"
-          [min]="0"
-          id="vdot"
-        ></p-inputNumber>
-        <label for="timeDecay">Time Decay</label>
-      </span>
-    </div>
-    <div class="mb-5">
-      <span class="p-float-label">
-        <p-inputNumber
-          formControlName="leverage"
-          [min]="0"
-          id="leverage"
-        ></p-inputNumber>
-        <label for="leverage">Leverage</label>
-      </span>
-    </div>
-    <div class="mb-5">
-      <span class="p-float-label">
-        <p-inputNumber
-          formControlName="fee"
-          suffix=" $CANDY"
-          id="fee"
-        ></p-inputNumber>
-        <label for="fee">Protocol Fee</label>
-      </span>
-    </div>
-
-    <div class="mb-5">
-      <p-checkbox
-        label="Safe exercise"
-        [binary]="true"
-        formControlName="safe"
-      ></p-checkbox>
-    </div>
-
-    <div class="mb-5">
-      <div class="flex">
-        <p-checkbox [binary]="true" formControlName="agreement"></p-checkbox>
-        <span class="ml-2">I am aware of the <a href="">risks</a></span>
-      </div>
-    </div>
-    <div class="text-center p-fluid">
-      <button
-        pButton
-        [disabled]="!form.valid"
-        icon="pi pi-check"
-        label="Confirm"
-        type="submit"
-        styleClass="p-button-text"
-      ></button>
-    </div>
-  </form> -->
 </ng-container>

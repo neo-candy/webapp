@@ -3,7 +3,6 @@ import { RxState } from '@rx-angular/state';
 import { MenuItem, SelectItem } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { distinctUntilChanged, map, tap } from 'rxjs/operators';
-import { CandefiService } from '../services/candefi.service';
 import { NeolineService } from '../services/neoline.service';
 import { UiService } from '../services/ui.service';
 import { GlobalState, GLOBAL_RX_STATE, Price } from '../state/global.state';
@@ -66,7 +65,7 @@ export class MenuComponent extends RxState<MenuState> {
       icon: 'pi pi-question-circle',
     },
     {
-      label: 'Leaderboard',
+      label: 'Competitions',
       icon: 'pi pi-chart-line',
       routerLink: 'leaderboard',
     },
@@ -80,7 +79,6 @@ export class MenuComponent extends RxState<MenuState> {
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>,
     private ui: UiService,
     private neoline: NeolineService,
-    private candefi: CandefiService,
     private dialogService: DialogService
   ) {
     super();

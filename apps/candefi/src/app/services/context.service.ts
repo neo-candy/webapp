@@ -7,8 +7,8 @@ export const SELECTED_MINT_TYPE = 'candefi_selected_mint_type';
 
 @Injectable({ providedIn: 'root' })
 export class ContextService {
-  get(key: string): string {
-    return localStorage.getItem(key) ?? '';
+  get(key: string): string | null {
+    return localStorage.getItem(key);
   }
 
   put(key: string, value: string): void {

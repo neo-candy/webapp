@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RxState } from '@rx-angular/state';
 import { MenuItem } from 'primeng/api';
 import { map, switchMap, tap } from 'rxjs/operators';
@@ -29,6 +29,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private candefi: CandefiService,
     private rentfuse: RentfuseService,
     public theme: ThemeService,
@@ -69,6 +70,8 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
         this.globalState.get('address'),
         this.get('token').listing.listingId
       )
-      .subscribe();
+      .subscribe((res) => {
+        console.log(res), this.router.navigate(['/']);
+      });
   }
 }

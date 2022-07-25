@@ -18,6 +18,8 @@ import { MenubarModule } from 'primeng/menubar';
 import { ToolbarModule } from 'primeng/toolbar';
 import { CdTimerModule } from 'angular-cd-timer';
 import { MenuModule } from 'primeng/menu';
+import { DividerModule } from 'primeng/divider';
+import { TagModule } from 'primeng/tag';
 
 @NgModule({
   declarations: [TruncateAddressPipe, MonitorComponent],
@@ -39,6 +41,8 @@ import { MenuModule } from 'primeng/menu';
     ToolbarModule,
     CdTimerModule,
     MenuModule,
+    DividerModule,
+    TagModule,
   ],
   exports: [
     CommonModule,
@@ -60,6 +64,8 @@ import { MenuModule } from 'primeng/menu';
     ToolbarModule,
     CdTimerModule,
     MenuModule,
+    DividerModule,
+    TagModule,
   ],
 })
 export class SharedModule {}
