@@ -65,7 +65,7 @@ export class MenuComponent extends RxState<MenuState> {
       icon: 'pi pi-question-circle',
     },
     {
-      label: 'Competitions',
+      label: 'Contests',
       icon: 'pi pi-chart-line',
       routerLink: 'leaderboard',
     },

@@ -25,7 +25,7 @@
               <ng-template pTemplate="header">
                 <tr>
                   <th>Strike</th>
-                  <th>Stakes</th>
+                  <th>TVL</th>
                   <th>Volume</th>
                 </tr>
               </ng-template>
@@ -44,14 +44,7 @@
                 >
                   <td>${{ token.strike | number: '1.2-2' }}</td>
                   <td>
-                    <div class="flex align-items-center">
-                      {{ token.stake | number: '1.0-0' }}
-                      <img
-                        src="assets/images/candy.png"
-                        height="20"
-                        class="ml-2"
-                      />
-                    </div>
+                    {{ token.tvl | currency }}
                   </td>
                   <td>{{ token.volume }}</td>
                 </tr>
@@ -84,7 +77,7 @@
               <ng-template pTemplate="header">
                 <tr>
                   <th>Strike</th>
-                  <th>Stakes</th>
+                  <th>TVL</th>
                   <th>Volume</th>
                 </tr>
               </ng-template>
@@ -103,14 +96,7 @@
                 >
                   <td>${{ token.strike | number: '1.2-2' }}</td>
                   <td>
-                    <div class="flex align-items-center">
-                      {{ token.stake | number: '1.0-0' }}
-                      <img
-                        src="assets/images/candy.png"
-                        height="20"
-                        class="ml-2"
-                      />
-                    </div>
+                    {{ token.tvl | currency }}
                   </td>
                   <td>{{ token.volume }}</td>
                 </tr>

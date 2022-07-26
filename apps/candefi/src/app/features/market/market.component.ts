@@ -27,7 +27,7 @@ const DEFAULT_STATE: MarketState = {
 interface OptionOverview {
   strike: number;
   volume: number;
-  stake: number;
+  tvl: number;
 }
 @Component({
   templateUrl: './market.component.html',
@@ -101,7 +101,9 @@ export class MarketComponent extends RxState<MarketState> {
     const result: OptionOverview[] = [];
     map.forEach((v, k) => {
       result.push({
-        stake: v.reduce((p, c) => p + c, 0),
+        tvl:
+          this.globalState.get('candyPrice').curr *
+          v.reduce((p, c) => p + c, 0),
         strike: k,
         volume: v.length,
       });

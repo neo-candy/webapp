@@ -33,13 +33,13 @@
               <tr>
                 <th>ID</th>
                 <th>Stake</th>
-                <th>Value</th>
                 <th>Strike</th>
+                <th>Value</th>
                 <th>Time Decay</th>
                 <th>Leverage</th>
+                <th>Safe</th>
                 <th>Remaining</th>
                 <th>Effective date</th>
-                <th>Safe</th>
                 <th>Profit</th>
               </tr>
             </ng-template>
@@ -65,30 +65,18 @@
                 (click)="goToTokenDetails(token.tokenId)"
               >
                 <td>{{ token.tokenId }}</td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{ token.stake | number: '1.0-0' }}
-                    <img
-                      src="assets/images/candy.png"
-                      height="20"
-                      class="ml-2"
-                    />
-                  </div>
-                </td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{ token.value | number: '1.0-0' }}
-                    <img
-                      src="assets/images/candy.png"
-                      height="20"
-                      class="ml-2"
-                    />
-                  </div>
-                </td>
-
-                <td>${{ token.strike | number: '1.2-2' }}</td>
+                <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
+                <td>{{ token.strike | currency }}</td>
+                <td>{{ token.value | number: '1.0-0' }} CANDY</td>
                 <td>{{ token.timeDecay | number }}</td>
                 <td>{{ token.leverage | number }}</td>
+                <td>
+                  <p-checkbox
+                    [ngModel]="token.safe"
+                    [binary]="true"
+                    [readonly]="true"
+                  ></p-checkbox>
+                </td>
                 <td>
                   <ng-container
                     *ngIf="
@@ -110,13 +98,7 @@
                       | date: 'medium'
                   }}
                 </td>
-                <td>
-                  <p-checkbox
-                    [ngModel]="token.safe"
-                    [binary]="true"
-                    [readonly]="true"
-                  ></p-checkbox>
-                </td>
+
                 <td>
                   <div
                     class="flex align-items-center"

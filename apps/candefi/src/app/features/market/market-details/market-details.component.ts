@@ -60,7 +60,7 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
     } else {
       this.dialogService.open(RentDetailsComponent, {
         header: 'Rent NFT',
-        width: 'auto',
+        width: '70%',
         data: {
           token: token,
         },

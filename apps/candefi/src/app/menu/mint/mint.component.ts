@@ -97,7 +97,7 @@ export class MintComponent extends RxState<MintState> implements OnInit {
     this.set(DEFAULT_STATE);
     this.set({
       steps: [
-        { label: 'General' },
+        { label: 'Basic' },
         { label: 'Renting' },
         { label: 'Confirmation' },
       ],
@@ -307,9 +307,9 @@ export class MintComponent extends RxState<MintState> implements OnInit {
         value,
         this.leverage.value,
         this.safe.value,
-        collateral,
         minMinutes,
         maxMinutes,
+        collateral,
         feePerMinute
       )
       .subscribe((txid) => {

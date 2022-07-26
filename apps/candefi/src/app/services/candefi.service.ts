@@ -71,9 +71,9 @@ export class CandefiService {
     value: number,
     leverage: number,
     safe: boolean,
-    collateral: number,
     minDuration: number,
     maxDuration: number,
+    collateral: number,
     feePerMinute: number
   ): Observable<NeoInvokeWriteResponse> {
     return this.candyProtocolFee().pipe(
@@ -91,10 +91,10 @@ export class CandefiService {
             NeolineService.int(value),
             NeolineService.int(leverage),
             NeolineService.bool(safe),
-            NeolineService.int(collateral),
+            NeolineService.int(feePerMinute),
             NeolineService.int(minDuration),
             NeolineService.int(maxDuration),
-            NeolineService.int(feePerMinute),
+            NeolineService.int(collateral),
           ]),
         ],
       })),
