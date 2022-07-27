@@ -64,7 +64,7 @@ export class MarketComponent extends RxState<MarketState> {
     this.connect('puts', this.puts$);
   }
 
-  onCallsRowSelect(token: CandefiToken): void {
+  onCallsRowSelect(token: OptionOverview): void {
     const strike = token.strike;
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Calls',
@@ -77,7 +77,7 @@ export class MarketComponent extends RxState<MarketState> {
     });
   }
 
-  onPutsRowSelect(token: CandefiToken): void {
+  onPutsRowSelect(token: OptionOverview): void {
     const strike = token.strike;
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Puts',

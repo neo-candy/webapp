@@ -60,7 +60,7 @@ export class RentDetailsComponent
         paymentAmount
       )
       .subscribe((res) => {
-        this.ref.close();
+        this.ref.close(true);
         this.formGroup.reset();
         console.log(res);
       });

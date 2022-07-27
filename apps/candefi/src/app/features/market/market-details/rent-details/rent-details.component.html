@@ -81,7 +81,7 @@
 
   <div class="mt-5">
     <form [formGroup]="formGroup" (ngSubmit)="startRenting()">
-      <div class="flex justify-content-end">
+      <div class="flex justify-content-end mb-5">
         <div>
           <input type="text" pInputText [value]="duration + ' days'" readonly />
           <div style="width: 223px">
@@ -93,6 +93,40 @@
           </div>
         </div>
       </div>
+
+      <p-panel header="Payment Overview">
+        <p-table [value]="[s.token]" responsiveLayout="scroll">
+          <ng-template pTemplate="body" let-token>
+            <tr>
+              <td>Collateral</td>
+              <td class="text-right">
+                {{ token.listing.collateral | number: '1.2-2' }} GAS
+              </td>
+            </tr>
+            <tr>
+              <td>Renting fee</td>
+              <td class="text-right">
+                {{
+                  token.listing.gasPerMinute * 60 * 24 * duration
+                    | number: '1.2-2'
+                }}
+                GAS
+              </td>
+            </tr>
+            <tr class="font-bold">
+              <td>Total</td>
+              <td class="text-right">
+                {{
+                  token.listing.collateral +
+                    token.listing.gasPerMinute * 60 * 24 * duration
+                    | number: '1.2-2'
+                }}
+                GAS
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-panel>
 
       <div class="mt-3">
         <div class="text-right">

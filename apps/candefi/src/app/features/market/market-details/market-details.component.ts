@@ -1,8 +1,12 @@
 import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
-import { DialogService, DynamicDialogConfig } from 'primeng/dynamicdialog';
+import {
+  DialogService,
+  DynamicDialogConfig,
+  DynamicDialogRef,
+} from 'primeng/dynamicdialog';
 import { from, Subject } from 'rxjs';
-import { finalize, map, mergeMap, tap, toArray } from 'rxjs/operators';
+import { filter, finalize, map, mergeMap, tap, toArray } from 'rxjs/operators';
 import { CandefiToken } from '../../../services/candefi.service';
 
 import { NeolineService } from '../../../services/neoline.service';
@@ -38,6 +42,7 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
     private neoline: NeolineService,
     private ui: UiService,
     private dialogService: DialogService,
+    private ref: DynamicDialogRef,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
@@ -58,13 +63,14 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
     if (!this.globalState.get('address')) {
       this.connectWallet();
     } else {
-      this.dialogService.open(RentDetailsComponent, {
+      const ref = this.dialogService.open(RentDetailsComponent, {
         header: 'Rent NFT',
         width: '70%',
         data: {
           token: token,
         },
       });
+      this.hold(ref.onClose.pipe(filter((v) => !!v)), () => this.ref.close());
     }
   }
 
