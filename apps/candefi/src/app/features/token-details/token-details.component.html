@@ -2,11 +2,15 @@
   <div *ngIf="!s.isLoading; else loading">
     <p-toolbar>
       <div class="flex align-items-center">
-        <span class="mr-2"><a routerLink="/">Markets</a></span> /
-        <span class="mr-2 ml-2">NEO</span> /
-        <span class="mr-2 ml-2">{{ s.token.type }}s</span> /
+        <span class="mr-2"><a routerLink="/">Markets</a></span>
+        <i class="pi pi-angle-right"></i> <span class="mr-2 ml-2">NEO</span>
+        <i class="pi pi-angle-right"></i>
+        <span class="mr-2 ml-2">{{ s.token.type }}s</span>
+        <i class="pi pi-angle-right"></i>
         <span class="ml-2">{{ s.base64TokenId }}</span>
-        <span class="ml-2"><p-tag>PLACEHOLDER</p-tag></span>
+        <span class="ml-3"
+          ><p-tag>{{ tokenStatus[s.status] }}</p-tag></span
+        >
       </div>
     </p-toolbar>
     <p-panel styleClass="token-details-panel">
@@ -25,11 +29,49 @@
       </ng-template>
       <p-menubar [model]="s.optionItems"></p-menubar>
 
-      <div class="grid p-fluid p-3">
+      <p-tabView [scrollable]="true" [activeIndex]="s.status">
+        <p-tabPanel [disabled]="s.status !== 0">
+          <ng-template pTemplate="header">
+            <i
+              class="mr-2"
+              [ngClass]="s.status === 0 ? 'pi pi-check-circle' : 'pi pi-circle'"
+            ></i>
+            Unlisted
+          </ng-template>
+        </p-tabPanel>
+        <p-tabPanel [disabled]="s.status !== 1">
+          <ng-template pTemplate="header">
+            <i
+              class="mr-2"
+              [ngClass]="s.status === 1 ? 'pi pi-check-circle' : 'pi pi-circle'"
+            ></i>
+            Listed
+          </ng-template>
+        </p-tabPanel>
+        <p-tabPanel [disabled]="s.status !== 2">
+          <ng-template pTemplate="header">
+            <i
+              class="mr-2"
+              [ngClass]="s.status === 2 ? 'pi pi-check-circle' : 'pi pi-circle'"
+            ></i>
+            Rented
+          </ng-template>
+        </p-tabPanel>
+        <p-tabPanel [disabled]="s.status !== 3">
+          <ng-template pTemplate="header">
+            <i
+              class="mr-2"
+              [ngClass]="s.status === 3 ? 'pi pi-check-circle' : 'pi pi-circle'"
+            ></i>
+            Exercised
+          </ng-template>
+        </p-tabPanel>
+      </p-tabView>
+      <div class="grid p-fluid pb-3 pl-3 pr-3">
         <div class="lg:col-3 md:col-6 col-12">
           <div class="flex flex-column">
-            <div class="font-bold mb-1">Token ID:</div>
-            <input pInputText [value]="s.token.tokenId" />
+            <div class="font-bold mb-1">ID:</div>
+            <input pInputText [value]="s.token.tokenId" readonly />
           </div>
         </div>
 
@@ -37,6 +79,7 @@
           <div class="flex flex-column">
             <div class="font-bold mb-1">Stake:</div>
             <p-inputNumber
+              [readonly]="true"
               [ngModel]="s.token.stake"
               suffix=" CANDY"
             ></p-inputNumber>
@@ -46,6 +89,7 @@
           <div class="flex flex-column">
             <div class="font-bold mb-1">Value:</div>
             <p-inputNumber
+              [readonly]="true"
               [ngModel]="s.token.value"
               suffix=" CANDY"
             ></p-inputNumber>
@@ -57,6 +101,7 @@
             <p-inputNumber
               [ngModel]="s.token.strike"
               mode="currency"
+              [readonly]="true"
               currency="USD"
               locale="en-US"
             ></p-inputNumber>
@@ -64,20 +109,27 @@
         </div>
         <div class="md:col-3 col-12">
           <div class="flex flex-column">
-            <div class="font-bold mb-1">Time Decay:</div>
-            <p-inputNumber [ngModel]="s.token.timeDecay"></p-inputNumber>
+            <div class="font-bold mb-1">Daily fee:</div>
+            <p-inputNumber
+              [ngModel]="s.token.listing.gasPerMinute * 24 * 60"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              [readonly]="true"
+              mode="decimal"
+              suffix=" GAS"
+            ></p-inputNumber>
           </div>
         </div>
         <div class="md:col-3 col-12">
           <div class="flex flex-column">
-            <div class="font-bold mb-1">Leverage:</div>
-            <p-inputNumber [ngModel]="s.token.leverage"></p-inputNumber>
-          </div>
-        </div>
-        <div class="md:col-3 col-12">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">Safe:</div>
-            <input pInputText [value]="s.token.safe ? 'Yes' : 'No'" />
+            <div class="font-bold mb-1">Collateral:</div>
+            <p-inputNumber
+              [ngModel]="s.token.listing.collateral"
+              suffix=" GAS"
+              [readonly]="true"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+            ></p-inputNumber>
           </div>
         </div>
         <div class="md:col-3 col-12">
@@ -91,36 +143,48 @@
                 s.token.listing.maxMinutes / 60 / 24 +
                 ' days'
               "
+              readonly
             />
           </div>
         </div>
       </div>
-      <p-divider><p-tag value="Renting Costs"></p-tag></p-divider>
-      <div class="grid p-fluid p-3">
-        <div class="md:col-3 col-12">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">Daily fee:</div>
-            <p-inputNumber
-              [ngModel]="s.token.listing.gasPerMinute * 24 * 60"
-              [minFractionDigits]="2"
-              [maxFractionDigits]="2"
-              mode="decimal"
-              suffix=" GAS"
-            ></p-inputNumber>
+
+      <p-fieldset
+        legend="Advanced"
+        [toggleable]="true"
+        [collapsed]="s.token.leverage === 0"
+      >
+        <div class="grid p-fluid">
+          <div class="md:col-3 col-12">
+            <div class="flex flex-column">
+              <div class="font-bold mb-1">Time Decay:</div>
+              <p-inputNumber
+                [ngModel]="s.token.timeDecay"
+                [readonly]="true"
+              ></p-inputNumber>
+            </div>
+          </div>
+          <div class="md:col-3 col-12">
+            <div class="flex flex-column">
+              <div class="font-bold mb-1">Leverage:</div>
+              <p-inputNumber
+                [ngModel]="s.token.leverage"
+                [readonly]="true"
+              ></p-inputNumber>
+            </div>
+          </div>
+          <div class="md:col-3 col-12">
+            <div class="flex flex-column">
+              <div class="font-bold mb-1">Safe:</div>
+              <input
+                pInputText
+                [value]="s.token.safe ? 'Yes' : 'No'"
+                readonly
+              />
+            </div>
           </div>
         </div>
-        <div class="md:col-3 col-12">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">Collateral:</div>
-            <p-inputNumber
-              [ngModel]="s.token.listing.collateral"
-              suffix=" GAS"
-              [minFractionDigits]="2"
-              [maxFractionDigits]="2"
-            ></p-inputNumber>
-          </div>
-        </div>
-      </div>
+      </p-fieldset>
     </p-panel>
   </div>
   <ng-template #loading>

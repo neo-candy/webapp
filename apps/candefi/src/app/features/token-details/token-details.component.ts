@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RxState } from '@rx-angular/state';
+import { environment } from '../../../environments/environment';
 import { MenuItem } from 'primeng/api';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
@@ -11,11 +12,18 @@ import {
 import { ThemeService } from '../../services/theme.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 
+enum TokenStatus {
+  Unlisted = 0,
+  Listed = 1,
+  Rented = 2,
+  Exercised = 3,
+}
 interface TokenDetailsState {
   token: TokenWithListingOptionalRenting;
   base64TokenId: string;
   isLoading: boolean;
   optionItems: MenuItem[];
+  status: TokenStatus;
 }
 
 @Component({
@@ -24,8 +32,12 @@ interface TokenDetailsState {
   styleUrls: ['./token-details.component.scss'],
 })
 export class TokenDetailsComponent extends RxState<TokenDetailsState> {
+  tokenStatus = TokenStatus;
   readonly state$ = this.select();
   readonly fetchTokenId$ = this.route.params.pipe(map((res) => res['tokenId']));
+  readonly fetchTokenStatus$ = this.select('token').pipe(
+    map((token) => this.mapTokenStatus(token))
+  );
 
   constructor(
     private route: ActivatedRoute,
@@ -62,6 +74,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
         tap(() => this.set({ isLoading: false }))
       )
     );
+    this.connect('status', this.fetchTokenStatus$);
   }
 
   private closeListing(): void {
@@ -73,5 +86,16 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
       .subscribe((res) => {
         console.log(res), this.router.navigate(['/']);
       });
+  }
+
+  mapTokenStatus(token: TokenWithListingOptionalRenting): TokenStatus {
+    if (token.isExercised) {
+      return TokenStatus.Exercised;
+    } else if (token.owner === environment.testnet.rentfuseAddress) {
+      return TokenStatus.Listed;
+    } else if (token.owner !== token.writer) {
+      TokenStatus.Rented;
+    }
+    return TokenStatus.Unlisted;
   }
 }

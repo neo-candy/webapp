@@ -55,9 +55,10 @@ export class MarketComponent extends RxState<MarketState> {
     this.set(DEFAULT_STATE);
     this.connect(
       'tokens',
-      this.candefi
-        .tokensOfJson(environment.testnet.rentfuseAddress)
-        .pipe(tap(() => this.set({ isLoading: false })))
+      this.candefi.tokensOfJson(environment.testnet.rentfuseAddress).pipe(
+        map((tokens) => tokens.filter((token) => token.stake > 0)),
+        tap(() => this.set({ isLoading: false }))
+      )
     );
     this.connect('neoPrice', this.globalState.select('neoPrice'));
     this.connect('calls', this.calls$);
