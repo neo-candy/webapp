@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { RxState } from '@rx-angular/state';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Subject } from 'rxjs';
@@ -30,6 +31,7 @@ export class RentDetailsComponent
     private config: DynamicDialogConfig,
     private fb: FormBuilder,
     private ref: DynamicDialogRef,
+    private router: Router,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
@@ -41,7 +43,7 @@ export class RentDetailsComponent
     const token = this.config.data.token as TokenWithListingOptionalRenting;
     this.set({ token });
     this.formGroup = this.fb.group({
-      duration: [token.listing.minMinutes / 24 / 60, Validators.required],
+      duration: [null, Validators.required],
       agreement: [false, Validators.requiredTrue],
     });
   }
@@ -68,5 +70,9 @@ export class RentDetailsComponent
 
   get duration(): number {
     return this.formGroup.get('duration')?.value;
+  }
+
+  openDetailsPage(): void {
+    window.open('/tokens/' + atob(this.get('token').tokenId), '_blank');
   }
 }
