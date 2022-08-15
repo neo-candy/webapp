@@ -1,8 +1,13 @@
 import { Component, Inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { RxState } from '@rx-angular/state';
 import { MenuItem, SelectItem } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-import { distinctUntilChanged, map, tap } from 'rxjs/operators';
+import { distinctUntilChanged, map, tap, timeout } from 'rxjs/operators';
+import {
+  ContextService,
+  LAST_VISITED_PROFILE_CTX_KEY,
+} from '../services/context.service';
 import { NeolineService } from '../services/neoline.service';
 import { UiService } from '../services/ui.service';
 import { GlobalState, GLOBAL_RX_STATE, Price } from '../state/global.state';
@@ -64,14 +69,16 @@ export class MenuComponent extends RxState<MenuState> {
       label: 'About',
       icon: 'pi pi-question-circle',
     },
+
+    {
+      label: 'Profit Calculator',
+      icon: 'pi pi-sliders-v',
+    },
     {
       label: 'Contests',
       icon: 'pi pi-chart-line',
       routerLink: 'leaderboard',
-    },
-    {
-      label: 'Profit Calculator',
-      icon: 'pi pi-sliders-v',
+      disabled: true,
     },
   ];
 
@@ -79,7 +86,9 @@ export class MenuComponent extends RxState<MenuState> {
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>,
     private ui: UiService,
     private neoline: NeolineService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private router: Router,
+    private context: ContextService
   ) {
     super();
     this.set(DEFAULT_STATE);
@@ -131,5 +140,10 @@ export class MenuComponent extends RxState<MenuState> {
       header: 'Mint NFT',
       width: '90%',
     });
+  }
+
+  goToProfile(): void {
+    const target = this.context.get(LAST_VISITED_PROFILE_CTX_KEY) ?? 'listings';
+    this.router.navigate(['profile/' + target]);
   }
 }

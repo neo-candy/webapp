@@ -92,4 +92,8 @@ export class AppComponent {
     this.globalState.connect('flmPrice', this.flmPrice$);
     this.theme.switchTheme(this.context.get(THEME_CTX_KEY) ?? theme.current);
   }
+
+  viewTransaction(txid: string): void {
+    window.open('https://n3t4.neotube.io/transaction/' + txid, '_blank');
+  }
 }

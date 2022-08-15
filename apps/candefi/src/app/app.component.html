@@ -1,8 +1,48 @@
 <cd-menu></cd-menu>
 <router-outlet></router-outlet>
 <cd-footer></cd-footer>
-<p-toast key="errorToast"></p-toast>
-<p-toast key="successToast" position="bottom-center"></p-toast>
+<p-toast key="errorToast">
+  <ng-template let-message pTemplate="message">
+    <div class="flex flex-column w-full">
+      <div class="flex align-items-center w-full">
+        <div class="text-center">
+          <i class="pi pi-times-circle text-2xl"></i>
+        </div>
+        <div class="flex flex-column ml-3">
+          <div class="font-bold mb-1">{{ message.summary }}</div>
+          <div>{{ message.detail }}</div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-toast>
+<p-toast key="successToast">
+  <ng-template let-message pTemplate="message">
+    <div class="flex flex-column w-full">
+      <div class="flex align-items-center w-full">
+        <div class="text-center">
+          <i class="pi pi-check-circle text-2xl"></i>
+        </div>
+        <div class="flex flex-column ml-3">
+          <div class="font-bold mb-1">{{ message.summary }}</div>
+          <div>{{ message.detail }}</div>
+        </div>
+      </div>
+      <ng-container *ngIf="message.data">
+        <p-divider></p-divider>
+        <div class="p-fluid">
+          <button
+            pButton
+            icon="pi pi-search"
+            type="button"
+            label="View Transaction"
+            class="p-button-success p-button-outlined"
+            (click)="viewTransaction(message.data)"
+          ></button></div
+      ></ng-container>
+    </div>
+  </ng-template>
+</p-toast>
 <p-toast key="infoToast" position="bottom-center"></p-toast>
 
 <ng-container *ngIf="state$ | async as s">

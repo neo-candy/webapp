@@ -21,9 +21,10 @@ import { RentDetailsComponent } from './rent-details/rent-details.component';
 interface MarketDetailsState {
   tokens: TokenWithListingOptionalRenting[];
   isLoading: boolean;
+  address: string;
 }
 
-const DEFAULT_STATE: MarketDetailsState = {
+const DEFAULT_STATE: Partial<MarketDetailsState> = {
   tokens: [],
   isLoading: true,
 };
@@ -47,6 +48,7 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
   ) {
     super();
     this.set(DEFAULT_STATE);
+    this.connect('address', this.globalState.select('address'));
     this.connect(
       'tokens',
       from(this.config.data.tokens as CandefiToken[]).pipe(

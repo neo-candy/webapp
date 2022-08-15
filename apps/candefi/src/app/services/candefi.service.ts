@@ -3,7 +3,7 @@ import { sc, tx, wallet } from '@cityofzion/neon-js';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { NeoInvokeWriteResponse, NeoTypedValue } from '../models/n3';
+import { NeoInvokeArgument, NeoInvokeWriteResponse } from '../models/n3';
 import { UiService } from './ui.service';
 import { NeolineService } from './neoline.service';
 import { NeonJSService } from './neonjs.service';
@@ -11,6 +11,7 @@ import { processBase64Hash160 } from '../shared/utils';
 import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
 import { RxState } from '@rx-angular/state';
 import { TokenWithListingOptionalRenting } from './rentfuse.service';
+import { DecimalPipe } from '@angular/common';
 
 const CALL = 1;
 const PUT = 2;
@@ -60,6 +61,7 @@ export class CandefiService {
     private neoline: NeolineService,
     private neonjs: NeonJSService,
     private ui: UiService,
+    private decimalPipe: DecimalPipe,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {}
   public mint(
@@ -132,11 +134,7 @@ export class CandefiService {
     address: string,
     tokenIds: string[]
   ): Observable<NeoInvokeWriteResponse> {
-    const args: {
-      scriptHash: string;
-      operation: string;
-      args: NeoTypedValue[];
-    }[] = [];
+    const args: NeoInvokeArgument[] = [];
     tokenIds.forEach((tokenId) => {
       args.push({
         scriptHash: environment.testnet.candefi,
@@ -169,20 +167,16 @@ export class CandefiService {
 
   public closeListing(
     address: string,
-    tokenId: string
+    tokenIds: string[]
   ): Observable<NeoInvokeWriteResponse> {
-    const args: {
-      scriptHash: string;
-      operation: string;
-      args: NeoTypedValue[];
-    }[] = [
-      {
+    const args: NeoInvokeArgument[] = [];
+    tokenIds.forEach((tokenId) => {
+      args.push({
         scriptHash: environment.testnet.candefi,
         operation: 'closeListing',
         args: [NeolineService.byteArray(tokenId)],
-      },
-    ];
-
+      });
+    });
     return this.neoline
       .invokeMultiple({
         signers: [
@@ -191,11 +185,55 @@ export class CandefiService {
             scopes: tx.WitnessScope.CalledByEntry,
           },
         ],
-        invokeArgs: [...args],
+        invokeArgs: args,
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() => this.ui.displaySuccess('You closed 1 listing')),
+        tap((res) =>
+          this.ui.displaySuccess(
+            `You closed ${tokenIds.length} listing`,
+            res.txid
+          )
+        ),
+        catchError((e) => {
+          this.ui.displayError(e);
+          return throwError(e);
+        })
+      );
+  }
+
+  public burn(
+    address: string,
+    tokens: CandefiToken[]
+  ): Observable<NeoInvokeWriteResponse> {
+    const args: NeoInvokeArgument[] = [];
+    tokens.forEach((token) => {
+      args.push({
+        scriptHash: environment.testnet.candefi,
+        operation: 'burn',
+        args: [NeolineService.byteArray(token.tokenId)],
+      });
+    });
+
+    const claimableAmount = tokens.reduce((prev, curr) => prev + curr.stake, 0);
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
+        ],
+        invokeArgs: args,
+      })
+      .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap((res) =>
+          this.ui.displaySuccess(
+            `You claimed ${this.decimalPipe.transform(claimableAmount)} CANDY`,
+            res.txid
+          )
+        ),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);

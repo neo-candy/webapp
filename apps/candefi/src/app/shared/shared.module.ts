@@ -20,9 +20,11 @@ import { CdTimerModule } from 'angular-cd-timer';
 import { MenuModule } from 'primeng/menu';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
+import { AuthGuard } from './guards/auth.guard';
 
 @NgModule({
   declarations: [TruncateAddressPipe, MonitorComponent],
+  providers: [AuthGuard],
   imports: [
     CommonModule,
     ButtonModule,

@@ -1,26 +1,15 @@
 import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
-import {
-  finalize,
-  map,
-  mergeAll,
-  mergeMap,
-  switchMap,
-  toArray,
-} from 'rxjs/operators';
+
 import { CandefiService } from '../../services/candefi.service';
-import {
-  RentfuseService,
-  TokenWithListingOptionalRenting,
-} from '../../services/rentfuse.service';
+import { RentfuseService } from '../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
-import {
-  ConfirmationService,
-  ConfirmEventType,
-  MenuItem,
-  SelectItem,
-} from 'primeng/api';
+import { ConfirmationService, MenuItem, SelectItem } from 'primeng/api';
 import { UiService } from '../../services/ui.service';
+import {
+  ContextService,
+  LAST_VISITED_PROFILE_CTX_KEY,
+} from '../../services/context.service';
 
 interface ProfileState {
   address: string;
@@ -47,8 +36,13 @@ export class ProfileComponent extends RxState<ProfileState> {
         {
           label: 'Earnings',
           disabled: true,
+          routerLinkActiveOptions: { exact: true },
         },
-        { label: 'History', disabled: true },
+        {
+          label: 'History',
+          disabled: true,
+          routerLinkActiveOptions: { exact: true },
+        },
       ],
     },
     {
@@ -58,11 +52,22 @@ export class ProfileComponent extends RxState<ProfileState> {
           label: 'Listings',
           routerLink: ['listings'],
           routerLinkActiveOptions: { exact: true },
+          command: () =>
+            this.context.put(LAST_VISITED_PROFILE_CTX_KEY, 'listings'),
         },
         {
           label: 'Rentings',
           routerLink: ['rentings'],
           routerLinkActiveOptions: { exact: true },
+          command: () =>
+            this.context.put(LAST_VISITED_PROFILE_CTX_KEY, 'rentings'),
+        },
+        {
+          label: 'Storage',
+          routerLink: ['storage'],
+          routerLinkActiveOptions: { exact: true },
+          command: () =>
+            this.context.put(LAST_VISITED_PROFILE_CTX_KEY, 'storage'),
         },
       ],
     },
@@ -70,10 +75,7 @@ export class ProfileComponent extends RxState<ProfileState> {
   readonly state$ = this.select();
 
   constructor(
-    private candefi: CandefiService,
-    private rentfuse: RentfuseService,
-    private ui: UiService,
-    private confirmation: ConfirmationService,
+    private context: ContextService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();

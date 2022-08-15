@@ -24,6 +24,10 @@
   padding-left: 15px;
 }
 
+::ng-deep .cd-profile-menu {
+  height: 100%;
+}
+
 ::ng-deep .cd-profile-menu .p-menuitem-link-active {
   border-left: 4px solid #1b72e5;
 }

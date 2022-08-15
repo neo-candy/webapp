@@ -12,8 +12,8 @@ import { map } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
 import {
   ContextService,
-  SELECTED_MINT_MARKET,
-  SELECTED_MINT_TYPE,
+  SELECTED_MINT_MARKET_CTX_KEY,
+  SELECTED_MINT_TYPE_CTX_KEY,
 } from '../../services/context.service';
 import { initialValueReqLeverageValidator } from '../../shared/validators/initial-value.directive';
 import { minCollateralValidator } from '../../shared/validators/min-collateral.directive';
@@ -111,8 +111,8 @@ export class MintComponent extends RxState<MintState> implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group(
       {
-        type: [this.context.get(SELECTED_MINT_TYPE) ?? 'call'],
-        market: [this.context.get(SELECTED_MINT_MARKET) ?? 'neo'],
+        type: [this.context.get(SELECTED_MINT_TYPE_CTX_KEY) ?? 'call'],
+        market: [this.context.get(SELECTED_MINT_MARKET_CTX_KEY) ?? 'neo'],
         strike: [
           Math.round(this.globalState.get('neoPrice').curr),
           Validators.compose([Validators.required, nonZeroValidator()]),
@@ -328,10 +328,10 @@ export class MintComponent extends RxState<MintState> implements OnInit {
 
   private registerValueChanges(): void {
     this.hold(this.form.controls['type'].valueChanges, (v) => {
-      this.context.put(SELECTED_MINT_TYPE, v);
+      this.context.put(SELECTED_MINT_TYPE_CTX_KEY, v);
     });
     this.hold(this.form.controls['market'].valueChanges, (v) => {
-      this.context.put(SELECTED_MINT_MARKET, v);
+      this.context.put(SELECTED_MINT_MARKET_CTX_KEY, v);
     });
 
     this.hold(this.form.controls['collateralOption1'].valueChanges, (v) => {

@@ -13,6 +13,7 @@ import { GlobalState, GLOBAL_RX_STATE } from './state/global.state';
 import { RxState } from '@rx-angular/state';
 import { FooterComponent } from './footer/footer.component';
 import { MenuModule } from './menu/menu.module';
+import { DecimalPipe } from '@angular/common';
 
 @NgModule({
   declarations: [AppComponent, FooterComponent],
@@ -26,6 +27,7 @@ import { MenuModule } from './menu/menu.module';
     MenuModule,
   ],
   providers: [
+    DecimalPipe,
     MessageService,
     {
       provide: GLOBAL_RX_STATE,

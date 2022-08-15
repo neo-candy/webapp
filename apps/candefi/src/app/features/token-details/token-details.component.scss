@@ -12,3 +12,7 @@
   margin: 10rem;
   filter: invert(90%) sepia(22%) saturate(0%) hue-rotate(305deg) brightness(110%) contrast(100%);
 }
+
+::ng-deep .cd-token-status-panel .p-tabview-panels {
+  padding: 0;
+}

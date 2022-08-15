@@ -29,7 +29,11 @@
       </ng-template>
       <p-menubar [model]="s.optionItems"></p-menubar>
 
-      <p-tabView [scrollable]="true" [activeIndex]="s.status">
+      <p-tabView
+        [scrollable]="true"
+        [activeIndex]="s.status"
+        styleClass="cd-token-status-panel"
+      >
         <p-tabPanel [disabled]="s.status !== 0">
           <ng-template pTemplate="header">
             <i
@@ -66,125 +70,143 @@
             Exercised
           </ng-template>
         </p-tabPanel>
+        <p-tabPanel [disabled]="s.status !== 4">
+          <ng-template pTemplate="header">
+            <i
+              class="mr-2"
+              [ngClass]="s.status === 4 ? 'pi pi-check-circle' : 'pi pi-circle'"
+            ></i>
+            Cancelled
+          </ng-template>
+        </p-tabPanel>
       </p-tabView>
-      <div class="grid p-fluid pb-3 pl-3 pr-3">
-        <div class="lg:col-3 md:col-6 col-12">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">ID:</div>
-            <input pInputText [value]="s.token.tokenId" readonly />
-          </div>
-        </div>
-
-        <div class="lg:col-3 md:col-6 col-12">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">Stake:</div>
-            <p-inputNumber
-              [readonly]="true"
-              [ngModel]="s.token.stake"
-              suffix=" CANDY"
-            ></p-inputNumber>
-          </div>
-        </div>
-        <div class="lg:col-3 md:col-6 col-12">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">Value:</div>
-            <p-inputNumber
-              [readonly]="true"
-              [ngModel]="s.token.value"
-              suffix=" CANDY"
-            ></p-inputNumber>
-          </div>
-        </div>
-        <div class="lg:col-3 md:col-6 col-12">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">Strike:</div>
-            <p-inputNumber
-              [ngModel]="s.token.strike"
-              mode="currency"
-              [readonly]="true"
-              currency="USD"
-              locale="en-US"
-            ></p-inputNumber>
-          </div>
-        </div>
-        <div class="md:col-3 col-12">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">Daily fee:</div>
-            <p-inputNumber
-              [ngModel]="s.token.listing.gasPerMinute * 24 * 60"
-              [minFractionDigits]="2"
-              [maxFractionDigits]="2"
-              [readonly]="true"
-              mode="decimal"
-              suffix=" GAS"
-            ></p-inputNumber>
-          </div>
-        </div>
-        <div class="md:col-3 col-12">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">Collateral:</div>
-            <p-inputNumber
-              [ngModel]="s.token.listing.collateral"
-              suffix=" GAS"
-              [readonly]="true"
-              [minFractionDigits]="2"
-              [maxFractionDigits]="2"
-            ></p-inputNumber>
-          </div>
-        </div>
-        <div class="md:col-3 col-12">
-          <div class="flex flex-column">
-            <div class="font-bold mb-1">Duration:</div>
-            <input
-              pInputText
-              [value]="
-                s.token.listing.minMinutes / 60 / 24 +
-                '-' +
-                s.token.listing.maxMinutes / 60 / 24 +
-                ' days'
-              "
-              readonly
-            />
-          </div>
-        </div>
-      </div>
-
-      <p-fieldset
-        legend="Advanced"
-        [toggleable]="true"
-        [collapsed]="s.token.leverage === 0"
-      >
-        <div class="grid p-fluid">
-          <div class="md:col-3 col-12">
-            <div class="flex flex-column">
-              <div class="font-bold mb-1">Time Decay:</div>
-              <p-inputNumber
-                [ngModel]="s.token.timeDecay"
-                [readonly]="true"
-              ></p-inputNumber>
+      <p-panel header="Overview">
+        <div class="flex m-3">
+          <div class="grid p-fluid w-full">
+            <div class="lg:col-3 md:col-6 col-12">
+              <div class="flex flex-column">
+                <div class="font-bold mb-1">ID:</div>
+                <input pInputText [value]="s.token.tokenId" readonly />
+              </div>
             </div>
-          </div>
-          <div class="md:col-3 col-12">
-            <div class="flex flex-column">
-              <div class="font-bold mb-1">Leverage:</div>
-              <p-inputNumber
-                [ngModel]="s.token.leverage"
-                [readonly]="true"
-              ></p-inputNumber>
+            <div class="lg:col-3 md:col-6 col-12">
+              <div class="flex flex-column">
+                <div class="font-bold mb-1">Stake:</div>
+                <p-inputNumber
+                  [readonly]="true"
+                  [ngModel]="s.token.stake"
+                  suffix=" CANDY"
+                ></p-inputNumber>
+              </div>
             </div>
-          </div>
-          <div class="md:col-3 col-12">
-            <div class="flex flex-column">
-              <div class="font-bold mb-1">Safe:</div>
-              <input
-                pInputText
-                [value]="s.token.safe ? 'Yes' : 'No'"
-                readonly
-              />
+            <div class="lg:col-3 md:col-6 col-12">
+              <div class="flex flex-column">
+                <div class="font-bold mb-1">Value:</div>
+                <p-inputNumber
+                  [readonly]="true"
+                  [ngModel]="s.token.value"
+                  suffix=" CANDY"
+                ></p-inputNumber>
+              </div>
+            </div>
+            <div class="lg:col-3 md:col-6 col-12">
+              <div class="flex flex-column">
+                <div class="font-bold mb-1">Strike:</div>
+                <p-inputNumber
+                  [ngModel]="s.token.strike"
+                  mode="currency"
+                  [readonly]="true"
+                  currency="USD"
+                  locale="en-US"
+                ></p-inputNumber>
+              </div>
+            </div>
+            <div class="col-12">
+              <p-fieldset
+                legend="Advanced"
+                [toggleable]="true"
+                [collapsed]="s.token.leverage === 0"
+              >
+                <div class="grid p-fluid">
+                  <div class="md:col-4 col-12">
+                    <div class="flex flex-column">
+                      <div class="font-bold mb-1">Time Decay:</div>
+                      <p-inputNumber
+                        [ngModel]="s.token.timeDecay"
+                        [readonly]="true"
+                      ></p-inputNumber>
+                    </div>
+                  </div>
+                  <div class="md:col-4 col-12">
+                    <div class="flex flex-column">
+                      <div class="font-bold mb-1">Leverage:</div>
+                      <p-inputNumber
+                        [ngModel]="s.token.leverage"
+                        [readonly]="true"
+                      ></p-inputNumber>
+                    </div>
+                  </div>
+                  <div class="md:col-4 col-12">
+                    <div class="flex flex-column">
+                      <div class="font-bold mb-1">Safe:</div>
+                      <input
+                        pInputText
+                        [value]="s.token.safe ? 'Yes' : 'No'"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                </div>
+              </p-fieldset>
             </div>
           </div>
         </div>
-      </p-fieldset>
+      </p-panel>
+      <p-panel header="Listing" *ngIf="s.token.listing.listingId !== 0">
+        <div class="flex m-3">
+          <div class="grid p-fluid w-full">
+            <div class="md:col-4 col-12">
+              <div class="flex flex-column">
+                <div class="font-bold mb-1">Daily fee:</div>
+                <p-inputNumber
+                  [ngModel]="s.token.listing.gasPerMinute * 24 * 60"
+                  [minFractionDigits]="2"
+                  [maxFractionDigits]="2"
+                  [readonly]="true"
+                  mode="decimal"
+                  suffix=" GAS"
+                ></p-inputNumber>
+              </div>
+            </div>
+            <div class="md:col-4 col-12">
+              <div class="flex flex-column">
+                <div class="font-bold mb-1">Collateral:</div>
+                <p-inputNumber
+                  [ngModel]="s.token.listing.collateral"
+                  suffix=" GAS"
+                  [readonly]="true"
+                  [minFractionDigits]="2"
+                  [maxFractionDigits]="2"
+                ></p-inputNumber>
+              </div>
+            </div>
+            <div class="md:col-4 col-12">
+              <div class="flex flex-column">
+                <div class="font-bold mb-1">Duration:</div>
+                <input
+                  pInputText
+                  [value]="
+                    s.token.listing.minMinutes / 60 / 24 +
+                    '-' +
+                    s.token.listing.maxMinutes / 60 / 24 +
+                    ' days'
+                  "
+                  readonly
+                />
+              </div>
+            </div>
+          </div></div
+      ></p-panel>
     </p-panel>
   </div>
   <ng-template #loading>

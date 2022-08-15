@@ -16,7 +16,7 @@
           pButton
           icon="pi pi-user"
           class="p-button-text"
-          routerLink="profile/listings"
+          (click)="goToProfile()"
         ></button>
         <button
           pButton
@@ -37,8 +37,7 @@
           <ng-template pTemplate="selectedItem">
             <div *ngIf="s.selectedWallet">
               <div class="flex align-items-center">
-                <img src="assets/ui/neoline.png" width="15" class="mr-2" />
-                <div>{{ s.selectedWallet }}</div>
+                <i class="pi pi-spin pi-spinner mr-2"></i> Connecting...
               </div>
             </div>
           </ng-template>

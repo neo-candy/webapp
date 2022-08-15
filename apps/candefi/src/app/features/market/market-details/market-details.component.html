@@ -24,7 +24,6 @@
         <th>Duration</th>
         <th>Daily fee</th>
         <th>Collateral</th>
-        <th>Writer</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-token>
@@ -50,8 +49,6 @@
           {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }} GAS
         </td>
         <td>{{ token.listing.collateral | number: '1.2-2' }} GAS</td>
-
-        <td>{{ token.writer | truncateAddress }}</td>
       </tr>
     </ng-template>
   </p-table>

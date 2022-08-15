@@ -4,7 +4,6 @@ import { RxState } from '@rx-angular/state';
 import { SelectItem } from 'primeng/api';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
-  filter,
   finalize,
   map,
   mergeAll,

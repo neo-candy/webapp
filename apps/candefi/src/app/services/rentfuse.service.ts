@@ -118,18 +118,30 @@ export class RentfuseService {
 
   getListingIdFromNft(tokenId: string): Observable<number> {
     const scriptHash = environment.testnet.rentfuseProtocol;
-    return this.neonjs.rpcRequest(
-      'getListingIdFromNft',
-      [
-        sc.ContractParam.hash160(environment.testnet.candefi),
-        sc.ContractParam.byteArray(tokenId),
-      ],
-      scriptHash
-    );
+    return this.neonjs
+      .rpcRequest(
+        'getListingIdFromNft',
+        [
+          sc.ContractParam.hash160(environment.testnet.candefi),
+          sc.ContractParam.byteArray(tokenId),
+        ],
+        scriptHash
+      )
+      .pipe(map((v) => Number(v)));
   }
 
   getListing(id: number): Observable<Listing> {
     const scriptHash = environment.testnet.rentfuseProtocol;
+    if (id === 0) {
+      //return a dummy listing if no listing was found
+      return of({
+        collateral: -1,
+        gasPerMinute: -1,
+        listingId: 0,
+        maxMinutes: -1,
+        minMinutes: -1,
+      });
+    }
     return this.neonjs
       .rpcRequest('getListing', [sc.ContractParam.integer(id)], scriptHash)
       .pipe(map((res) => this.mapListing(res)));
@@ -179,7 +191,6 @@ export class RentfuseService {
     token: CandefiToken
   ): Observable<TokenWithListingOptionalRenting> {
     return this.getListingIdFromNft(token.tokenId).pipe(
-      filter((listingId) => listingId != 0),
       switchMap((listingId) => this.getListing(listingId)),
       map((listing) => this.addListingToToken(token, listing))
     );
@@ -201,6 +212,7 @@ export class RentfuseService {
     token: CandefiToken
   ): Observable<TokenWithListingOptionalRenting> {
     return this.getListingForToken(token).pipe(
+      filter((token) => token.listing.listingId !== 0),
       switchMap((listing) => this.getRentingForToken(listing))
     );
   }
