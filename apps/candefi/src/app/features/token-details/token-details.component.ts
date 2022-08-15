@@ -18,7 +18,8 @@ enum TokenStatus {
   Listed = 1,
   Rented = 2,
   Exercised = 3,
-  Cancelled = 4,
+  Expired = 4,
+  Cancelled = 5,
 }
 interface TokenDetailsState {
   token: TokenWithListingOptionalRenting;
@@ -35,6 +36,7 @@ interface TokenDetailsState {
 })
 export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   tokenStatus = TokenStatus;
+  readonly rentfuseAddress = environment.testnet.rentfuseAddress;
   readonly state$ = this.select();
   readonly fetchTokenId$ = this.route.params.pipe(map((res) => res['tokenId']));
   readonly fetchTokenStatus$ = this.select('token').pipe(
@@ -79,9 +81,19 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
 
   private closeListing(): void {
     this.rentfuse
-      .closeListing(
+      .closeListing(this.globalState.get('address'), [
+        this.get('token').listing.listingId,
+      ])
+      .subscribe((res) => {
+        console.log(res), this.router.navigate(['/']);
+      });
+  }
+
+  private revoke(): void {
+    this.rentfuse
+      .revokeRenting(
         this.globalState.get('address'),
-        this.get('token').listing.listingId
+        this.get('token').rentingId
       )
       .subscribe((res) => {
         console.log(res), this.router.navigate(['/']);
@@ -98,6 +110,9 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   }
 
   private mapTokenStatus(token: TokenWithListingOptionalRenting): TokenStatus {
+    if (token.renting && token.renting?.remainingSeconds <= 0) {
+      return TokenStatus.Expired;
+    }
     if (token.isExercised) {
       return TokenStatus.Exercised;
     } else if (token.owner === token.writer) {
@@ -151,12 +166,22 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
           profitCalculator.disabled = true;
           break;
         }
+        case TokenStatus.Listed:
         case TokenStatus.Cancelled: {
           options.disabled = false;
           options.items?.push({
             label: 'Close Listing',
             icon: 'pi pi-trash',
             command: () => this.closeListing(),
+          });
+          break;
+        }
+        case TokenStatus.Expired: {
+          options.disabled = false;
+          options.items?.push({
+            label: 'Revoke Renting',
+            icon: 'pi pi-replay',
+            command: () => this.revoke(),
           });
           break;
         }
@@ -175,6 +200,15 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
               icon: 'pi pi-trash',
             }
           );
+          break;
+      }
+      switch (status) {
+        case TokenStatus.Rented:
+          options.disabled = false;
+          options.items?.push({
+            label: 'Cancel',
+            icon: 'pi pi-trash',
+          });
           break;
       }
     }

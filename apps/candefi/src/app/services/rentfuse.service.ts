@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
 import { sc, tx, wallet } from '@cityofzion/neon-js';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { NeoInvokeWriteResponse, NeoTypedValue } from '../models/n3';
+import {
+  NeoInvokeArgument,
+  NeoInvokeWriteResponse,
+  NeoTypedValue,
+} from '../models/n3';
 import { processBase64Hash160 } from '../shared/utils';
 import { CandefiToken } from './candefi.service';
 import { NeolineService } from './neoline.service';
@@ -73,7 +77,9 @@ export class RentfuseService {
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() => this.ui.displaySuccess('You started renting a new NFT')),
+        tap((res) =>
+          this.ui.displaySuccess('You started renting a new NFT', res.txid)
+        ),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);
@@ -83,7 +89,44 @@ export class RentfuseService {
 
   public closeListing(
     address: string,
-    listingId: number
+    listingIds: number[]
+  ): Observable<NeoInvokeWriteResponse> {
+    const args: NeoInvokeArgument[] = [];
+    listingIds.forEach((listingId) => {
+      args.push({
+        scriptHash: environment.testnet.rentfuseProtocol,
+        operation: 'closeListing',
+        args: [NeolineService.int(listingId)],
+      });
+    });
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
+        ],
+        invokeArgs: args,
+      })
+      .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap((res) =>
+          this.ui.displaySuccess(
+            `You closed ${listingIds.length} listing`,
+            res.txid
+          )
+        ),
+        catchError((e) => {
+          this.ui.displayError(e);
+          return throwError(e);
+        })
+      );
+  }
+
+  public revokeRenting(
+    address: string,
+    rentingId: number
   ): Observable<NeoInvokeWriteResponse> {
     const args: {
       scriptHash: string;
@@ -92,8 +135,8 @@ export class RentfuseService {
     }[] = [
       {
         scriptHash: environment.testnet.rentfuseProtocol,
-        operation: 'closeListing',
-        args: [NeolineService.int(listingId)],
+        operation: 'revokeRenting',
+        args: [NeolineService.int(rentingId)],
       },
     ];
     return this.neoline
@@ -108,7 +151,7 @@ export class RentfuseService {
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() => this.ui.displaySuccess('You closed 1 listing')),
+        tap((res) => this.ui.displaySuccess('You revoked 1 renting', res.txid)),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);
@@ -212,7 +255,6 @@ export class RentfuseService {
     token: CandefiToken
   ): Observable<TokenWithListingOptionalRenting> {
     return this.getListingForToken(token).pipe(
-      filter((token) => token.listing.listingId !== 0),
       switchMap((listing) => this.getRentingForToken(listing))
     );
   }

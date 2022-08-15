@@ -23,6 +23,7 @@
                 <th>ID</th>
                 <th>Stake</th>
                 <th>Value</th>
+                <th>Created</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-token>
@@ -33,6 +34,7 @@
                 <td>{{ token.tokenId }}</td>
                 <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
                 <td>{{ token.value | number: '1.0-0' }} CANDY</td>
+                <td>{{ token.created | date: 'mediumDate' }}</td>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
@@ -73,6 +75,7 @@
                 <th>ID</th>
                 <th>Stake</th>
                 <th>Value</th>
+                <th>Created</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-token>
@@ -83,6 +86,7 @@
                 <td>{{ token.tokenId }}</td>
                 <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
                 <td>{{ token.value | number: '1.0-0' }} CANDY</td>
+                <td>{{ token.created | date: 'mediumDate' }}</td>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">

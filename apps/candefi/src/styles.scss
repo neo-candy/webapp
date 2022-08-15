@@ -13,3 +13,8 @@ body {
   }
 }
 
+a { color: inherit; }
+
+.loading-icon-dark-mode {
+  filter: invert(90%) sepia(22%) saturate(0%) hue-rotate(305deg) brightness(110%) contrast(100%);
+}

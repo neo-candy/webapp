@@ -19,9 +19,18 @@
           <div class="font-bold">Token Details</div>
           <div class="hidden sm:inline">
             <span class="font-bold">Writer: </span
-            ><a href="">{{ s.token.writer | truncateAddress }}</a
+            ><a [href]="'https://n3t4.neotube.io/address/' + s.token.writer">{{
+              s.token.writer | truncateAddress
+            }}</a
             >, <span class="font-bold">Owner: </span
-            ><a href="">{{ s.token.owner | truncateAddress }}</a
+            ><a
+              *ngIf="s.token.owner !== rentfuseAddress"
+              [href]="'https://n3t4.neotube.io/address/' + s.token.owner"
+              >{{ s.token.owner | truncateAddress }}</a
+            ><a
+              *ngIf="s.token.owner === rentfuseAddress"
+              [href]="'https://n3t4.neotube.io/address/' + s.token.owner"
+              >Rentfuse</a
             >,
             {{ s.token.created | date }}
           </div>
@@ -75,6 +84,15 @@
             <i
               class="mr-2"
               [ngClass]="s.status === 4 ? 'pi pi-check-circle' : 'pi pi-circle'"
+            ></i>
+            Expired
+          </ng-template>
+        </p-tabPanel>
+        <p-tabPanel [disabled]="s.status !== 5">
+          <ng-template pTemplate="header">
+            <i
+              class="mr-2"
+              [ngClass]="s.status === 5 ? 'pi pi-check-circle' : 'pi pi-circle'"
             ></i>
             Cancelled
           </ng-template>
@@ -212,10 +230,10 @@
   <ng-template #loading>
     <div class="flex w-full justify-content-center align-items-center">
       <img
+        class="loading-icon"
         src="assets/ui/blocks-scale.svg"
         [ngClass]="{
-          'loading-icon-dark': theme.current === 'lara-light-indigo',
-          'loading-icon-light': theme.current === 'lara-dark-indigo'
+          'loading-icon-dark-mode': theme.current === 'lara-dark-indigo'
         }"
       />
     </div>

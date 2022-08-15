@@ -1,18 +1,29 @@
 import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { environment } from '../../../../environments/environment';
-import { finalize, map, switchMap } from 'rxjs/operators';
+import {
+  finalize,
+  map,
+  mergeAll,
+  mergeMap,
+  switchMap,
+  toArray,
+} from 'rxjs/operators';
 import {
   CandefiService,
   CandefiToken,
 } from '../../../services/candefi.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
 import { Router } from '@angular/router';
+import {
+  RentfuseService,
+  TokenWithListingOptionalRenting,
+} from '../../../services/rentfuse.service';
 
 interface StorageState {
   isLoading: boolean;
   tokensOfWriter: CandefiToken[];
-  cancelledRentings: CandefiToken[];
+  cancelledRentings: TokenWithListingOptionalRenting[];
   closedListings: CandefiToken[];
 }
 
@@ -40,6 +51,7 @@ export class StorageComponent extends RxState<StorageState> {
   constructor(
     private candefi: CandefiService,
     private router: Router,
+    private rentfuse: RentfuseService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
@@ -55,11 +67,14 @@ export class StorageComponent extends RxState<StorageState> {
     this.connect(
       'cancelledRentings',
       this.select('tokensOfWriter').pipe(
+        mergeAll(),
+        mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
+        toArray(),
         map((tokens) =>
           tokens.filter(
             (token) =>
-              token.stake === 0 &&
-              token.owner === environment.testnet.rentfuseAddress
+              token.owner === environment.testnet.rentfuseAddress &&
+              token.rentingId > 0
           )
         )
       )
@@ -84,10 +99,10 @@ export class StorageComponent extends RxState<StorageState> {
   }
 
   closeAll(): void {
-    this.candefi
+    this.rentfuse
       .closeListing(
         this.globalState.get('address'),
-        this.get('cancelledRentings').map((token) => token.tokenId)
+        this.get('cancelledRentings').map((token) => token.listing.listingId)
       )
       .subscribe(console.log);
   }

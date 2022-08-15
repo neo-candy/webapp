@@ -75,8 +75,8 @@ export class AppComponent {
   );
   state$ = this.globalState.select();
   constructor(
+    public theme: ThemeService,
     private price: PriceService,
-    private theme: ThemeService,
     private context: ContextService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {

@@ -48,6 +48,7 @@ export interface CandefiToken {
   value: number;
   isExercised: boolean;
   safe: boolean;
+  rentingId: number;
 }
 
 export interface Earnings {
@@ -157,43 +158,6 @@ export class CandefiService {
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
         tap(() =>
           this.ui.displaySuccess(`You exercised ${tokenIds.length} position(s)`)
-        ),
-        catchError((e) => {
-          this.ui.displayError(e);
-          return throwError(e);
-        })
-      );
-  }
-
-  public closeListing(
-    address: string,
-    tokenIds: string[]
-  ): Observable<NeoInvokeWriteResponse> {
-    const args: NeoInvokeArgument[] = [];
-    tokenIds.forEach((tokenId) => {
-      args.push({
-        scriptHash: environment.testnet.candefi,
-        operation: 'closeListing',
-        args: [NeolineService.byteArray(tokenId)],
-      });
-    });
-    return this.neoline
-      .invokeMultiple({
-        signers: [
-          {
-            account: new wallet.Account(address).scriptHash,
-            scopes: tx.WitnessScope.CalledByEntry,
-          },
-        ],
-        invokeArgs: args,
-      })
-      .pipe(
-        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap((res) =>
-          this.ui.displaySuccess(
-            `You closed ${tokenIds.length} listing`,
-            res.txid
-          )
         ),
         catchError((e) => {
           this.ui.displayError(e);
@@ -393,6 +357,9 @@ export class CandefiService {
       ),
       safe: Boolean(
         v.attributes.filter((a) => a.trait_type === 'Safe')[0].value
+      ),
+      rentingId: Number(
+        v.attributes.filter((a) => a.trait_type === 'Renting Id')[0].value
       ),
     };
   }

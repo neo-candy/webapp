@@ -4,6 +4,7 @@ import { RxState } from '@rx-angular/state';
 import { SelectItem } from 'primeng/api';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
+  filter,
   finalize,
   map,
   mergeAll,
@@ -76,6 +77,7 @@ export class ListingsComponent extends RxState<ListingState> {
     this.candefi.tokensOfWriterJson(address).pipe(
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
+      filter((token) => token.listing.listingId !== 0),
       toArray(),
       finalize(() => this.set({ isLoading: false }))
     );
