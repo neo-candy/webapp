@@ -9,10 +9,7 @@ import {
   switchMap,
   toArray,
 } from 'rxjs/operators';
-import {
-  CandefiService,
-  CandefiToken,
-} from '../../../services/candefi.service';
+import { CandefiService } from '../../../services/candefi.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
 import { Router } from '@angular/router';
 import {
@@ -22,9 +19,9 @@ import {
 
 interface StorageState {
   isLoading: boolean;
-  tokensOfWriter: CandefiToken[];
+  tokensOfWriter: TokenWithListingOptionalRenting[];
   cancelledRentings: TokenWithListingOptionalRenting[];
-  closedListings: CandefiToken[];
+  closedListings: TokenWithListingOptionalRenting[];
 }
 
 const DEFAULT_STATE: StorageState = {
@@ -40,9 +37,11 @@ const DEFAULT_STATE: StorageState = {
 })
 export class StorageComponent extends RxState<StorageState> {
   readonly state$ = this.select();
-
   readonly fetchTokensOfWriter$ = (address: string) =>
     this.candefi.tokensOfWriterJson(address).pipe(
+      mergeAll(),
+      mergeMap((token) => this.rentfuse.getListingForToken(token)),
+      toArray(),
       finalize(() => {
         this.set({ isLoading: false });
       })
@@ -63,23 +62,18 @@ export class StorageComponent extends RxState<StorageState> {
         map((tokens) => tokens.sort((a, b) => a.created - b.created))
       )
     );
-
     this.connect(
       'cancelledRentings',
       this.select('tokensOfWriter').pipe(
-        mergeAll(),
-        mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
-        toArray(),
         map((tokens) =>
           tokens.filter(
             (token) =>
               token.owner === environment.testnet.rentfuseAddress &&
-              token.rentingId > 0
+              !!token.rentingId
           )
         )
       )
     );
-
     this.connect(
       'closedListings',
       this.select('tokensOfWriter').pipe(

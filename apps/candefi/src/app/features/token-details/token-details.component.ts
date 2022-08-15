@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RxState } from '@rx-angular/state';
 import { environment } from '../../../environments/environment';
 import { MenuItem } from 'primeng/api';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { filter, map, switchMap, tap } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
 import {
   TokenWithListingOptionalRenting,
@@ -12,6 +12,7 @@ import {
 import { ThemeService } from '../../services/theme.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 import { combineLatest } from 'rxjs';
+import { isExpired } from '../../shared/utils';
 
 enum TokenStatus {
   Unlisted = 0,
@@ -27,6 +28,8 @@ interface TokenDetailsState {
   isLoading: boolean;
   optionItems: MenuItem[];
   status: TokenStatus;
+  effectiveDate: Date;
+  profit: number;
 }
 
 @Component({
@@ -69,6 +72,28 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
       )
     );
     this.connect('status', this.fetchTokenStatus$);
+    this.connect(
+      'effectiveDate',
+      this.select('token').pipe(
+        map((token) => {
+          if (token.renting) {
+            return new Date(
+              token.renting.startedAt + token.renting.duration * 60 * 1000
+            );
+          } else {
+            return new Date();
+          }
+        })
+      )
+    );
+
+    this.connect(
+      'profit',
+      this.select('token').pipe(
+        filter((token) => !!token.renting),
+        map((token) => this.calculateBorrowerProfit(token))
+      )
+    );
 
     this.connect(
       'optionItems',
@@ -103,6 +128,19 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   private burn(): void {
     this.candefi
       .burn(this.globalState.get('address'), [this.get('token')])
+      .subscribe((res) => {
+        console.log(res);
+        this.router.navigate(['/']);
+      });
+  }
+
+  private finishRenting(): void {
+    this.rentfuse
+      .finishRenting(
+        this.globalState.get('address'),
+        this.get('token').tokenId,
+        this.get('token').rentingId
+      )
       .subscribe((res) => {
         console.log(res);
         this.router.navigate(['/']);
@@ -188,31 +226,39 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
       }
     } else if (address === token.owner) {
       switch (status) {
-        case TokenStatus.Rented:
+        case TokenStatus.Rented: {
           options.disabled = false;
           options.items?.push(
             {
               label: 'Exercise',
-              icon: 'pi pi-trash',
+              icon: 'pi pi-step-forward',
             },
             {
-              label: 'Cancel',
-              icon: 'pi pi-trash',
+              label: 'Finish Renting',
+              icon: 'pi pi-stop-circle',
+              command: () => this.finishRenting(),
             }
           );
           break;
-      }
-      switch (status) {
-        case TokenStatus.Rented:
+        }
+        case TokenStatus.Expired: {
           options.disabled = false;
           options.items?.push({
-            label: 'Cancel',
-            icon: 'pi pi-trash',
+            label: 'Finish Renting',
+            icon: 'pi pi-stop-circle',
+            command: () => this.finishRenting(),
           });
           break;
+        }
       }
     }
     optionItems.push(profitCalculator, options);
     return optionItems;
+  }
+
+  calculateBorrowerProfit(token: TokenWithListingOptionalRenting): number {
+    const profit = this.candefi.calculateProfit(token, true, isExpired(token));
+    token.profit = profit;
+    return profit;
   }
 }

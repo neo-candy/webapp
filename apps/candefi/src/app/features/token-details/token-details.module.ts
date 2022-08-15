@@ -5,6 +5,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { TokenDetailsComponent } from './token-details.component';
 import { TokenDetailsRoutingModule } from './token-details-routing.module';
 import { FieldsetModule } from 'primeng/fieldset';
+import { CalendarModule } from 'primeng/calendar';
 
 @NgModule({
   declarations: [TokenDetailsComponent],
@@ -13,6 +14,7 @@ import { FieldsetModule } from 'primeng/fieldset';
     SharedModule,
     TokenDetailsRoutingModule,
     FieldsetModule,
+    CalendarModule,
   ],
 })
 export class TokenDetailsModule {}

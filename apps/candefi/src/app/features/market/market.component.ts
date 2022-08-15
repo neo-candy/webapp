@@ -56,7 +56,9 @@ export class MarketComponent extends RxState<MarketState> {
     this.connect(
       'tokens',
       this.candefi.tokensOfJson(environment.testnet.rentfuseAddress).pipe(
-        map((tokens) => tokens.filter((token) => token.stake > 0)),
+        map((tokens) =>
+          tokens.filter((token) => token.stake > 0 && !token.rentingId)
+        ),
         tap(() => this.set({ isLoading: false }))
       )
     );

@@ -126,7 +126,7 @@ export class RentfuseService {
 
   public revokeRenting(
     address: string,
-    rentingId: number
+    rentingId: string
   ): Observable<NeoInvokeWriteResponse> {
     const args: {
       scriptHash: string;
@@ -136,7 +136,7 @@ export class RentfuseService {
       {
         scriptHash: environment.testnet.rentfuseProtocol,
         operation: 'revokeRenting',
-        args: [NeolineService.int(rentingId)],
+        args: [NeolineService.byteArray(rentingId)],
       },
     ];
     return this.neoline
@@ -152,6 +152,51 @@ export class RentfuseService {
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
         tap((res) => this.ui.displaySuccess('You revoked 1 renting', res.txid)),
+        catchError((e) => {
+          this.ui.displayError(e);
+          return throwError(e);
+        })
+      );
+  }
+
+  public finishRenting(
+    address: string,
+    tokenId: string,
+    rentingId: string
+  ): Observable<NeoInvokeWriteResponse> {
+    const args: {
+      scriptHash: string;
+      operation: string;
+      args: NeoTypedValue[];
+    }[] = [
+      {
+        scriptHash: environment.testnet.candefi,
+        operation: 'transfer',
+        args: [
+          NeolineService.address(environment.testnet.rentfuseAddress),
+          NeolineService.byteArray(tokenId),
+          NeolineService.array([
+            NeolineService.int(2),
+            NeolineService.string(rentingId),
+          ]),
+        ],
+      },
+    ];
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
+        ],
+        invokeArgs: [...args],
+      })
+      .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap((res) =>
+          this.ui.displaySuccess('You finished 1 renting', res.txid)
+        ),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);

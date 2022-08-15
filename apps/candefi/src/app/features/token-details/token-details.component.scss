@@ -10,3 +10,7 @@
   height: 80px;
   margin: 10rem;
 }
+
+::ng-deep .p-tabview .p-tabview-nav .p-tabview-ink-bar {
+  z-index: 0;
+}

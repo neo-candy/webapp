@@ -48,7 +48,7 @@ export interface CandefiToken {
   value: number;
   isExercised: boolean;
   safe: boolean;
-  rentingId: number;
+  rentingId: string;
 }
 
 export interface Earnings {
@@ -119,8 +119,11 @@ export class CandefiService {
           })
           .pipe(
             switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-            tap(() =>
-              this.ui.displaySuccess('You listed a new ' + type + ' NFT')
+            tap((res) =>
+              this.ui.displaySuccess(
+                'You listed a new ' + type + ' NFT',
+                res.txid
+              )
             ),
             catchError((e) => {
               this.ui.displayError(e);
@@ -156,8 +159,11 @@ export class CandefiService {
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() =>
-          this.ui.displaySuccess(`You exercised ${tokenIds.length} position(s)`)
+        tap((res) =>
+          this.ui.displaySuccess(
+            `You exercised ${tokenIds.length} position(s)`,
+            res.txid
+          )
         ),
         catchError((e) => {
           this.ui.displayError(e);
@@ -282,18 +288,32 @@ export class CandefiService {
     if (!token.renting) {
       throw new Error('calculateBorrowerProfit_noRenting');
     }
-    const gasValue =
+    const paidGas =
       token.listing.gasPerMinute *
       token.renting.duration *
       this.globalState.get('gasPrice').curr;
     if (expired) {
-      return borrower ? -gasValue : gasValue;
+      return borrower ? -paidGas : paidGas;
+    }
+    if (token.safe) {
+      if (
+        token.type === 'Call' &&
+        token.strike > this.globalState.get('neoPrice').curr
+      ) {
+        return -paidGas;
+      }
+      if (
+        token.type === 'Put' &&
+        token.strike < this.globalState.get('neoPrice').curr
+      ) {
+        return -paidGas;
+      }
     }
     const candyValue = token.stake * this.globalState.get('candyPrice').curr;
     if (borrower) {
-      return candyValue - gasValue;
+      return candyValue - paidGas;
     }
-    return gasValue - candyValue;
+    return paidGas - candyValue;
   }
 
   private mapToken(v: TokenProperties): CandefiToken {
@@ -358,9 +378,8 @@ export class CandefiService {
       safe: Boolean(
         v.attributes.filter((a) => a.trait_type === 'Safe')[0].value
       ),
-      rentingId: Number(
-        v.attributes.filter((a) => a.trait_type === 'Renting Id')[0].value
-      ),
+      rentingId: v.attributes.filter((a) => a.trait_type === 'Renting Id')[0]
+        .value,
     };
   }
 }

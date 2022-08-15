@@ -18,3 +18,11 @@ a { color: inherit; }
 .loading-icon-dark-mode {
   filter: invert(90%) sepia(22%) saturate(0%) hue-rotate(305deg) brightness(110%) contrast(100%);
 }
+
+.negative-price {
+  color: #DB6074;
+}
+
+.positive-price {
+  color: #16C784;
+}

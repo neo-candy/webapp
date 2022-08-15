@@ -1,6 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { RxState } from '@rx-angular/state';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Subject } from 'rxjs';
@@ -14,6 +13,7 @@ import { GlobalState, GLOBAL_RX_STATE } from '../../../../state/global.state';
 interface RentDetailsState {
   token: TokenWithListingOptionalRenting;
   isLoading: boolean;
+  displayConfirmBtn: boolean;
 }
 
 @Component({
@@ -31,7 +31,6 @@ export class RentDetailsComponent
     private config: DynamicDialogConfig,
     private fb: FormBuilder,
     private ref: DynamicDialogRef,
-    private router: Router,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
@@ -46,14 +45,18 @@ export class RentDetailsComponent
       duration: [null, Validators.required],
       agreement: [false, Validators.requiredTrue],
     });
+    this.set({
+      displayConfirmBtn: token.writer !== this.globalState.get('address'),
+    });
   }
 
   startRenting(): void {
     const durationInMinutes = this.duration * 24 * 60;
     const token = this.get('token');
-    const paymentAmount =
+    const paymentAmount = Math.round(
       token.listing.gasPerMinute * Math.pow(10, 8) * durationInMinutes +
-      token.listing.collateral * Math.pow(10, 8);
+        token.listing.collateral * Math.pow(10, 8)
+    );
     this.rentfuse
       .startRenting(
         this.globalState.get('address'),
@@ -61,10 +64,9 @@ export class RentDetailsComponent
         durationInMinutes,
         paymentAmount
       )
-      .subscribe((res) => {
+      .subscribe(() => {
         this.ref.close(true);
         this.formGroup.reset();
-        console.log(res);
       });
   }
 
