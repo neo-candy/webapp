@@ -4,6 +4,7 @@ import { StorageComponent } from './storage/storage.component';
 import { ListingsComponent } from './listings/listings.component';
 import { ProfileComponent } from './profile.component';
 import { RentalsComponent } from './rentals/rentals.component';
+import { EarningsComponent } from './earnings/earnings.component';
 
 const routes: Routes = [
   {
@@ -21,6 +22,10 @@ const routes: Routes = [
       {
         path: 'rentings',
         component: RentalsComponent,
+      },
+      {
+        path: 'earnings',
+        component: EarningsComponent,
       },
     ],
   },

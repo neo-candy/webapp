@@ -1,11 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 
-import { CandefiService } from '../../services/candefi.service';
-import { RentfuseService } from '../../services/rentfuse.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 import { ConfirmationService, MenuItem, SelectItem } from 'primeng/api';
-import { UiService } from '../../services/ui.service';
 import {
   ContextService,
   LAST_VISITED_PROFILE_CTX_KEY,
@@ -35,11 +32,18 @@ export class ProfileComponent extends RxState<ProfileState> {
       items: [
         {
           label: 'Earnings',
+          routerLink: ['earnings'],
+          routerLinkActiveOptions: { exact: true },
+          command: () =>
+            this.context.put(LAST_VISITED_PROFILE_CTX_KEY, 'earnings'),
+        },
+        {
+          label: 'History',
           disabled: true,
           routerLinkActiveOptions: { exact: true },
         },
         {
-          label: 'History',
+          label: 'Achievments',
           disabled: true,
           routerLinkActiveOptions: { exact: true },
         },

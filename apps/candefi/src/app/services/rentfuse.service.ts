@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { sc, tx, wallet } from '@cityofzion/neon-js';
 import { Observable, of, throwError } from 'rxjs';
@@ -40,7 +41,8 @@ export class RentfuseService {
   constructor(
     private neonjs: NeonJSService,
     private neoline: NeolineService,
-    private ui: UiService
+    private ui: UiService,
+    private decimalPipe: DecimalPipe
   ) {}
 
   public startRenting(
@@ -203,6 +205,53 @@ export class RentfuseService {
         })
       );
   }
+  public claimAmount(
+    address: string,
+    amount: number,
+    paymentToken: string,
+    symbol: string
+  ): Observable<NeoInvokeWriteResponse> {
+    const args: {
+      scriptHash: string;
+      operation: string;
+      args: NeoTypedValue[];
+    }[] = [
+      {
+        scriptHash: environment.testnet.rentfuseProtocol,
+        operation: 'claimAmount',
+        args: [
+          NeolineService.address(address),
+          NeolineService.address(address),
+          NeolineService.int(amount),
+          NeolineService.hash160(paymentToken),
+        ],
+      },
+    ];
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
+        ],
+        invokeArgs: [...args],
+      })
+      .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap((res) => {
+          this.ui.displaySuccess(
+            `You claimed ${this.decimalPipe.transform(amount)} ${symbol}`,
+            res.txid
+          );
+          //TODO: Reload page
+        }),
+        catchError((e) => {
+          this.ui.displayError(e);
+          return throwError(e);
+        })
+      );
+  }
 
   getListingIdFromNft(tokenId: string): Observable<number> {
     const scriptHash = environment.testnet.rentfuseProtocol;
@@ -263,14 +312,16 @@ export class RentfuseService {
     paymentTokenHash: string
   ): Observable<number> {
     const scriptHash = environment.testnet.rentfuseProtocol;
-    return this.neonjs.rpcRequest(
-      'getClaimableAmount',
-      [
-        sc.ContractParam.hash160(address),
-        sc.ContractParam.hash160(paymentTokenHash),
-      ],
-      scriptHash
-    );
+    return this.neonjs
+      .rpcRequest(
+        'getClaimableAmount',
+        [
+          sc.ContractParam.hash160(address),
+          sc.ContractParam.hash160(paymentTokenHash),
+        ],
+        scriptHash
+      )
+      .pipe(map((v) => Number(v) / Math.pow(10, 8)));
   }
 
   /* CUSTOM METHODS */

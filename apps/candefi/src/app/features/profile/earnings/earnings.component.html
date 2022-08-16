@@ -1,0 +1,38 @@
+<ng-container *ngIf="state$ | async as s">
+  <p-panel header="Earnings">
+    <p-table
+      [loading]="s.isLoading"
+      [value]="s.earnings"
+      responsiveLayout="scroll"
+      ><ng-template pTemplate="header">
+        <tr>
+          <th>Token</th>
+          <!-- <th>Earnings (24h)</th> -->
+          <th>Claimable</th>
+          <!-- <th>Total Earnings</th> -->
+          <th>Value</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-entry>
+        <tr>
+          <td>{{ entry.token | uppercase }}</td>
+          <!-- <td>{{ entry.earnings | number }}</td> -->
+          <td>
+            {{ entry.claimableEarnings | number }}
+          </td>
+          <td>{{ entry.value | currency }}</td>
+          <!-- <td>{{ entry.totalEarnings | number }}</td> -->
+          <td>
+            <button
+              pButton
+              label="Claim"
+              class="p-button"
+              icon="pi pi-angle-double-right"
+              [disabled]="entry.claimableEarnings === 0"
+              (click)="claim(entry)"
+            ></button>
+          </td></tr
+      ></ng-template> </p-table
+  ></p-panel>
+</ng-container>

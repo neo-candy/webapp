@@ -8,6 +8,7 @@ import { ListingsComponent } from './listings/listings.component';
 import { RentalsComponent } from './rentals/rentals.component';
 import { StorageComponent } from './storage/storage.component';
 import { CardModule } from 'primeng/card';
+import { EarningsComponent } from './earnings/earnings.component';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { CardModule } from 'primeng/card';
     ListingsComponent,
     RentalsComponent,
     StorageComponent,
+    EarningsComponent,
   ],
   imports: [CommonModule, ProfileRoutingModule, SharedModule, CardModule],
   exports: [ProfileComponent],
