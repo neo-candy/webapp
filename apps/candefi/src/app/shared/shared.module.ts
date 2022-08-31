@@ -21,9 +21,14 @@ import { MenuModule } from 'primeng/menu';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
 import { AuthGuard } from './guards/auth.guard';
+import { ProfitCalculatorComponent } from './components/profit-calculator/profit-calculator.component';
 
 @NgModule({
-  declarations: [TruncateAddressPipe, MonitorComponent],
+  declarations: [
+    TruncateAddressPipe,
+    MonitorComponent,
+    ProfitCalculatorComponent,
+  ],
   providers: [AuthGuard],
   imports: [
     CommonModule,

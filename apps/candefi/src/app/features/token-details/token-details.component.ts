@@ -39,6 +39,7 @@ interface TokenDetailsState {
 })
 export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   tokenStatus = TokenStatus;
+  readonly addressExplorer = environment.testnet.addressExplorer;
   readonly rentfuseAddress = environment.testnet.rentfuseAddress;
   readonly state$ = this.select();
   readonly fetchTokenId$ = this.route.params.pipe(map((res) => res['tokenId']));

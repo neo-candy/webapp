@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RxState } from '@rx-angular/state';
+import { environment } from '../../../../../environments/environment';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Subject } from 'rxjs';
 import { CandefiToken } from '../../../../services/candefi.service';
@@ -25,7 +26,7 @@ export class RentDetailsComponent
 {
   readonly state$ = this.select();
   readonly onToken$ = new Subject<CandefiToken>();
-
+  readonly txExplorer = environment.testnet.txExplorer;
   constructor(
     private rentfuse: RentfuseService,
     private config: DynamicDialogConfig,

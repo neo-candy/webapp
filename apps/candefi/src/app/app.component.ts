@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { Observable, timer } from 'rxjs';
 import { map, pairwise, startWith, switchMap } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 import { ContextService, THEME_CTX_KEY } from './services/context.service';
 import { PriceService } from './services/price.service';
 import { ThemeService } from './services/theme.service';
@@ -73,7 +74,7 @@ export class AppComponent {
     pairwise(),
     map(([prev, curr]) => ({ curr: curr, prev }))
   );
-  state$ = this.globalState.select();
+  readonly state$ = this.globalState.select();
   constructor(
     public theme: ThemeService,
     private price: PriceService,
@@ -94,6 +95,6 @@ export class AppComponent {
   }
 
   viewTransaction(txid: string): void {
-    window.open('https://n3t4.neotube.io/transaction/' + txid, '_blank');
+    window.open(environment.testnet.txExplorer + txid, '_blank');
   }
 }

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ProfitCalculatorComponent } from './shared/components/profit-calculator/profit-calculator.component';
 import { AuthGuard } from './shared/guards/auth.guard';
 
 const routes: Routes = [
@@ -32,6 +33,10 @@ const routes: Routes = [
       import('./features/token-details/token-details.module').then(
         (m) => m.TokenDetailsModule
       ),
+  },
+  {
+    path: 'calculator',
+    component: ProfitCalculatorComponent,
   },
   {
     path: '**',

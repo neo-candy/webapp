@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { MessageService } from 'primeng/api';
-import { Observable } from 'rxjs';
-import { finalize, map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, finalize, map } from 'rxjs/operators';
 import { NeoInvokeWriteResponse } from '../models/n3';
 import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
 import { NeonJSService } from './neonjs.service';
@@ -40,7 +40,7 @@ export class UiService {
       severity: 'success',
       summary: 'Success',
       detail: msg,
-      life: 10000,
+      life: 5000,
       data: txId,
     });
   }
@@ -59,11 +59,13 @@ export class UiService {
     txid: string
   ): Observable<NeoInvokeWriteResponse> {
     this.globalState.set({ displayLoadingModal: true });
-    return this.neonjs
-      .awaitTx(txid)
-      .pipe(
-        finalize(() => this.globalState.set({ displayLoadingModal: false }))
-      );
+    return this.neonjs.awaitTx(txid).pipe(
+      catchError((e) => {
+        this.displayError(e);
+        return of();
+      }),
+      finalize(() => this.globalState.set({ displayLoadingModal: false }))
+    );
   }
 
   private mapToReadableErrorMessage(err: string): string {

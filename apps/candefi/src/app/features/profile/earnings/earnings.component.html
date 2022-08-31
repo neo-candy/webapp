@@ -1,5 +1,11 @@
 <ng-container *ngIf="state$ | async as s">
   <p-panel header="Earnings">
+    <div
+      style="border: 1px dashed gray; border-radius: 10px"
+      class="p-5 m-2 text-center cursor-pointer"
+    >
+      Click here to stake your Lollipop NFT <b>(currently disabled)</b>
+    </div>
     <p-table
       [loading]="s.isLoading"
       [value]="s.earnings"

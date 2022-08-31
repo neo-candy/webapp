@@ -1,0 +1,28 @@
+<ng-container *ngIf="state$ | async as s">
+  <p-panel header="Profit Calculator">
+    <p-table
+      [value]="s.values"
+      [loading]="s.isLoading"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th></th>
+          <th *ngFor="let col of s.cols">{{ col }}</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-value>
+        <tr>
+          <td class="font-bold">{{ value.strike | currency }}</td>
+          <td
+            *ngFor="let col of s.cols"
+            [ngClass]="value[col] > 0 ? 'positive-bg' : 'negative-bg'"
+          >
+            {{ value[col] | currency }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-panel>
+</ng-container>

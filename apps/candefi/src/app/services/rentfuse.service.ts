@@ -222,7 +222,7 @@ export class RentfuseService {
         args: [
           NeolineService.address(address),
           NeolineService.address(address),
-          NeolineService.int(amount),
+          NeolineService.int(amount * Math.pow(10, 8)),
           NeolineService.hash160(paymentToken),
         ],
       },

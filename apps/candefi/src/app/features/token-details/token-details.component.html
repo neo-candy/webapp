@@ -19,17 +19,17 @@
           <div class="font-bold">Token Details</div>
           <div class="hidden sm:inline">
             <span class="font-bold">Writer: </span
-            ><a [href]="'https://n3t4.neotube.io/address/' + s.token.writer">{{
+            ><a [href]="addressExplorer + s.token.writer">{{
               s.token.writer | truncateAddress
             }}</a
             >, <span class="font-bold">Owner: </span
             ><a
               *ngIf="s.token.owner !== rentfuseAddress"
-              [href]="'https://n3t4.neotube.io/address/' + s.token.owner"
+              [href]="addressExplorer + s.token.owner"
               >{{ s.token.owner | truncateAddress }}</a
             ><a
               *ngIf="s.token.owner === rentfuseAddress"
-              [href]="'https://n3t4.neotube.io/address/' + s.token.owner"
+              [href]="addressExplorer + s.token.owner"
               >Rentfuse</a
             >,
             {{ s.token.created | date }}

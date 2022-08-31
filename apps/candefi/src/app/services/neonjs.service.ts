@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, of, throwError, timer } from 'rxjs';
+import { from, merge, Observable, of, throwError, timer } from 'rxjs';
 import { rpc } from '@cityofzion/neon-js';
 import {
   catchError,
@@ -11,11 +11,13 @@ import {
   tap,
 } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { MessageService } from 'primeng/api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NeonJSService {
+  constructor(private msg: MessageService) {}
   public rpcRequest(
     method: string,
     params: any[],
@@ -41,13 +43,28 @@ export class NeonJSService {
     );
   }
 
+  //TODO: maybe refactor into it's own service class so the ui service can be injected
   public awaitTx(tx: string): Observable<any> {
-    return timer(0, 1000).pipe(
-      exhaustMap(() =>
-        this.applicationLog(tx).pipe(catchError(() => of(null)))
+    return merge(
+      timer(0, 1000).pipe(
+        exhaustMap(() =>
+          this.applicationLog(tx).pipe(catchError(() => of(null)))
+        ),
+        filter((res) => res != null),
+        take(1)
       ),
-      filter((res) => res != null),
-      take(1)
-    );
+      timer(60000).pipe(
+        tap(() =>
+          this.msg.add({
+            key: 'infoToast',
+            severity: 'info',
+            summary: 'Info',
+            detail:
+              'The confirmation is taking longer than usual. Please try again or notify an administrator.',
+            sticky: true,
+          })
+        )
+      )
+    ).pipe(take(1));
   }
 }
