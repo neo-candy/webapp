@@ -22,6 +22,8 @@ import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
 import { AuthGuard } from './guards/auth.guard';
 import { ProfitCalculatorComponent } from './components/profit-calculator/profit-calculator.component';
+import { FieldsetModule } from 'primeng/fieldset';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 @NgModule({
   declarations: [
@@ -50,6 +52,8 @@ import { ProfitCalculatorComponent } from './components/profit-calculator/profit
     MenuModule,
     DividerModule,
     TagModule,
+    FieldsetModule,
+    SelectButtonModule,
   ],
   exports: [
     CommonModule,
@@ -70,9 +74,11 @@ import { ProfitCalculatorComponent } from './components/profit-calculator/profit
     MenubarModule,
     ToolbarModule,
     CdTimerModule,
+    FieldsetModule,
     MenuModule,
     DividerModule,
     TagModule,
+    SelectButtonModule,
   ],
 })
 export class SharedModule {}

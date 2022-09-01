@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { RxState } from '@rx-angular/state';
 import { MenuItem, SelectItem } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-import { distinctUntilChanged, map, tap, timeout } from 'rxjs/operators';
+import { distinctUntilChanged, map, tap } from 'rxjs/operators';
 import {
   ContextService,
   LAST_VISITED_PROFILE_CTX_KEY,
@@ -73,6 +73,7 @@ export class MenuComponent extends RxState<MenuState> {
     {
       label: 'Profit Calculator',
       icon: 'pi pi-sliders-v',
+      routerLink: 'calculator',
     },
     {
       label: 'Contests',

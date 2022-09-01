@@ -1,5 +1,214 @@
 <ng-container *ngIf="state$ | async as s">
   <p-panel header="Profit Calculator">
+    <p-panel
+      header="Settings"
+      [toggleable]="true"
+      [collapsed]="s.settingsCollapsed"
+      (collapsedChange)="onSettingsToggled($event)"
+    >
+      <form [formGroup]="form" (ngSubmit)="doFilter()">
+        <div class="flex mt-5 ml-4">
+          <div class="grid p-fluid w-full">
+            <div class="lg:col-3 md:col-6 col-12">
+              <div class="mb-5 p-fluid">
+                <span class="p-float-label">
+                  <p-dropdown
+                    appendTo="body"
+                    formControlName="market"
+                    [options]="s.marketOptions"
+                  >
+                    <ng-template pTemplate="selectedItem" let-item>
+                      <div *ngIf="market">
+                        <div class="flex align-items-center">
+                          <img
+                            [src]="'assets/images/' + item.value + '.png'"
+                            width="15"
+                          />
+                          <div class="ml-2">{{ item.label }}</div>
+                        </div>
+                      </div>
+                    </ng-template>
+                    <ng-template let-item pTemplate="item">
+                      <div class="flex align-items-center">
+                        <img
+                          [src]="'assets/images/' + item.value + '.png'"
+                          width="15"
+                        />
+                        <div class="ml-2">{{ item.label }}</div>
+                      </div>
+                    </ng-template>
+                  </p-dropdown>
+                  <label for="market">Asset</label>
+                </span>
+              </div>
+            </div>
+            <div class="lg:col-3 md:col-6 col-12">
+              <div class="mb-5 p-fluid">
+                <span class="p-float-label">
+                  <input
+                    type="text"
+                    id="duration"
+                    pInputText
+                    [value]="
+                      duration.value[0] + ' - ' + duration.value[1] + ' days'
+                    "
+                    readonly
+                  />
+                  <p-slider
+                    formControlName="duration"
+                    [min]="1"
+                    [max]="180"
+                    [range]="true"
+                    [step]="1"
+                  >
+                  </p-slider>
+                  <label for="duration">Duration</label>
+                </span>
+              </div>
+            </div>
+            <div class="lg:col-3 md:col-6 col-12">
+              <div class="mb-5 p-fluid">
+                <span class="p-float-label">
+                  <input
+                    type="text"
+                    id="strikeRange"
+                    pInputText
+                    [value]="
+                      '$' + strikeRange.value[0] + ' - $' + strikeRange.value[1]
+                    "
+                    readonly
+                  />
+                  <p-slider
+                    formControlName="strikeRange"
+                    [min]="1"
+                    [max]="100"
+                    [range]="true"
+                    [step]="1"
+                  >
+                  </p-slider>
+                  <label for="strikeRange">Strike Range</label>
+                </span>
+              </div>
+            </div>
+            <div class="lg:col-3 md:col-6 col-12">
+              <span class="p-float-label">
+                <p-inputNumber
+                  formControlName="stake"
+                  suffix=" CANDY"
+                  id="stake"
+                ></p-inputNumber>
+                <label for="stake">Stake</label>
+              </span>
+            </div>
+            <div class="lg:col-3 md:col-6 col-12">
+              <span class="p-float-label">
+                <p-inputNumber
+                  formControlName="strike"
+                  prefix="$"
+                  id="strike"
+                ></p-inputNumber>
+                <label for="strike">Strike</label>
+              </span>
+            </div>
+            <div class="lg:col-3 md:col-6 col-12">
+              <span class="p-float-label">
+                <p-inputNumber
+                  formControlName="dailyFee"
+                  suffix=" GAS"
+                  mode="decimal"
+                  [minFractionDigits]="2"
+                  [maxFractionDigits]="2"
+                  formControlName="dailyFee"
+                  [min]="0.01"
+                ></p-inputNumber>
+                <label for="dailyFee">Daily Fee</label>
+              </span>
+            </div>
+            <div class="lg:col-3 md:col-6 col-12">
+              <p-selectButton
+                [options]="[
+                  { label: 'Call', value: 'call' },
+                  { label: 'Put', value: 'put' }
+                ]"
+                formControlName="type"
+                optionValue="value"
+                optionLabel="label"
+              ></p-selectButton>
+            </div>
+            <div class="lg:col-3 md:col-6 col-12">
+              <p-selectButton
+                [options]="[
+                  { label: 'Seller', value: true },
+                  { label: 'Buyer', value: false }
+                ]"
+                formControlName="seller"
+                optionValue="value"
+                optionLabel="label"
+              ></p-selectButton>
+            </div>
+            <div class="lg:col-3 md:col-6 col-12">
+              <p-checkbox
+                [binary]="true"
+                formControlName="final"
+                label="Subtract fees from profit"
+              ></p-checkbox>
+            </div>
+
+            <div class="col-12">
+              <p-fieldset
+                legend="Advanced"
+                [toggleable]="true"
+                [collapsed]="s.advancedSettingsCollapsed"
+                (collapsedChange)="onAdvancedSettingsToggled($event)"
+              >
+                <div class="grid w-full mt-2">
+                  <div class="lg:col-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                      <p-inputNumber
+                        formControlName="timeDecay"
+                      ></p-inputNumber>
+                      <label for="leverage">Time Decay</label>
+                    </span>
+                  </div>
+                  <div class="lg:col-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                      <p-inputNumber formControlName="leverage"></p-inputNumber>
+                      <label for="leverage">Leverage</label>
+                    </span>
+                  </div>
+                  <div class="lg:col-3 md:col-6 col-12">
+                    <span class="p-float-label">
+                      <p-inputNumber
+                        formControlName="initialValue"
+                        suffix=" CANDY"
+                      ></p-inputNumber>
+                      <label for="leverage">Initial Value</label>
+                    </span>
+                  </div>
+                  <div class="lg:col-3 md:col-6 col-12">
+                    <p-checkbox
+                      [binary]="true"
+                      formControlName="safe"
+                      label="Safe exercise"
+                    ></p-checkbox>
+                  </div>
+                </div>
+              </p-fieldset>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-content-end m-3">
+          <button
+            pButton
+            type="submit"
+            label="Calculate"
+            [icon]="
+              s.isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-chevron-right'
+            "
+          ></button>
+        </div>
+      </form>
+    </p-panel>
     <p-table
       [value]="s.values"
       [loading]="s.isLoading"
