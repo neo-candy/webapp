@@ -14,6 +14,10 @@ import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 import { combineLatest } from 'rxjs';
 import { isExpired } from '../../shared/utils';
 import { ProfitCalculatorParams } from '../../shared/components/profit-calculator/profit-calculator.component';
+import { RentDetailsComponent } from '../../shared/components/rent-details/rent-details.component';
+import { DialogService } from 'primeng/dynamicdialog';
+import { NeolineService } from '../../services/neoline.service';
+import { UiService } from '../../services/ui.service';
 
 enum TokenStatus {
   Unlisted = 0,
@@ -37,6 +41,7 @@ interface TokenDetailsState {
   selector: 'cd-token-details',
   templateUrl: './token-details.component.html',
   styleUrls: ['./token-details.component.scss'],
+  providers: [DialogService],
 })
 export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   tokenStatus = TokenStatus;
@@ -54,6 +59,9 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     private candefi: CandefiService,
     private rentfuse: RentfuseService,
     public theme: ThemeService,
+    private neoline: NeolineService,
+    private dialogService: DialogService,
+    private ui: UiService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
@@ -266,6 +274,18 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
           break;
         }
       }
+    } else {
+      switch (status) {
+        case TokenStatus.Listed: {
+          options.disabled = false;
+          options.items?.push({
+            label: 'Rent',
+            icon: 'pi pi-caret-right',
+            command: () => this.displayRentModal(this.get('token')),
+          });
+          break;
+        }
+      }
     }
     optionItems.push(options);
     return optionItems;
@@ -275,6 +295,31 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     const profit = this.candefi.calculateProfit(token, true, isExpired(token));
     token.profit = profit;
     return profit;
+  }
+
+  private displayRentModal(token: TokenWithListingOptionalRenting): void {
+    if (!this.globalState.get('address')) {
+      this.connectWallet();
+    } else {
+      const ref = this.dialogService.open(RentDetailsComponent, {
+        header: 'Rent NFT',
+        width: '70%',
+        data: {
+          token: token,
+        },
+      });
+      this.hold(ref.onClose.pipe(filter((v) => !!v)), () => ref.close());
+    }
+  }
+
+  private connectWallet(): void {
+    this.globalState.connect(
+      'address',
+      this.neoline.getAccount().pipe(
+        map((v) => v.address),
+        tap(() => this.ui.displaySuccess('Wallet connected'))
+      )
+    );
   }
 
   private goToProfitCalculator(): void {

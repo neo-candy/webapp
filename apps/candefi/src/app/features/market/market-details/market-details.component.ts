@@ -16,7 +16,7 @@ import {
 } from '../../../services/rentfuse.service';
 import { UiService } from '../../../services/ui.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
-import { RentDetailsComponent } from './rent-details/rent-details.component';
+import { RentDetailsComponent } from '../../../shared/components/rent-details/rent-details.component';
 
 interface MarketDetailsState {
   tokens: TokenWithListingOptionalRenting[];

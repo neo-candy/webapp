@@ -25,6 +25,7 @@ import { ProfitCalculatorComponent } from './components/profit-calculator/profit
 import { FieldsetModule } from 'primeng/fieldset';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ProfitCalculatorTableComponent } from './components/profit-calculator/project-calculator-table/profit-calculator-table.component';
+import { RentDetailsComponent } from './components/rent-details/rent-details.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { ProfitCalculatorTableComponent } from './components/profit-calculator/p
     MonitorComponent,
     ProfitCalculatorComponent,
     ProfitCalculatorTableComponent,
+    RentDetailsComponent,
   ],
   providers: [AuthGuard],
   imports: [
@@ -83,6 +85,7 @@ import { ProfitCalculatorTableComponent } from './components/profit-calculator/p
     SelectButtonModule,
     ProfitCalculatorComponent,
     ProfitCalculatorTableComponent,
+    RentDetailsComponent,
   ],
 })
 export class SharedModule {}

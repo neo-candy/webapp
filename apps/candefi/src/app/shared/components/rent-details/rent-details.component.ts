@@ -6,25 +6,25 @@ import {
   Validators,
 } from '@angular/forms';
 import { RxState } from '@rx-angular/state';
-import { environment } from '../../../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { combineLatest, of, Subject } from 'rxjs';
-import { CandefiToken } from '../../../../services/candefi.service';
+import { CandefiToken } from '../../../services/candefi.service';
 import {
   RentfuseService,
   TokenWithListingOptionalRenting,
-} from '../../../../services/rentfuse.service';
+} from '../../../services/rentfuse.service';
 import {
   GlobalState,
   GLOBAL_RX_STATE,
   Price,
-} from '../../../../state/global.state';
+} from '../../../state/global.state';
 import {
   ProfitCalculatorComponent,
   ProfitCalculatorParams,
   TableValue,
-} from '../../../../shared/components/profit-calculator/profit-calculator.component';
-import { generateNumberArray } from '../../../../shared/utils';
+} from '../profit-calculator/profit-calculator.component';
+import { generateNumberArray } from '../../utils';
 import { map, mergeMap, tap } from 'rxjs/operators';
 
 interface RentDetailsState {
