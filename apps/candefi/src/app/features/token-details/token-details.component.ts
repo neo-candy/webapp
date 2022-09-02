@@ -13,6 +13,7 @@ import { ThemeService } from '../../services/theme.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 import { combineLatest } from 'rxjs';
 import { isExpired } from '../../shared/utils';
+import { ProfitCalculatorParams } from '../../shared/components/profit-calculator/profit-calculator.component';
 
 enum TokenStatus {
   Unlisted = 0,
@@ -58,10 +59,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     super();
     this.set({ isLoading: true });
     this.set({
-      optionItems: [
-        { label: 'Profit Calculator', icon: 'pi pi-sliders-v', disabled: true },
-        { label: 'Options', icon: 'pi pi-cog', disabled: true },
-      ],
+      optionItems: [{ label: 'Options', icon: 'pi pi-cog', disabled: true }],
     });
     this.connect('base64TokenId', this.fetchTokenId$);
     this.connect(
@@ -94,6 +92,11 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
         filter((token) => !!token.renting),
         map((token) => this.calculateBorrowerProfit(token))
       )
+    );
+
+    this.connect(
+      'optionItems',
+      this.select('token').pipe(map((token) => this.mapOptionItems('', token)))
     );
 
     this.connect(
@@ -186,13 +189,17 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
       items: [],
       disabled: true,
     };
+
     const profitCalculator: MenuItem = {
       label: 'Profit Calculator',
       icon: 'pi pi-sliders-v',
-      disabled: false,
+      command: () => this.goToProfitCalculator(),
     };
 
     const status = this.mapTokenStatus(token);
+    if (status === TokenStatus.Listed) {
+      optionItems.push(profitCalculator);
+    }
     if (address === token.writer) {
       switch (status) {
         case TokenStatus.Unlisted: {
@@ -202,10 +209,17 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
             icon: 'pi pi-eject',
             command: () => this.burn(),
           });
-          profitCalculator.disabled = true;
           break;
         }
-        case TokenStatus.Listed:
+        case TokenStatus.Listed: {
+          options.disabled = false;
+          options.items?.push({
+            label: 'Close Listing',
+            icon: 'pi pi-trash',
+            command: () => this.closeListing(),
+          });
+          break;
+        }
         case TokenStatus.Cancelled: {
           options.disabled = false;
           options.items?.push({
@@ -253,7 +267,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
         }
       }
     }
-    optionItems.push(profitCalculator, options);
+    optionItems.push(options);
     return optionItems;
   }
 
@@ -261,5 +275,29 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     const profit = this.candefi.calculateProfit(token, true, isExpired(token));
     token.profit = profit;
     return profit;
+  }
+
+  private goToProfitCalculator(): void {
+    const token = this.get('token');
+    const queryParams: ProfitCalculatorParams = {
+      dailyFee: token.listing.gasPerMinute * 60 * 24,
+      fromDays: token.listing.minMinutes / 60 / 24,
+      toDays: token.listing.maxMinutes / 60 / 24,
+      fromStrike: token.strike - 5 < 1 ? 1 : token.strike - 5,
+      toStrike: token.strike + 5,
+      initialValue: token.leverage > 0 ? token.value : token.stake,
+      isSafe: token.safe,
+      leverage: token.leverage,
+      seller: false,
+      stake: token.stake,
+      strike: token.strike,
+      final: true,
+      timeDecay: token.timeDecay,
+      type: token.type === 'Call' ? 'call' : 'put',
+    };
+
+    this.router.navigate(['calculator'], {
+      queryParams: queryParams,
+    });
   }
 }

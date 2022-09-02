@@ -24,12 +24,14 @@ import { AuthGuard } from './guards/auth.guard';
 import { ProfitCalculatorComponent } from './components/profit-calculator/profit-calculator.component';
 import { FieldsetModule } from 'primeng/fieldset';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { ProfitCalculatorTableComponent } from './components/profit-calculator/project-calculator-table/profit-calculator-table.component';
 
 @NgModule({
   declarations: [
     TruncateAddressPipe,
     MonitorComponent,
     ProfitCalculatorComponent,
+    ProfitCalculatorTableComponent,
   ],
   providers: [AuthGuard],
   imports: [
@@ -79,6 +81,8 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     DividerModule,
     TagModule,
     SelectButtonModule,
+    ProfitCalculatorComponent,
+    ProfitCalculatorTableComponent,
   ],
 })
 export class SharedModule {}

@@ -301,8 +301,15 @@
       </form>
     </div>
     <div [hidden]="s.activeMenuIndex !== 2">
-      <p-panel header="General"
-        ><p-table [value]="[0]">
+      <p-panel header="Profit Calculator">
+        <cd-profit-calculator-table
+          [isLoading]="false"
+          [cols]="s.cols"
+          [values]="s.values"
+        ></cd-profit-calculator-table> </p-panel
+      ><br />
+      <p-panel header="Basic">
+        <p-table [value]="[0]">
           <ng-template pTemplate="body">
             <tr>
               <td>Type</td>

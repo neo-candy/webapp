@@ -225,52 +225,52 @@
             </div>
           </div></div
       ></p-panel>
-    </p-panel>
-    <p-panel
-      header="Renting"
-      *ngIf="
-        s.token.renting &&
-        (s.status === tokenStatus.Rented || s.status === tokenStatus.Expired)
-      "
-    >
-      <div class="flex">
-        <div class="grid p-fluid w-full">
-          <div class="md:col-4 col-12">
-            <div class="flex flex-column">
-              <div class="font-bold mb-1">Duration:</div>
-              <input
-                pInputText
-                [ngModel]="s.token.renting.duration / 60 / 24 + ' day(s)'"
-              />
+      <p-panel
+        header="Renting"
+        *ngIf="
+          s.token.renting &&
+          (s.status === tokenStatus.Rented || s.status === tokenStatus.Expired)
+        "
+      >
+        <div class="flex m-3">
+          <div class="grid p-fluid w-full">
+            <div class="md:col-4 col-12">
+              <div class="flex flex-column">
+                <div class="font-bold mb-1">Duration:</div>
+                <input
+                  pInputText
+                  [ngModel]="s.token.renting.duration / 60 / 24 + ' day(s)'"
+                />
+              </div>
             </div>
-          </div>
-          <div class="md:col-4 col-12">
-            <div class="flex flex-column">
-              <div class="font-bold mb-1">Effective Date:</div>
-              <p-calendar
-                [readonlyInput]="true"
-                [ngModel]="s.effectiveDate"
-                [showTime]="true"
-                [showOnFocus]="false"
-              ></p-calendar>
+            <div class="md:col-4 col-12">
+              <div class="flex flex-column">
+                <div class="font-bold mb-1">Effective Date:</div>
+                <p-calendar
+                  [readonlyInput]="true"
+                  [ngModel]="s.effectiveDate"
+                  [showTime]="true"
+                  [showOnFocus]="false"
+                ></p-calendar>
+              </div>
             </div>
-          </div>
-          <div class="md:col-4 col-12">
-            <div class="flex flex-column">
-              <div class="font-bold mb-1">Profit:</div>
-              <p-inputNumber
-                [ngModel]="s.profit"
-                [readonly]="true"
-                mode="currency"
-                currency="USD"
-                locale="en-US"
-                [minFractionDigits]="2"
-                [maxFractionDigits]="2"
-              ></p-inputNumber>
-            </div>
+            <!-- <div class="md:col-4 col-12">
+              <div class="flex flex-column">
+                <div class="font-bold mb-1">Profit:</div>
+                <p-inputNumber
+                  [ngModel]="s.profit"
+                  [readonly]="true"
+                  mode="currency"
+                  currency="USD"
+                  locale="en-US"
+                  [minFractionDigits]="2"
+                  [maxFractionDigits]="2"
+                ></p-inputNumber>
+              </div>
+            </div> -->
           </div>
         </div>
-      </div>
+      </p-panel>
     </p-panel>
   </div>
   <ng-template #loading>

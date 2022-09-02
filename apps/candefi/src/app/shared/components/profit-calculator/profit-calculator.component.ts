@@ -15,13 +15,14 @@ import {
   GLOBAL_RX_STATE,
   Price,
 } from '../../../state/global.state';
+import { generateNumberArray } from '../../utils';
 
-interface TableValue {
+export interface TableValue {
   strike: number;
   [day: number]: number;
 }
 
-interface QueryParams {
+export interface ProfitCalculatorParams {
   stake: number;
   initialValue: number;
   strike: number;
@@ -40,7 +41,7 @@ interface QueryParams {
 
 interface ProfitCalculatorState {
   isLoading: boolean;
-  params: QueryParams;
+  params: ProfitCalculatorParams;
   values: TableValue[];
   cols: number[];
   marketOptions: SelectItem[];
@@ -105,12 +106,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
     this.connect(
       'cols',
       this.select('params').pipe(
-        map((params) =>
-          ProfitCalculatorComponent.generateNumberArray(
-            params.fromDays,
-            params.toDays
-          )
-        )
+        map((params) => generateNumberArray(params.fromDays, params.toDays))
       )
     );
     this.connect(
@@ -120,19 +116,92 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
         this.globalState.select('gasPrice'),
         this.globalState.select('candyPrice'),
       ]).pipe(
-        map((params: [QueryParams, Price, Price]) =>
-          this.mapToTableValues(params[0], params[1].curr, params[2].curr)
+        map((params: [ProfitCalculatorParams, Price, Price]) =>
+          ProfitCalculatorComponent.mapToTableValues(
+            params[0],
+            params[1].curr,
+            params[2].curr
+          )
         )
       )
     );
     this.connect('isLoading', this.select('values').pipe(map(() => false)));
   }
 
-  private static generateNumberArray(from: number, to: number): number[] {
-    return Array.from({ length: to - from + 1 }, (_, i) => i + from);
+  public static mapToTableValues(
+    params: ProfitCalculatorParams,
+    gasPrice: number,
+    candyPrice: number
+  ): TableValue[] {
+    const result: TableValue[] = [];
+    const cols: number[] = generateNumberArray(params.fromDays, params.toDays);
+    for (let i = params.toStrike; i >= params.fromStrike; i--) {
+      const calculations = cols.reduce(
+        (prev, curr) => ({
+          ...prev,
+          [curr]: this.calculateValue(params, curr, i, gasPrice, candyPrice),
+        }),
+        {}
+      );
+      result.push({ strike: i, ...calculations });
+    }
+    return result;
   }
 
-  private static mapToQueryParams(params: Params): QueryParams {
+  private static calculateValue(
+    params: ProfitCalculatorParams,
+    columnDay: number,
+    rowStrike: number,
+    gasPrice: number,
+    candyPrice: number
+  ): number {
+    const gasFee = params.dailyFee * columnDay * gasPrice;
+    const timeDecay = params.timeDecay * MS_PER_DAY * columnDay;
+    const candyStakeWithTimeDecayMalus =
+      (params.initialValue * Math.pow(10, 9) - timeDecay) / Math.pow(10, 9);
+    const priceDelta =
+      params.type === 'call'
+        ? rowStrike - params.strike
+        : params.strike - rowStrike;
+    const leverage =
+      (params.leverage * (priceDelta * Math.pow(10, 8))) / Math.pow(10, 9);
+    const candyValue = (candyStakeWithTimeDecayMalus + leverage) * candyPrice;
+
+    let result = 0;
+
+    if (params.type === 'call') {
+      if (params.isSafe) {
+        if (params.strike <= rowStrike) {
+          result = candyValue - (params.final ? gasFee : 0);
+        } else {
+          result = -gasFee;
+        }
+      } else {
+        result = candyValue - (params.final ? gasFee : 0);
+      }
+    } else if (params.type === 'put') {
+      if (params.isSafe) {
+        if (params.strike >= rowStrike) {
+          result = candyValue - (params.final ? gasFee : 0);
+        } else {
+          result = -gasFee;
+        }
+      } else {
+        result = candyValue - (params.final ? gasFee : 0);
+      }
+    }
+    const maxValue = params.stake * candyPrice;
+    const minValue = -gasFee;
+    if (result > maxValue) {
+      result = maxValue;
+    }
+    if (result < minValue) {
+      result = minValue;
+    }
+    return params.seller ? result * -1 : result;
+  }
+
+  private static mapToQueryParams(params: Params): ProfitCalculatorParams {
     return {
       stake: isNaN(params['stake']) ? 50000 : Number(params['stake']),
       initialValue: isNaN(params['initialValue'])
@@ -155,7 +224,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
     };
   }
 
-  private initializeForm(params: QueryParams): void {
+  private initializeForm(params: ProfitCalculatorParams): void {
     this.form = this.fb.group({
       duration: [[params.fromDays, params.toDays]],
       strikeRange: [[params.fromStrike, params.toStrike]],
@@ -182,7 +251,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
   }
 
   doFilter(): void {
-    const queryParams: QueryParams = {
+    const queryParams: ProfitCalculatorParams = {
       dailyFee: this.dailyFee.value,
       fromDays: this.duration.value[0],
       toDays: this.duration.value[1],
@@ -307,81 +376,5 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
       throw new Error('initialValue_noControl');
     }
     return control;
-  }
-
-  private mapToTableValues(
-    params: QueryParams,
-    gasPrice: number,
-    candyPrice: number
-  ): TableValue[] {
-    const result: TableValue[] = [];
-    const cols: number[] = ProfitCalculatorComponent.generateNumberArray(
-      params.fromDays,
-      params.toDays
-    );
-    for (let i = params.toStrike; i >= params.fromStrike; i--) {
-      const calculations = cols.reduce(
-        (prev, curr) => ({
-          ...prev,
-          [curr]: this.calculateValue(params, curr, i, gasPrice, candyPrice),
-        }),
-        {}
-      );
-      result.push({ strike: i, ...calculations });
-    }
-    return result;
-  }
-
-  private calculateValue(
-    params: QueryParams,
-    columnDay: number,
-    rowStrike: number,
-    gasPrice: number,
-    candyPrice: number
-  ): number {
-    const gasFee = params.dailyFee * columnDay * gasPrice;
-    const timeDecay = params.timeDecay * MS_PER_DAY * columnDay;
-    const candyStakeWithTimeDecayMalus =
-      (params.initialValue * Math.pow(10, 9) - timeDecay) / Math.pow(10, 9);
-    const priceDelta =
-      params.type === 'call'
-        ? rowStrike - params.strike
-        : params.strike - rowStrike;
-    const leverage =
-      (params.leverage * (priceDelta * Math.pow(10, 8))) / Math.pow(10, 9);
-    const candyValue = (candyStakeWithTimeDecayMalus + leverage) * candyPrice;
-
-    let result = 0;
-
-    if (params.type === 'call') {
-      if (params.isSafe) {
-        if (params.strike <= rowStrike) {
-          result = candyValue - (params.final ? gasFee : 0);
-        } else {
-          result = -gasFee;
-        }
-      } else {
-        result = candyValue - (params.final ? gasFee : 0);
-      }
-    } else if (params.type === 'put') {
-      if (params.isSafe) {
-        if (params.strike >= rowStrike) {
-          result = candyValue - (params.final ? gasFee : 0);
-        } else {
-          result = -gasFee;
-        }
-      } else {
-        result = candyValue - (params.final ? gasFee : 0);
-      }
-    }
-    const maxValue = params.stake * candyPrice;
-    const minValue = -gasFee;
-    if (result > maxValue) {
-      result = maxValue;
-    }
-    if (result < minValue) {
-      result = minValue;
-    }
-    return params.seller ? result * -1 : result;
   }
 }

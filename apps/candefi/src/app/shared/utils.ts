@@ -21,3 +21,7 @@ export function isExpired(token: TokenWithListingOptionalRenting): boolean {
     new Date().getTime()
   );
 }
+
+export function generateNumberArray(from: number, to: number): number[] {
+  return Array.from({ length: to - from + 1 }, (_, i) => i + from);
+}

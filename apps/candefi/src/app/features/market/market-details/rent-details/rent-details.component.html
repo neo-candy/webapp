@@ -1,4 +1,11 @@
 <ng-container *ngIf="state$ | async as s">
+  <p-panel header="Profit Calculator">
+    <cd-profit-calculator-table
+      [isLoading]="false"
+      [cols]="s.cols"
+      [values]="s.values"
+    ></cd-profit-calculator-table> </p-panel
+  ><br />
   <p-panel header="Basic">
     <p-table [value]="[s.token]" responsiveLayout="scroll">
       <ng-template pTemplate="body" let-token>
@@ -27,6 +34,18 @@
             }}</a>
           </td>
         </tr>
+        <tr>
+          <td>Safe</td>
+          <td>
+            <div class="text-right">
+              <p-checkbox
+                [ngModel]="token.safe"
+                [binary]="true"
+                [readonly]="true"
+              ></p-checkbox>
+            </div>
+          </td>
+        </tr>
       </ng-template>
     </p-table> </p-panel
   ><br />
@@ -46,20 +65,8 @@
           <td>Leverage</td>
           <td class="text-right">{{ token.leverage }}</td>
         </tr>
-
-        <tr>
-          <td>Safe</td>
-          <td>
-            <div class="text-right">
-              <p-checkbox
-                [ngModel]="token.safe"
-                [binary]="true"
-                [readonly]="true"
-              ></p-checkbox>
-            </div>
-          </td>
-        </tr>
-      </ng-template> </p-table></p-panel
+      </ng-template>
+    </p-table></p-panel
   ><br />
   <p-panel header="Renting">
     <p-table [value]="[s.token]" responsiveLayout="scroll">
@@ -88,14 +95,16 @@
   >
 
   <div class="mt-5">
-    <form [formGroup]="formGroup" (ngSubmit)="startRenting()">
+    <form [formGroup]="form" (ngSubmit)="startRenting()">
       <div class="flex justify-content-end mb-5">
         <div>
           <input
-            [ngClass]="{ 'ng-invalid ng-dirty': !duration }"
+            [ngClass]="{ 'ng-invalid ng-dirty': !duration.value }"
             type="text"
             pInputText
-            [value]="duration ? duration + ' days' : 'Choose the duration'"
+            [value]="
+              duration.value ? duration.value + ' days' : 'Choose the duration'
+            "
             readonly
           />
           <div style="width: 223px">
@@ -121,7 +130,7 @@
               <td>Renting fee</td>
               <td class="text-right">
                 {{
-                  token.listing.gasPerMinute * 60 * 24 * duration
+                  token.listing.gasPerMinute * 60 * 24 * duration.value
                     | number: '1.2-3'
                 }}
                 GAS
@@ -132,7 +141,7 @@
               <td class="text-right">
                 {{
                   token.listing.collateral +
-                    token.listing.gasPerMinute * 60 * 24 * duration
+                    token.listing.gasPerMinute * 60 * 24 * duration.value
                     | number: '1.2-3'
                 }}
                 GAS
@@ -148,14 +157,7 @@
           <span class="ml-2">I understand the <a href="">risks</a></span>
         </div>
 
-        <div class="flex justify-content-between flex-wrap">
-          <button
-            pButton
-            label="Profit Calculator"
-            class="mt-3 p-button-outlined p-button-secondary"
-            icon="pi pi-sliders-v"
-            type="button"
-          ></button>
+        <div class="flex justify-content-end">
           <div class="mt-3">
             <button
               pButton
@@ -171,7 +173,7 @@
               label="Confirm"
               icon="pi pi-check"
               type="submit"
-              [disabled]="!formGroup.valid"
+              [disabled]="!form.valid"
             ></button>
           </div>
         </div>
