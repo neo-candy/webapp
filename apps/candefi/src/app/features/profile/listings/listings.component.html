@@ -127,11 +127,13 @@
               <tr>
                 <th>ID</th>
                 <th>Stake</th>
-                <th>Value</th>
+                <th>Initial value</th>
                 <th>Strike</th>
                 <th>Remaining</th>
                 <th>Effective date</th>
                 <th>Safe</th>
+                <th>Earned fees</th>
+                <th>Current value</th>
                 <th>Profit</th>
               </tr>
             </ng-template>
@@ -175,7 +177,6 @@
                       | date: 'medium'
                   }}
                 </td>
-
                 <td>
                   <p-checkbox
                     [ngModel]="token.safe"
@@ -184,14 +185,20 @@
                   ></p-checkbox>
                 </td>
                 <td>
+                  {{ token.paidFees | currency }}
+                </td>
+                <td>
+                  {{ token.nftValue | currency }}
+                </td>
+                <td>
                   <div
                     class="flex align-items-center"
                     [ngClass]="{
-                      'negative-price': token.profit < 0,
-                      'positive-price': token.profit >= 0
+                      'negative-price': token.delta < 0,
+                      'positive-price': token.delta >= 0
                     }"
                   >
-                    {{ calculateLenderProfit(token) | currency }}
+                    {{ token.delta | currency }}
                   </div>
                 </td>
               </tr>
@@ -255,7 +262,7 @@
                       'positive-price': token.profit >= 0
                     }"
                   >
-                    {{ calculateLenderProfit(token) | currency }}
+                    <!-- {{ calculateValue(token) | currency }} -->
                   </div>
                 </td>
               </tr>

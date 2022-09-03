@@ -22,6 +22,10 @@ import {
   TokenWithListingOptionalRenting,
 } from '../../../services/rentfuse.service';
 import { ThemeService } from '../../../services/theme.service';
+import {
+  ProfitCalculatorComponent,
+  ProfitCalculatorParams,
+} from '../../../shared/components/profit-calculator/profit-calculator.component';
 import { isExpired } from '../../../shared/utils';
 import {
   GlobalState,
@@ -29,6 +33,11 @@ import {
   Price,
 } from '../../../state/global.state';
 
+interface TokenWithNFTValue extends TokenWithListingOptionalRenting {
+  nftValue: number;
+  paidFees: number;
+  delta: number;
+}
 type LayoutChangeEvent = { value: string };
 const FILTER_VALUE_CALL = 'call';
 const FILTER_VALUE_PUT = 'put';
@@ -38,8 +47,8 @@ interface ListingState {
   isLoading: boolean;
   tokens: TokenWithListingOptionalRenting[];
   pendingTokens: TokenWithListingOptionalRenting[];
-  activeTokens: TokenWithListingOptionalRenting[];
-  expiredTokens: TokenWithListingOptionalRenting[];
+  activeTokens: TokenWithNFTValue[];
+  expiredTokens: TokenWithNFTValue[];
   neoPrice: Price;
 }
 
@@ -135,6 +144,9 @@ export class ListingsComponent extends RxState<ListingState> {
                   !isExpired(listing) &&
                   listing.owner === listing.renting.borrower
               )
+            ),
+            map((listings) =>
+              listings.map((listing) => this.mapNFTValue(listing))
             )
           )
         )
@@ -154,6 +166,9 @@ export class ListingsComponent extends RxState<ListingState> {
                   isExpired(listing) &&
                   listing.owner === listing.renting.borrower
               )
+            ),
+            map((listings) =>
+              listings.map((listing) => this.mapNFTValue(listing))
             )
           )
         )
@@ -167,9 +182,56 @@ export class ListingsComponent extends RxState<ListingState> {
     this.router.navigate(['/tokens/' + atob(tokenId)]);
   }
 
-  calculateLenderProfit(token: TokenWithListingOptionalRenting): number {
-    const profit = this.candefi.calculateProfit(token, false, isExpired(token));
-    token.profit = profit;
-    return profit;
+  private mapNFTValue(
+    token: TokenWithListingOptionalRenting
+  ): TokenWithNFTValue {
+    if (!token.renting) {
+      throw new Error('mapNFTValue_noRenting');
+    }
+
+    const value = this.calculateValue(token);
+    const paidFees =
+      token.listing.gasPerMinute *
+      token.renting?.duration *
+      this.globalState.get('gasPrice').curr;
+    return {
+      ...token,
+      delta: paidFees - value,
+      nftValue: value,
+      paidFees: paidFees,
+    };
+  }
+
+  private calculateValue(token: TokenWithListingOptionalRenting): number {
+    const params: ProfitCalculatorParams = {
+      dailyFee: token.listing.gasPerMinute * 60 * 24,
+      final: false,
+      fromDays: 0,
+      toDays: 0,
+      fromStrike: 0,
+      toStrike: 0,
+      initialValue: token.value,
+      isSafe: token.safe,
+      leverage: token.leverage,
+      seller: false,
+      stake: token.stake,
+      strike: token.strike,
+      timeDecay: token.timeDecay,
+      type: token.type === 'Call' ? 'call' : 'put',
+    };
+    if (!token.renting) {
+      throw new Error('calculateLenderProfit_noRenting');
+    }
+    const durationInDays =
+      (new Date().getTime() - token.renting.startedAt) / 1000 / 60 / 60 / 24;
+
+    const calculatedValue = ProfitCalculatorComponent.calculateValue(
+      params,
+      durationInDays,
+      this.globalState.get('neoPrice').curr,
+      this.globalState.get('gasPrice').curr,
+      this.globalState.get('candyPrice').curr
+    );
+    return calculatedValue;
   }
 }

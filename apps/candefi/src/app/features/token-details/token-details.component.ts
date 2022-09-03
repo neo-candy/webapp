@@ -210,6 +210,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     };
 
     const status = this.mapTokenStatus(token);
+    optionItems.push(profitCalculator);
     if (status === TokenStatus.Listed) {
       optionItems.push(profitCalculator);
     }
@@ -297,8 +298,9 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   }
 
   calculateBorrowerProfit(token: TokenWithListingOptionalRenting): number {
-    const profit = this.candefi.calculateProfit(token, true, isExpired(token));
-    token.profit = profit;
+    //const profit = this.candefi.calculateProfit(token, true, isExpired(token));
+    const profit = 0;
+    //token.profit = profit;
     return profit;
   }
 

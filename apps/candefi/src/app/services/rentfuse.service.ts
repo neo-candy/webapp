@@ -33,7 +33,6 @@ export interface Renting {
 export type TokenWithListingOptionalRenting = CandefiToken & {
   listing: Listing;
   renting?: Renting;
-  profit?: number;
 };
 
 @Injectable({ providedIn: 'root' })

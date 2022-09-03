@@ -149,7 +149,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
     return result;
   }
 
-  private static calculateValue(
+  public static calculateValue(
     params: ProfitCalculatorParams,
     columnDay: number,
     rowStrike: number,

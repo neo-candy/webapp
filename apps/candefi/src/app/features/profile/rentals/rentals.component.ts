@@ -124,8 +124,9 @@ export class RentalsComponent extends RxState<RentalState> {
   }
 
   calculateBorrowerProfit(token: TokenWithListingOptionalRenting): number {
-    const profit = this.candefi.calculateProfit(token, true, isExpired(token));
-    token.profit = profit;
+    /* const profit = this.candefi.calculateProfit(token, true, isExpired(token));
+    token.profit = profit; */
+    const profit = 0;
     return profit;
   }
 

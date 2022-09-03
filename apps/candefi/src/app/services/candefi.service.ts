@@ -280,60 +280,28 @@ export class CandefiService {
       );
   }
 
-  public calculateProfit(
-    token: TokenWithListingOptionalRenting,
-    borrower: boolean,
-    expired?: boolean
-  ): number {
-    if (!token.renting) {
-      throw new Error('calculateBorrowerProfit_noRenting');
-    }
-    const paidGas =
-      token.listing.gasPerMinute *
-      token.renting.duration *
-      this.globalState.get('gasPrice').curr;
-    if (expired) {
-      return borrower ? -paidGas : paidGas;
-    }
-    if (token.safe) {
-      if (
-        token.type === 'Call' &&
-        token.strike > this.globalState.get('neoPrice').curr
-      ) {
-        return -paidGas;
-      }
-      if (
-        token.type === 'Put' &&
-        token.strike < this.globalState.get('neoPrice').curr
-      ) {
-        return -paidGas;
-      }
-    }
-    const candyValue = token.stake * this.globalState.get('candyPrice').curr;
-    if (borrower) {
-      return candyValue - paidGas;
-    }
-    return paidGas - candyValue;
-  }
-
   private mapToken(v: TokenProperties): CandefiToken {
     const strike = Number(
       v.attributes.filter((a) => a.trait_type === 'Strike')[0].value
     );
     const neoPrice = this.globalState.get('neoPrice').curr * Math.pow(10, 8);
-    const delta = neoPrice - strike;
     const leverage = Number(
       v.attributes.filter((a) => a.trait_type === 'Leverage')[0].value
     );
     const stake = Number(
       v.attributes.filter((a) => a.trait_type === 'Stake')[0].value
     );
-    const result = delta * leverage;
+    const priceDelta = neoPrice - strike;
+    const leverageChange = priceDelta * leverage;
     const value = Number(
       v.attributes.filter((a) => a.trait_type === 'Value')[0].value
     );
-    const updatedValue =
-      value + result > stake ? stake : value + result < 0 ? 0 : value + result;
+    const valueWithLeverage =
+      value + leverageChange > stake
+        ? stake
+        : value + leverageChange < 0
+        ? 0
+        : value + leverageChange;
 
     return {
       tokenId: btoa(v.tokenId),
@@ -368,7 +336,7 @@ export class CandefiService {
       leverage: Number(
         v.attributes.filter((a) => a.trait_type === 'Leverage')[0].value
       ),
-      value: updatedValue / Math.pow(10, 9),
+      value: valueWithLeverage / Math.pow(10, 9),
       created: Number(
         v.attributes.filter((a) => a.trait_type === 'Created')[0].value
       ),
