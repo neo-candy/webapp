@@ -37,13 +37,16 @@ export class ProfileComponent extends RxState<ProfileState> {
           command: () =>
             this.context.put(LAST_VISITED_PROFILE_CTX_KEY, 'earnings'),
         },
-        {
-          label: 'History',
-          disabled: true,
-          routerLinkActiveOptions: { exact: true },
-        },
+
         {
           label: 'Achievments',
+          routerLink: ['achievements'],
+          routerLinkActiveOptions: { exact: true },
+          command: () =>
+            this.context.put(LAST_VISITED_PROFILE_CTX_KEY, 'achievements'),
+        },
+        {
+          label: 'History',
           disabled: true,
           routerLinkActiveOptions: { exact: true },
         },

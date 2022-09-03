@@ -5,6 +5,7 @@ import { ListingsComponent } from './listings/listings.component';
 import { ProfileComponent } from './profile.component';
 import { RentalsComponent } from './rentals/rentals.component';
 import { EarningsComponent } from './earnings/earnings.component';
+import { AchievementsComponent } from './achievements/achievements.component';
 
 const routes: Routes = [
   {
@@ -26,6 +27,10 @@ const routes: Routes = [
       {
         path: 'earnings',
         component: EarningsComponent,
+      },
+      {
+        path: 'achievements',
+        component: AchievementsComponent,
       },
     ],
   },

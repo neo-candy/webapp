@@ -204,18 +204,23 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
   }
 
   private static mapToQueryParams(params: Params): ProfitCalculatorParams {
+    const strike = isNaN(params['strike']) ? 10 : Number(params['strike']);
     return {
       stake: isNaN(params['stake']) ? 50000 : Number(params['stake']),
       initialValue: isNaN(params['initialValue'])
         ? 50000
         : Number(params['initialValue']),
-      strike: isNaN(params['strike']) ? 1 : Number(params['strike']),
+      strike: strike,
       fromDays: isNaN(params['fromDays']) ? 1 : Number(params['fromDays']),
       toDays: isNaN(params['toDays']) ? 10 : Number(params['toDays']),
       fromStrike: isNaN(params['fromStrike'])
-        ? 1
+        ? strike - 5 < 1
+          ? 1
+          : strike - 5
         : Number(params['fromStrike']),
-      toStrike: isNaN(params['toStrike']) ? 10 : Number(params['toStrike']),
+      toStrike: isNaN(params['toStrike'])
+        ? strike + 5
+        : Number(params['toStrike']),
       isSafe: params['isSafe'] === 'false' ? false : true,
       type: params['type'] == 'put' ? 'put' : 'call',
       dailyFee: isNaN(params['dailyFee']) ? 0.5 : Number(params['dailyFee']),

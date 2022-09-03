@@ -9,6 +9,8 @@ import { RentalsComponent } from './rentals/rentals.component';
 import { StorageComponent } from './storage/storage.component';
 import { CardModule } from 'primeng/card';
 import { EarningsComponent } from './earnings/earnings.component';
+import { AchievementsComponent } from './achievements/achievements.component';
+import { DataViewModule } from 'primeng/dataview';
 
 @NgModule({
   declarations: [
@@ -17,8 +19,15 @@ import { EarningsComponent } from './earnings/earnings.component';
     RentalsComponent,
     StorageComponent,
     EarningsComponent,
+    AchievementsComponent,
   ],
-  imports: [CommonModule, ProfileRoutingModule, SharedModule, CardModule],
+  imports: [
+    CommonModule,
+    ProfileRoutingModule,
+    SharedModule,
+    CardModule,
+    DataViewModule,
+  ],
   exports: [ProfileComponent],
 })
 export class ProfileModule {}
