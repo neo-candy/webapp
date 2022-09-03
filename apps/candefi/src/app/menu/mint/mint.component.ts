@@ -397,7 +397,7 @@ export class MintComponent extends RxState<MintState> implements OnInit {
 
     this.hold(this.form.controls['collateralOption1'].valueChanges, (v) => {
       if (v) {
-        this.setCollateral(Number(v));
+        this.setCollateral(Number(v) + 0.1); //to avoid error message that 200% is not enough, because of price flucutation that could happen in between
         if (this.collateralOption2.value) {
           this.collateralOption2.reset();
         }

@@ -25,7 +25,9 @@ import {
   TableValue,
 } from '../profit-calculator/profit-calculator.component';
 import { generateNumberArray } from '../../utils';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { MenuItem } from 'primeng/api';
 
 interface RentDetailsState {
   token: TokenWithListingOptionalRenting;
@@ -33,6 +35,7 @@ interface RentDetailsState {
   displayConfirmBtn: boolean;
   cols: number[];
   values: TableValue[];
+  menuItems: MenuItem[];
 }
 
 @Component({
@@ -50,9 +53,24 @@ export class RentDetailsComponent
     private config: DynamicDialogConfig,
     private fb: FormBuilder,
     private ref: DynamicDialogRef,
+    private router: Router,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
+    this.set({
+      menuItems: [
+        {
+          label: 'Profit Calculator',
+          icon: 'pi pi-sliders-v',
+          command: () => this.goToProfitCalculator(),
+        },
+        {
+          label: 'Details',
+          icon: 'pi pi-search',
+          command: () => this.goToDetailsPage(),
+        },
+      ],
+    });
   }
 
   form: FormGroup = new FormGroup({});
@@ -61,7 +79,8 @@ export class RentDetailsComponent
     const token = this.config.data.token as TokenWithListingOptionalRenting;
     this.set({ token });
     const minDay = token.listing.minMinutes / 60 / 24;
-    this.set({ cols: generateNumberArray(minDay, minDay + 9) });
+    const maxDay = token.listing.maxMinutes / 60 / 24;
+    this.set({ cols: generateNumberArray(minDay, maxDay) });
     this.form = this.fb.group({
       duration: [null, Validators.required],
       agreement: [false, Validators.requiredTrue],
@@ -120,7 +139,7 @@ export class RentDetailsComponent
     return control;
   }
 
-  openDetailsPage(): void {
+  goToDetailsPage(): void {
     window.open('/tokens/' + atob(this.get('token').tokenId), '_blank');
   }
 
@@ -144,5 +163,32 @@ export class RentDetailsComponent
       type: token.type === 'Call' ? 'call' : 'put',
     };
     return profitCalculatorParams;
+  }
+
+  private goToProfitCalculator(): void {
+    const token = this.get('token');
+    const queryParams: ProfitCalculatorParams = {
+      dailyFee: token.listing.gasPerMinute * 60 * 24,
+      fromDays: token.listing.minMinutes / 60 / 24,
+      toDays: token.listing.maxMinutes / 60 / 24,
+      fromStrike: token.strike - 5 < 1 ? 1 : token.strike - 5,
+      toStrike: token.strike + 5,
+      initialValue: token.leverage > 0 ? token.value : token.stake,
+      isSafe: token.safe,
+      leverage: token.leverage,
+      seller: false,
+      stake: token.stake,
+      strike: token.strike,
+      final: true,
+      timeDecay: token.timeDecay,
+      type: token.type === 'Call' ? 'call' : 'put',
+    };
+
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['calculator'], {
+        queryParams: queryParams,
+      })
+    );
+    window.open(url, '_blank');
   }
 }

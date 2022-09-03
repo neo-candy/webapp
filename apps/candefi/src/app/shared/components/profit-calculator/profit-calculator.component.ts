@@ -37,6 +37,7 @@ export interface ProfitCalculatorParams {
   timeDecay: number;
   final: boolean;
   seller: boolean;
+  expectedCandyPrice?: number;
 }
 
 interface ProfitCalculatorState {
@@ -155,6 +156,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
     gasPrice: number,
     candyPrice: number
   ): number {
+    candyPrice = params.expectedCandyPrice ?? candyPrice;
     const gasFee = params.dailyFee * columnDay * gasPrice;
     const timeDecay = params.timeDecay * MS_PER_DAY * columnDay;
     const candyStakeWithTimeDecayMalus =
@@ -221,6 +223,9 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
       timeDecay: isNaN(params['timeDecay']) ? 0 : Number(params['timeDecay']),
       final: params['final'] == 'false' ? false : true,
       seller: params['seller'] == 'true' ? true : false,
+      expectedCandyPrice: isNaN(params['expectedCandyPrice'])
+        ? undefined
+        : Number(params['expectedCandyPrice']),
     };
   }
 
@@ -239,6 +244,23 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
       timeDecay: [params.timeDecay],
       initialValue: [params.initialValue],
       market: ['neo'],
+      expectedCandyPrice: [params.expectedCandyPrice],
+      realTime: [params.expectedCandyPrice ? false : true],
+    });
+
+    if (!params.expectedCandyPrice) {
+      this.expectedCandyPrice.disable();
+    }
+    this.hold(this.realTime.valueChanges, (v) => {
+      if (v === true) {
+        this.expectedCandyPrice.setValue(undefined);
+        this.expectedCandyPrice.disable();
+      } else {
+        this.expectedCandyPrice.enable();
+        this.expectedCandyPrice.setValue(
+          this.globalState.get('candyPrice').curr
+        );
+      }
     });
   }
 
@@ -250,14 +272,18 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
     this.context.put(CALCULATOR_ADVANCED_COLLAPSED_CTX_KEY, String(collapsed));
   }
 
-  doFilter(): void {
+  calculate(): void {
+    if (this.leverage.value === 0) {
+      this.initialValue.setValue(this.stake.value);
+    }
     const queryParams: ProfitCalculatorParams = {
       dailyFee: this.dailyFee.value,
       fromDays: this.duration.value[0],
       toDays: this.duration.value[1],
       fromStrike: this.strikeRange.value[0],
       toStrike: this.strikeRange.value[1],
-      initialValue: this.initialValue.value,
+      initialValue:
+        this.leverage.value > 0 ? this.initialValue.value : this.stake.value,
       isSafe: Boolean(this.safe.value),
       leverage: this.leverage.value,
       seller: Boolean(this.seller.value),
@@ -266,6 +292,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
       final: this.final.value,
       timeDecay: this.timeDecay.value,
       type: this.type.value,
+      expectedCandyPrice: this.expectedCandyPrice.value,
     };
 
     this.router.navigate([], {
@@ -294,6 +321,14 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
     const control = this.form.get('strike');
     if (control === null) {
       throw new Error('strike_noControl');
+    }
+    return control;
+  }
+
+  get expectedCandyPrice(): AbstractControl {
+    const control = this.form.get('expectedCandyPrice');
+    if (control === null) {
+      throw new Error('expectedCandyPrice_noControl');
     }
     return control;
   }
@@ -374,6 +409,14 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
     const control = this.form.get('initialValue');
     if (control === null) {
       throw new Error('initialValue_noControl');
+    }
+    return control;
+  }
+
+  get realTime(): AbstractControl {
+    const control = this.form.get('realTime');
+    if (control === null) {
+      throw new Error('realTime_noControl');
     }
     return control;
   }

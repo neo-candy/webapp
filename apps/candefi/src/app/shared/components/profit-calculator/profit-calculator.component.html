@@ -6,7 +6,7 @@
       [collapsed]="s.settingsCollapsed"
       (collapsedChange)="onSettingsToggled($event)"
     >
-      <form [formGroup]="form" (ngSubmit)="doFilter()">
+      <form [formGroup]="form" (ngSubmit)="calculate()">
         <div class="flex mt-5 ml-4">
           <div class="grid p-fluid w-full">
             <div class="lg:col-3 md:col-6 col-12">
@@ -91,67 +91,111 @@
               </div>
             </div>
             <div class="lg:col-3 md:col-6 col-12">
-              <span class="p-float-label">
-                <p-inputNumber
-                  formControlName="stake"
-                  suffix=" CANDY"
-                  id="stake"
-                ></p-inputNumber>
-                <label for="stake">Stake</label>
-              </span>
+              <div class="mb-5 p-fluid">
+                <span class="p-float-label">
+                  <p-inputNumber
+                    formControlName="stake"
+                    suffix=" CANDY"
+                    id="stake"
+                  ></p-inputNumber>
+                  <label for="stake">Stake</label>
+                </span>
+              </div>
             </div>
             <div class="lg:col-3 md:col-6 col-12">
-              <span class="p-float-label">
-                <p-inputNumber
-                  formControlName="strike"
-                  prefix="$"
-                  id="strike"
-                ></p-inputNumber>
-                <label for="strike">Strike</label>
-              </span>
+              <div class="mb-5 p-fluid">
+                <span class="p-float-label">
+                  <p-inputNumber
+                    formControlName="strike"
+                    prefix="$"
+                    id="strike"
+                  ></p-inputNumber>
+                  <label for="strike">Strike</label>
+                </span>
+              </div>
             </div>
             <div class="lg:col-3 md:col-6 col-12">
-              <span class="p-float-label">
-                <p-inputNumber
-                  formControlName="dailyFee"
-                  suffix=" GAS"
-                  mode="decimal"
-                  [minFractionDigits]="2"
-                  [maxFractionDigits]="2"
-                  formControlName="dailyFee"
-                  [min]="0.01"
-                ></p-inputNumber>
-                <label for="dailyFee">Daily Fee</label>
-              </span>
+              <div class="mb-5 p-fluid">
+                <span class="p-float-label">
+                  <p-inputNumber
+                    formControlName="dailyFee"
+                    suffix=" GAS"
+                    mode="decimal"
+                    [minFractionDigits]="2"
+                    [maxFractionDigits]="2"
+                    formControlName="dailyFee"
+                    [min]="0.01"
+                  ></p-inputNumber>
+                  <label for="dailyFee">Daily Fee</label>
+                </span>
+              </div>
             </div>
             <div class="lg:col-3 md:col-6 col-12">
-              <p-selectButton
-                [options]="[
-                  { label: 'Call', value: 'call' },
-                  { label: 'Put', value: 'put' }
-                ]"
-                formControlName="type"
-                optionValue="value"
-                optionLabel="label"
-              ></p-selectButton>
+              <div class="mb-5 p-fluid">
+                <p-selectButton
+                  [options]="[
+                    { label: 'Call', value: 'call' },
+                    { label: 'Put', value: 'put' }
+                  ]"
+                  formControlName="type"
+                  optionValue="value"
+                  optionLabel="label"
+                ></p-selectButton>
+              </div>
             </div>
             <div class="lg:col-3 md:col-6 col-12">
-              <p-selectButton
-                [options]="[
-                  { label: 'Seller', value: true },
-                  { label: 'Buyer', value: false }
-                ]"
-                formControlName="seller"
-                optionValue="value"
-                optionLabel="label"
-              ></p-selectButton>
+              <div class="mb-5 p-fluid">
+                <p-selectButton
+                  [options]="[
+                    { label: 'Seller', value: true },
+                    { label: 'Buyer', value: false }
+                  ]"
+                  formControlName="seller"
+                  optionValue="value"
+                  optionLabel="label"
+                ></p-selectButton>
+              </div>
+            </div>
+
+            <div class="lg:col-3 md:col-6 col-12">
+              <div class="mb-5 p-fluid flex flex-column">
+                <span class="p-float-label">
+                  <p-inputNumber
+                    prefix="$"
+                    mode="decimal"
+                    [maxFractionDigits]="9"
+                    [max]="1"
+                    [min]="0.00000001"
+                    formControlName="expectedCandyPrice"
+                    id="expectedCandyPrice"
+                  ></p-inputNumber>
+                  <label for="strikeRange">CANDY Price</label>
+                </span>
+                <div>
+                  <p-selectButton
+                    [options]="[
+                      { label: 'Real Time Price', value: true },
+                      { label: 'Custom Price', value: false }
+                    ]"
+                    formControlName="realTime"
+                    optionValue="value"
+                    optionLabel="label"
+                  ></p-selectButton>
+                </div>
+              </div>
             </div>
             <div class="lg:col-3 md:col-6 col-12">
-              <p-checkbox
-                [binary]="true"
-                formControlName="final"
-                label="Include fees"
-              ></p-checkbox>
+              <div class="mb-5">
+                <p-checkbox
+                  [binary]="true"
+                  formControlName="final"
+                  label="Include fees"
+                ></p-checkbox>
+                <i
+                  class="text-sm ml-1 pi pi-question-circle"
+                  pTooltip="Subtract the daily fees from the candy value"
+                ></i>
+              </div>
             </div>
 
             <div class="col-12">
