@@ -21,7 +21,14 @@
             <img src="assets/images/neo.png" height="20" class="mr-2" /> NEO
           </div>
         </ng-template>
-        <p-panel header="Active">
+        <p-panel>
+          <ng-template pTemplate="header">
+            <span class="font-bold">Active</span
+            ><i
+              class="text-sm ml-1 pi pi-question-circle"
+              pTooltip="NFTs you are currently renting"
+            ></i>
+          </ng-template>
           <p-table
             [loading]="s.isLoading"
             [value]="s.activeTokens"
@@ -116,7 +123,7 @@
               <tr>
                 <td colspan="12">
                   <div class="p-1">
-                    Could not find listed
+                    Could not find rented
                     {{ s.selectedLayout }} NFTs for this account.
                   </div>
                 </td>

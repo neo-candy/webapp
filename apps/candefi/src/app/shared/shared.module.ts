@@ -26,6 +26,8 @@ import { FieldsetModule } from 'primeng/fieldset';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ProfitCalculatorTableComponent } from './components/profit-calculator/project-calculator-table/profit-calculator-table.component';
 import { RentDetailsComponent } from './components/rent-details/rent-details.component';
+import { TooltipModule } from 'primeng/tooltip';
+import { ClipboardModule } from 'ngx-clipboard';
 
 @NgModule({
   declarations: [
@@ -58,6 +60,8 @@ import { RentDetailsComponent } from './components/rent-details/rent-details.com
     TagModule,
     FieldsetModule,
     SelectButtonModule,
+    TooltipModule,
+    ClipboardModule,
   ],
   exports: [
     CommonModule,
@@ -79,6 +83,7 @@ import { RentDetailsComponent } from './components/rent-details/rent-details.com
     ToolbarModule,
     CdTimerModule,
     FieldsetModule,
+    TooltipModule,
     MenuModule,
     DividerModule,
     TagModule,
@@ -86,6 +91,7 @@ import { RentDetailsComponent } from './components/rent-details/rent-details.com
     ProfitCalculatorComponent,
     ProfitCalculatorTableComponent,
     RentDetailsComponent,
+    ClipboardModule,
   ],
 })
 export class SharedModule {}

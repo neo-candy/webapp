@@ -127,6 +127,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   }
 
   private revoke(): void {
+    console.log(this.get('token').rentingId);
     this.rentfuse
       .revokeRenting(
         this.globalState.get('address'),
@@ -160,7 +161,11 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   }
 
   private mapTokenStatus(token: TokenWithListingOptionalRenting): TokenStatus {
-    if (token.renting && token.renting?.remainingSeconds <= 0) {
+    if (
+      token.renting &&
+      token.renting?.remainingSeconds <= 0 &&
+      token.owner !== environment.testnet.rentfuseAddress
+    ) {
       return TokenStatus.Expired;
     }
     if (token.isExercised) {
@@ -169,7 +174,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
       return TokenStatus.Unlisted;
     } else if (
       token.owner === environment.testnet.rentfuseAddress &&
-      token.stake > 0
+      !token.rentingId
     ) {
       return TokenStatus.Listed;
     } else if (
@@ -178,7 +183,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     ) {
       return TokenStatus.Rented;
     } else if (
-      token.stake === 0 &&
+      token.rentingId &&
       token.owner === environment.testnet.rentfuseAddress
     ) {
       return TokenStatus.Cancelled;

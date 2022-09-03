@@ -24,6 +24,7 @@
           [icon]="s.isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-copy'"
           class="p-button-text"
           type="button"
+          (click)="copyAddress(s.address)"
           label="{{ s.address | truncateAddress }}"
         ></button>
       </ng-container>

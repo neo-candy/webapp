@@ -12,6 +12,7 @@ import { NeolineService } from '../services/neoline.service';
 import { UiService } from '../services/ui.service';
 import { GlobalState, GLOBAL_RX_STATE, Price } from '../state/global.state';
 import { MintComponent } from './mint/mint.component';
+import { ClipboardService } from 'ngx-clipboard';
 
 interface MenuState {
   isLoading: boolean;
@@ -89,7 +90,8 @@ export class MenuComponent extends RxState<MenuState> {
     private neoline: NeolineService,
     private dialogService: DialogService,
     private router: Router,
-    private context: ContextService
+    private context: ContextService,
+    private clipboardService: ClipboardService
   ) {
     super();
     this.set(DEFAULT_STATE);
@@ -146,5 +148,10 @@ export class MenuComponent extends RxState<MenuState> {
   goToProfile(): void {
     const target = this.context.get(LAST_VISITED_PROFILE_CTX_KEY) ?? 'listings';
     this.router.navigate(['profile/' + target]);
+  }
+
+  copyAddress(address: string): void {
+    this.clipboardService.copy(address);
+    this.ui.displayInfo('Address copied', 500);
   }
 }

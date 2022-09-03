@@ -45,13 +45,13 @@ export class UiService {
     });
   }
 
-  public displayInfo(msg: string, summary?: string): void {
+  public displayInfo(msg: string, life?: number, summary?: string): void {
     this.messageService.add({
       key: 'infoToast',
       severity: 'info',
       summary: summary ?? 'Info',
       detail: msg,
-      life: 10000,
+      life: life ?? 10000,
     });
   }
 
