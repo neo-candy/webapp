@@ -5,7 +5,15 @@
         <p-panel styleClass="cd-storage-panel">
           <ng-template pTemplate="header">
             <div class="flex justify-content-between align-items-center w-full">
-              <div><span class="font-bold">Cancelled Rentings</span></div>
+              <div>
+                <span class="font-bold"
+                  >Finished Rentings
+                  <i
+                    class="text-sm ml-1 pi pi-question-circle"
+                    pTooltip="NFTs you lent out and have been finished or exercised by the borrower"
+                  ></i
+                ></span>
+              </div>
               <button
                 pButton
                 class="p-button-outlined"
@@ -27,8 +35,8 @@
               <tr>
                 <th>ID</th>
                 <th>Stake</th>
-                <th>Value</th>
                 <th>Created</th>
+                <th>Exercised</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-token>
@@ -38,8 +46,13 @@
               >
                 <td>{{ token.tokenId }}</td>
                 <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
-                <td>{{ token.value | number: '1.0-0' }} CANDY</td>
                 <td>{{ token.created | date: 'mediumDate' }}</td>
+                <td>
+                  <p-checkbox
+                    [binary]="true"
+                    [ngModel]="token.isExercised"
+                  ></p-checkbox>
+                </td>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
@@ -58,7 +71,15 @@
         <p-panel styleClass="cd-storage-panel">
           <ng-template pTemplate="header">
             <div class="flex justify-content-between align-items-center w-full">
-              <div><span class="font-bold">Closed Listings</span></div>
+              <div>
+                <span class="font-bold"
+                  >Closed Listings
+                  <i
+                    class="text-sm ml-1 pi pi-question-circle"
+                    pTooltip="NFTs in your wallet that can no longer be listed"
+                  ></i
+                ></span>
+              </div>
               <button
                 [disabled]="true"
                 pButton
@@ -80,7 +101,6 @@
               <tr>
                 <th>ID</th>
                 <th>Stake</th>
-                <th>Value</th>
                 <th>Created</th>
               </tr>
             </ng-template>
@@ -91,7 +111,6 @@
               >
                 <td>{{ token.tokenId }}</td>
                 <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
-                <td>{{ token.value | number: '1.0-0' }} CANDY</td>
                 <td>{{ token.created | date: 'mediumDate' }}</td>
               </tr>
             </ng-template>

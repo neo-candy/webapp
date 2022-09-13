@@ -237,7 +237,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
   private initializeForm(params: ProfitCalculatorParams): void {
     this.form = this.fb.group({
       duration: [[params.fromDays, params.toDays]],
-      strikeRange: [[params.fromStrike, params.toStrike]],
+      priceRange: [[params.fromStrike, params.toStrike]],
       dailyFee: [params.dailyFee],
       stake: [params.stake],
       strike: [params.strike],
@@ -285,8 +285,8 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
       dailyFee: this.dailyFee.value,
       fromDays: this.duration.value[0],
       toDays: this.duration.value[1],
-      fromStrike: this.strikeRange.value[0],
-      toStrike: this.strikeRange.value[1],
+      fromStrike: this.priceRange.value[0],
+      toStrike: this.priceRange.value[1],
       initialValue:
         this.leverage.value > 0 ? this.initialValue.value : this.stake.value,
       isSafe: Boolean(this.safe.value),
@@ -338,10 +338,10 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
     return control;
   }
 
-  get strikeRange(): AbstractControl {
-    const control = this.form.get('strikeRange');
+  get priceRange(): AbstractControl {
+    const control = this.form.get('priceRange');
     if (control === null) {
-      throw new Error('strikeRange_noControl');
+      throw new Error('priceRange_noControl');
     }
     return control;
   }

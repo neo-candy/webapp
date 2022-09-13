@@ -60,11 +60,11 @@
 
         <tr>
           <td>Time Decay</td>
-          <td class="text-right">{{ token.timeDecay }}</td>
+          <td class="text-right">{{ token.timeDecay | number }}</td>
         </tr>
         <tr>
           <td>Leverage</td>
-          <td class="text-right">{{ token.leverage }}</td>
+          <td class="text-right">{{ token.leverage | number }}</td>
         </tr>
       </ng-template>
     </p-table></p-panel
@@ -122,13 +122,25 @@
         <p-table [value]="[s.token]" responsiveLayout="scroll">
           <ng-template pTemplate="body" let-token>
             <tr>
-              <td>Collateral</td>
+              <td>
+                Collateral
+                <i
+                  class="text-sm ml-1 pi pi-question-circle"
+                  pTooltip="Collateral for renting this NFT. Will be returned upon exercise or finish renting."
+                ></i>
+              </td>
               <td class="text-right">
                 {{ token.listing.collateral | number: '1.2-3' }} GAS
               </td>
             </tr>
             <tr>
-              <td>Renting fee</td>
+              <td>
+                Renting fee
+                <i
+                  class="text-sm ml-1 pi pi-question-circle"
+                  pTooltip="Fee paid to the lender."
+                ></i>
+              </td>
               <td class="text-right">
                 {{
                   token.listing.gasPerMinute * 60 * 24 * duration.value

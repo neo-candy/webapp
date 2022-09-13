@@ -133,7 +133,7 @@
                 <th>Effective date</th>
                 <th>Safe</th>
                 <th>Earned fees</th>
-                <th>Current value</th>
+                <th>Exercise value</th>
                 <th>Profit</th>
               </tr>
             </ng-template>
@@ -188,7 +188,7 @@
                   {{ token.paidFees | currency }}
                 </td>
                 <td>
-                  {{ token.nftValue | currency }}
+                  {{ token.currentValue | currency }}
                 </td>
                 <td>
                   <div
@@ -236,7 +236,7 @@
                 <th>Stake</th>
                 <th>Value</th>
                 <th>Effective date</th>
-                <th>Profit</th>
+                <th>Earned fees</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-token>
@@ -255,14 +255,8 @@
                 </td>
 
                 <td>
-                  <div
-                    class="flex align-items-center"
-                    [ngClass]="{
-                      'negative-price': token.profit < 0,
-                      'positive-price': token.profit >= 0
-                    }"
-                  >
-                    <!-- {{ calculateValue(token) | currency }} -->
+                  <div class="flex align-items-center positive-price">
+                    {{ token.earnedFees | currency }}
                   </div>
                 </td>
               </tr>

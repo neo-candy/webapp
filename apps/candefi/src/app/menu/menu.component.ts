@@ -77,7 +77,7 @@ export class MenuComponent extends RxState<MenuState> {
       routerLink: 'calculator',
     },
     {
-      label: 'Contests',
+      label: 'Trading Competition',
       icon: 'pi pi-chart-line',
       routerLink: 'leaderboard',
       disabled: true,

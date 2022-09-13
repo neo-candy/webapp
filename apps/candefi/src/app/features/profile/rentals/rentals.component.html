@@ -47,6 +47,8 @@
                 <th>Safe</th>
                 <th>Remaining</th>
                 <th>Effective date</th>
+                <th>Paid fees</th>
+                <th>Exercise value</th>
                 <th>Profit</th>
               </tr>
             </ng-template>
@@ -105,16 +107,21 @@
                       | date: 'medium'
                   }}
                 </td>
-
+                <td>{{ token.paidFees | currency }}</td>
+                <td>
+                  <div class="flex align-items-center">
+                    {{ token.currentValue | currency }}
+                  </div>
+                </td>
                 <td>
                   <div
                     class="flex align-items-center"
                     [ngClass]="{
-                      'negative-price': token.profit < 0,
-                      'positive-price': token.profit >= 0
+                      'negative-price': token.delta < 0,
+                      'positive-price': token.delta >= 0
                     }"
                   >
-                    {{ calculateBorrowerProfit(token) | currency }}
+                    {{ token.delta | currency }}
                   </div>
                 </td>
               </tr>

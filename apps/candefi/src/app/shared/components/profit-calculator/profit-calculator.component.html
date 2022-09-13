@@ -74,19 +74,19 @@
                     id="strikeRange"
                     pInputText
                     [value]="
-                      '$' + strikeRange.value[0] + ' - $' + strikeRange.value[1]
+                      '$' + priceRange.value[0] + ' - $' + priceRange.value[1]
                     "
                     readonly
                   />
                   <p-slider
-                    formControlName="strikeRange"
+                    formControlName="priceRange"
                     [min]="1"
                     [max]="100"
                     [range]="true"
                     [step]="1"
                   >
                   </p-slider>
-                  <label for="strikeRange">Strike Range</label>
+                  <label for="priceRange">Price Range</label>
                 </span>
               </div>
             </div>
@@ -96,6 +96,7 @@
                   <p-inputNumber
                     formControlName="stake"
                     suffix=" CANDY"
+                    [min]="10000"
                     id="stake"
                   ></p-inputNumber>
                   <label for="stake">Stake</label>
@@ -210,13 +211,17 @@
                     <span class="p-float-label">
                       <p-inputNumber
                         formControlName="timeDecay"
+                        [min]="0"
                       ></p-inputNumber>
                       <label for="leverage">Time Decay</label>
                     </span>
                   </div>
                   <div class="lg:col-3 md:col-6 col-12">
                     <span class="p-float-label">
-                      <p-inputNumber formControlName="leverage"></p-inputNumber>
+                      <p-inputNumber
+                        formControlName="leverage"
+                        [min]="0"
+                      ></p-inputNumber>
                       <label for="leverage">Leverage</label>
                     </span>
                   </div>
@@ -224,6 +229,7 @@
                     <span class="p-float-label">
                       <p-inputNumber
                         formControlName="initialValue"
+                        [min]="0"
                         suffix=" CANDY"
                       ></p-inputNumber>
                       <label for="leverage">Initial Value</label>

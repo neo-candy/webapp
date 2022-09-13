@@ -12,12 +12,13 @@ import {
 import { ThemeService } from '../../services/theme.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
 import { combineLatest } from 'rxjs';
-import { isExpired } from '../../shared/utils';
 import { ProfitCalculatorParams } from '../../shared/components/profit-calculator/profit-calculator.component';
 import { RentDetailsComponent } from '../../shared/components/rent-details/rent-details.component';
 import { DialogService } from 'primeng/dynamicdialog';
 import { NeolineService } from '../../services/neoline.service';
 import { UiService } from '../../services/ui.service';
+import { TokenWithCurrentNFTValue } from '../profile/listings/listings.component';
+import { determineCurrentValue } from '../../shared/utils';
 
 enum TokenStatus {
   Unlisted = 0,
@@ -28,13 +29,12 @@ enum TokenStatus {
   Cancelled = 5,
 }
 interface TokenDetailsState {
-  token: TokenWithListingOptionalRenting;
+  token: TokenWithCurrentNFTValue;
   base64TokenId: string;
   isLoading: boolean;
   optionItems: MenuItem[];
   status: TokenStatus;
   effectiveDate: Date;
-  profit: number;
 }
 
 @Component({
@@ -75,6 +75,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
       this.fetchTokenId$.pipe(
         switchMap((id) => this.candefi.propertiesJson(btoa(id))),
         switchMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
+        map((token) => this.mapProfits(token)),
         tap(() => this.set({ isLoading: false }))
       )
     );
@@ -95,14 +96,6 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     );
 
     this.connect(
-      'profit',
-      this.select('token').pipe(
-        filter((token) => !!token.renting),
-        map((token) => this.calculateBorrowerProfit(token))
-      )
-    );
-
-    this.connect(
       'optionItems',
       this.select('token').pipe(map((token) => this.mapOptionItems('', token)))
     );
@@ -116,6 +109,23 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     );
   }
 
+  private mapProfits(
+    token: TokenWithListingOptionalRenting
+  ): TokenWithCurrentNFTValue {
+    const neoPrice = this.globalState.get('neoPrice').curr;
+    const currentValue = determineCurrentValue(token, neoPrice);
+    const earnedFees =
+      token.listing.gasPerMinute *
+      (token.renting ? token.renting?.duration : 0) *
+      this.globalState.get('gasPrice').curr;
+    return {
+      ...token,
+      delta: earnedFees - currentValue,
+      currentValue: currentValue,
+      paidFees: earnedFees,
+    };
+  }
+
   private closeListing(): void {
     this.rentfuse
       .closeListing(this.globalState.get('address'), [
@@ -127,7 +137,6 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   }
 
   private revoke(): void {
-    console.log(this.get('token').rentingId);
     this.rentfuse
       .revokeRenting(
         this.globalState.get('address'),
@@ -141,6 +150,15 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   private burn(): void {
     this.candefi
       .burn(this.globalState.get('address'), [this.get('token')])
+      .subscribe((res) => {
+        console.log(res);
+        this.router.navigate(['/']);
+      });
+  }
+
+  private exercise(): void {
+    this.candefi
+      .exercise(this.globalState.get('address'), [this.get('token').tokenId])
       .subscribe((res) => {
         console.log(res);
         this.router.navigate(['/']);
@@ -210,7 +228,6 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     };
 
     const status = this.mapTokenStatus(token);
-    optionItems.push(profitCalculator);
     if (status === TokenStatus.Listed) {
       optionItems.push(profitCalculator);
     }
@@ -261,6 +278,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
             {
               label: 'Exercise',
               icon: 'pi pi-step-forward',
+              command: () => this.exercise(),
             },
             {
               label: 'Finish Renting',
@@ -295,13 +313,6 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     }
     optionItems.push(options);
     return optionItems;
-  }
-
-  calculateBorrowerProfit(token: TokenWithListingOptionalRenting): number {
-    //const profit = this.candefi.calculateProfit(token, true, isExpired(token));
-    const profit = 0;
-    //token.profit = profit;
-    return profit;
   }
 
   private displayRentModal(token: TokenWithListingOptionalRenting): void {

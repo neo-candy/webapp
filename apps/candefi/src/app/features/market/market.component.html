@@ -16,6 +16,8 @@
                 [value]="s.calls"
                 responsiveLayout="scroll"
                 styleClass="p-datatable-sm"
+                [paginator]="true"
+                [rows]="25"
               >
                 <ng-template pTemplate="caption">
                   <div class="flex justify-content-center text-xl">
@@ -68,6 +70,8 @@
                 [loading]="s.isLoading"
                 responsiveLayout="scroll"
                 styleClass="p-datatable-sm"
+                [paginator]="true"
+                [rows]="25"
               >
                 <ng-template pTemplate="caption">
                   <div class="flex justify-content-center text-xl">

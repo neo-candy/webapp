@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { sc, tx, wallet } from '@cityofzion/neon-js';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
@@ -8,9 +8,6 @@ import { UiService } from './ui.service';
 import { NeolineService } from './neoline.service';
 import { NeonJSService } from './neonjs.service';
 import { processBase64Hash160 } from '../shared/utils';
-import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
-import { RxState } from '@rx-angular/state';
-import { TokenWithListingOptionalRenting } from './rentfuse.service';
 import { DecimalPipe } from '@angular/common';
 
 const CALL = 1;
@@ -62,8 +59,7 @@ export class CandefiService {
     private neoline: NeolineService,
     private neonjs: NeonJSService,
     private ui: UiService,
-    private decimalPipe: DecimalPipe,
-    @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
+    private decimalPipe: DecimalPipe
   ) {}
   public mint(
     address: string,
@@ -152,7 +148,11 @@ export class CandefiService {
         signers: [
           {
             account: new wallet.Account(address).scriptHash,
-            scopes: tx.WitnessScope.CalledByEntry,
+            scopes: tx.WitnessScope.CustomContracts,
+            allowedContracts: [
+              environment.testnet.candefi,
+              environment.testnet.rentfuseProtocol,
+            ],
           },
         ],
         invokeArgs: [...args],
@@ -211,12 +211,20 @@ export class CandefiService {
       );
   }
 
-  public tokensOfJson(address: string): Observable<CandefiToken[]> {
+  public tokensOfJson(
+    address: string,
+    page: number,
+    size: number
+  ): Observable<CandefiToken[]> {
     const scriptHash = environment.testnet.candefi;
     return this.neonjs
       .rpcRequest(
         'tokensOfJson',
-        [sc.ContractParam.hash160(address)],
+        [
+          sc.ContractParam.hash160(address),
+          sc.ContractParam.integer(page),
+          sc.ContractParam.integer(size),
+        ],
         scriptHash
       )
       .pipe(
@@ -281,28 +289,6 @@ export class CandefiService {
   }
 
   private mapToken(v: TokenProperties): CandefiToken {
-    const strike = Number(
-      v.attributes.filter((a) => a.trait_type === 'Strike')[0].value
-    );
-    const neoPrice = this.globalState.get('neoPrice').curr * Math.pow(10, 8);
-    const leverage = Number(
-      v.attributes.filter((a) => a.trait_type === 'Leverage')[0].value
-    );
-    const stake = Number(
-      v.attributes.filter((a) => a.trait_type === 'Stake')[0].value
-    );
-    const priceDelta = neoPrice - strike;
-    const leverageChange = priceDelta * leverage;
-    const value = Number(
-      v.attributes.filter((a) => a.trait_type === 'Value')[0].value
-    );
-    const valueWithLeverage =
-      value + leverageChange > stake
-        ? stake
-        : value + leverageChange < 0
-        ? 0
-        : value + leverageChange;
-
     return {
       tokenId: btoa(v.tokenId),
       type:
@@ -310,7 +296,9 @@ export class CandefiService {
         CALL
           ? 'Call'
           : 'Put',
-      stake: stake / Math.pow(10, 9),
+      stake:
+        Number(v.attributes.filter((a) => a.trait_type === 'Stake')[0].value) /
+        Math.pow(10, 9),
       strike:
         Number(v.attributes.filter((a) => a.trait_type === 'Strike')[0].value) /
         Math.pow(10, 8),
@@ -324,19 +312,16 @@ export class CandefiService {
           v.attributes.filter((a) => a.trait_type === 'Owner')[0].value
         )
       ).address,
-      timeDecay:
-        (Number(
-          v.attributes.filter((a) => a.trait_type === 'Time Decay')[0].value
-        ) *
-          1000 *
-          60 *
-          60 *
-          24) /
-        Math.pow(10, 9),
+      timeDecay: Number(
+        v.attributes.filter((a) => a.trait_type === 'Time Decay')[0].value
+      ),
+
       leverage: Number(
         v.attributes.filter((a) => a.trait_type === 'Leverage')[0].value
       ),
-      value: valueWithLeverage / Math.pow(10, 9),
+      value:
+        Number(v.attributes.filter((a) => a.trait_type === 'Value')[0].value) /
+        Math.pow(10, 9),
       created: Number(
         v.attributes.filter((a) => a.trait_type === 'Created')[0].value
       ),
