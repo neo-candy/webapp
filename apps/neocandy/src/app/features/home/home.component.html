@@ -232,7 +232,7 @@
                             label="Mint"
                             class="p-button-success"
                             [disabled]="
-                              mintingPaused == 1 || currentSupply === 222
+                              mintingPaused === 1 || currentSupply === 222
                             "
                             (click)="mint()"
                           ></button>
@@ -351,12 +351,12 @@
                 header="Get an NFT in the discord"
                 leftIcon="pi pi-discord"
               >
-                Besides minting, you can trade your candy-factory stack for an
-                NFT. You will require
-                <span class="text-lg font-semibold">50'000</span> candies in
-                your stack to trade it against a random NFT. Once you have
-                accumulated enough candies, send the NeoCandy team in the
-                discord a private message.
+                Besides minting, you can trade your discord sugar for an NFT.
+                You will require
+                <span class="text-lg font-semibold">5 Mio.</span> sugar in your
+                inventory to trade it against a random NFT. Once you have
+                accumulated enough sugar, send the NeoCandy team in the discord
+                a private message.
                 <p>
                   <b>IMPORTANT:</b> The NeoCandy team will NEVER text you first.
                 </p>
@@ -412,7 +412,7 @@
                 pButton
                 label="Play"
                 icon="pi pi-play"
-                (click)="openCandyclashAlpha()"
+                [disabled]="true"
               ></button>
             </div>
           </div>

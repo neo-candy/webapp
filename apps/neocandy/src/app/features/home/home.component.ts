@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit {
     'With the @Lollipop role, you will get 3 entries to the discord giveaways when participating',
     'You will receive 100% more candy in the candy-factory (stackable)',
     'Early access to all future NeoCandy games and events',
-    'DeFi utilities',
+    'No protocol fee for Candefi',
     'As the project grows, we will be continuously adding more utilities',
   ];
 
@@ -87,9 +87,6 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  public openCandyclashAlpha(): void {
-    window.open('https://candyclash.pages.dev/', '_blank');
-  }
   public openCandyland(): void {
     window.open('https://docs.neocandy.io/about/games/candyland', '_blank');
   }
