@@ -128,7 +128,6 @@ export class RentalsComponent extends RxState<RentalState> {
   private mapProfits(
     token: TokenWithListingOptionalRenting
   ): TokenWithCurrentNFTValue {
-    console.log(token.listing.listingId);
     const neoPrice = this.globalState.get('neoPrice').curr;
     const candyPrice = this.globalState.get('candyPrice').curr;
     const currentValue = determineCurrentValue(token, neoPrice) * candyPrice;

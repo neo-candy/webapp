@@ -351,7 +351,7 @@ export class MintComponent extends RxState<MintState> implements OnInit {
         this.leverage.value > 0 ? this.value.value : this.stake.value,
       isSafe: this.safe.value,
       leverage: this.leverage.value,
-      seller: true,
+      lender: true,
       stake: this.stake.value,
       strike: this.strike.value,
       timeDecay: this.timeDecay.value,

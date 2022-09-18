@@ -30,6 +30,14 @@ const DEFAULT_STATE: EarningsState = {
       value: 0,
     },
     {
+      token: 'candy',
+      earnings: 0,
+      hash: '',
+      totalEarnings: 0,
+      claimableEarnings: 0,
+      value: 0,
+    },
+    {
       token: 'refu',
       earnings: 0,
       hash: '',
@@ -90,6 +98,14 @@ export class EarningsComponent extends RxState<EarningsState> {
       },
       {
         token: 'refu',
+        earnings: 0,
+        totalEarnings: 0,
+        claimableEarnings: 0,
+        value: 0,
+        hash: '',
+      },
+      {
+        token: 'candy',
         earnings: 0,
         totalEarnings: 0,
         claimableEarnings: 0,

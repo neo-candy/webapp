@@ -37,11 +37,15 @@ export function determineCurrentValue(
 
   const leverage = priceDelta * token.leverage;
   if (!token.renting) {
-    return token.value + leverage;
+    return Math.round(
+      (token.value * Math.pow(10, 9) + leverage) / Math.pow(10, 9)
+    );
   }
   const timeDecay =
     (new Date().getTime() - token.renting.startedAt) * token.timeDecay;
-  const currentValue = token.value * Math.pow(10, 9) + leverage - timeDecay;
+  const currentValue = Math.round(
+    (token.value * Math.pow(10, 9) + leverage - timeDecay) / Math.pow(10, 9)
+  );
   if (token.safe) {
     if (token.type === 'Call' && token.strike > neoPrice) {
       return 0;

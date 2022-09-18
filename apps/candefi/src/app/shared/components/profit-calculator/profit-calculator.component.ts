@@ -36,7 +36,7 @@ export interface ProfitCalculatorParams {
   leverage: number;
   timeDecay: number;
   final: boolean;
-  seller: boolean;
+  lender: boolean;
   expectedCandyPrice?: number;
 }
 
@@ -200,7 +200,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
     if (result < minValue) {
       result = minValue;
     }
-    return params.seller ? result * -1 : result;
+    return params.lender ? result * -1 : result;
   }
 
   private static mapToQueryParams(params: Params): ProfitCalculatorParams {
@@ -227,7 +227,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
       leverage: isNaN(params['leverage']) ? 0 : Number(params['leverage']),
       timeDecay: isNaN(params['timeDecay']) ? 0 : Number(params['timeDecay']),
       final: params['final'] == 'false' ? false : true,
-      seller: params['seller'] == 'true' ? true : false,
+      lender: params['lender'] == 'true' ? true : false,
       expectedCandyPrice: isNaN(params['expectedCandyPrice'])
         ? undefined
         : Number(params['expectedCandyPrice']),
@@ -242,7 +242,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
       stake: [params.stake],
       strike: [params.strike],
       type: [params.type],
-      seller: [params.seller],
+      lender: [params.lender],
       safe: [params.isSafe],
       final: [params.final],
       leverage: [params.leverage],
@@ -291,7 +291,7 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
         this.leverage.value > 0 ? this.initialValue.value : this.stake.value,
       isSafe: Boolean(this.safe.value),
       leverage: this.leverage.value,
-      seller: Boolean(this.seller.value),
+      lender: Boolean(this.lender.value),
       stake: this.stake.value,
       strike: this.strike.value,
       final: this.final.value,
@@ -370,10 +370,10 @@ export class ProfitCalculatorComponent extends RxState<ProfitCalculatorState> {
     return control;
   }
 
-  get seller(): AbstractControl {
-    const control = this.form.get('seller');
+  get lender(): AbstractControl {
+    const control = this.form.get('lender');
     if (control === null) {
-      throw new Error('seller_noControl');
+      throw new Error('lender_noControl');
     }
     return control;
   }

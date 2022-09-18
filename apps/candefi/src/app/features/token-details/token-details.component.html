@@ -76,7 +76,7 @@
               class="mr-2"
               [ngClass]="s.status === 3 ? 'pi pi-check-circle' : 'pi pi-circle'"
             ></i>
-            Exercised
+            Expired
           </ng-template>
         </p-tabPanel>
         <p-tabPanel [disabled]="s.status !== 4">
@@ -85,16 +85,7 @@
               class="mr-2"
               [ngClass]="s.status === 4 ? 'pi pi-check-circle' : 'pi pi-circle'"
             ></i>
-            Expired
-          </ng-template>
-        </p-tabPanel>
-        <p-tabPanel [disabled]="s.status !== 5">
-          <ng-template pTemplate="header">
-            <i
-              class="mr-2"
-              [ngClass]="s.status === 5 ? 'pi pi-check-circle' : 'pi pi-circle'"
-            ></i>
-            Cancelled
+            Finished
           </ng-template>
         </p-tabPanel>
       </p-tabView>
@@ -160,6 +151,15 @@
                       <div class="font-bold mb-1">Leverage:</div>
                       <p-inputNumber
                         [ngModel]="s.token.leverage"
+                        [readonly]="true"
+                      ></p-inputNumber>
+                    </div>
+                  </div>
+                  <div class="md:col-3 col-12">
+                    <div class="flex flex-column">
+                      <div class="font-bold mb-1">Initial Value:</div>
+                      <p-inputNumber
+                        [ngModel]="s.token.value"
                         [readonly]="true"
                       ></p-inputNumber>
                     </div>

@@ -24,9 +24,8 @@ enum TokenStatus {
   Unlisted = 0,
   Listed = 1,
   Rented = 2,
-  Exercised = 3,
-  Expired = 4,
-  Cancelled = 5,
+  Expired = 3,
+  Finished = 4,
 }
 interface TokenDetailsState {
   token: TokenWithCurrentNFTValue;
@@ -159,8 +158,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
   private exercise(): void {
     this.candefi
       .exercise(this.globalState.get('address'), [this.get('token').tokenId])
-      .subscribe((res) => {
-        console.log(res);
+      .subscribe(() => {
         this.router.navigate(['/']);
       });
   }
@@ -185,9 +183,6 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
       token.owner !== environment.testnet.rentfuseAddress
     ) {
       return TokenStatus.Expired;
-    }
-    if (token.isExercised) {
-      return TokenStatus.Exercised;
     } else if (token.owner === token.writer) {
       return TokenStatus.Unlisted;
     } else if (
@@ -201,10 +196,11 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
     ) {
       return TokenStatus.Rented;
     } else if (
-      token.rentingId &&
-      token.owner === environment.testnet.rentfuseAddress
+      (token.rentingId &&
+        token.owner === environment.testnet.rentfuseAddress) ||
+      token.isExercised
     ) {
-      return TokenStatus.Cancelled;
+      return TokenStatus.Finished;
     }
     throw new Error('Unknown token status');
   }
@@ -236,7 +232,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
         case TokenStatus.Unlisted: {
           options.disabled = false;
           options.items?.push({
-            label: 'Claim',
+            label: 'Claim & Burn',
             icon: 'pi pi-eject',
             command: () => this.burn(),
           });
@@ -251,7 +247,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
           });
           break;
         }
-        case TokenStatus.Cancelled: {
+        case TokenStatus.Finished: {
           options.disabled = false;
           options.items?.push({
             label: 'Close Listing',
@@ -351,7 +347,7 @@ export class TokenDetailsComponent extends RxState<TokenDetailsState> {
       initialValue: token.leverage > 0 ? token.value : token.stake,
       isSafe: token.safe,
       leverage: token.leverage,
-      seller: false,
+      lender: false,
       stake: token.stake,
       strike: token.strike,
       final: true,

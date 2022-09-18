@@ -20,14 +20,14 @@ import {
 interface StorageState {
   isLoading: boolean;
   tokensOfWriter: TokenWithListingOptionalRenting[];
-  cancelledRentings: TokenWithListingOptionalRenting[];
+  finishedRentings: TokenWithListingOptionalRenting[];
   closedListings: TokenWithListingOptionalRenting[];
 }
 
 const DEFAULT_STATE: StorageState = {
   isLoading: true,
   tokensOfWriter: [],
-  cancelledRentings: [],
+  finishedRentings: [],
   closedListings: [],
 };
 @Component({
@@ -63,7 +63,7 @@ export class StorageComponent extends RxState<StorageState> {
       )
     );
     this.connect(
-      'cancelledRentings',
+      'finishedRentings',
       this.select('tokensOfWriter').pipe(
         map((tokens) =>
           tokens.filter(
@@ -96,7 +96,7 @@ export class StorageComponent extends RxState<StorageState> {
     this.rentfuse
       .closeListing(
         this.globalState.get('address'),
-        this.get('cancelledRentings').map((token) => token.listing.listingId)
+        this.get('finishedRentings').map((token) => token.listing.listingId)
       )
       .subscribe(console.log);
   }

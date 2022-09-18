@@ -47,8 +47,8 @@
                 <th>Safe</th>
                 <th>Remaining</th>
                 <th>Effective date</th>
-                <th>Paid fees</th>
                 <th>Exercise value</th>
+                <th>Paid fees</th>
                 <th>Profit</th>
               </tr>
             </ng-template>
@@ -107,12 +107,13 @@
                       | date: 'medium'
                   }}
                 </td>
-                <td>{{ token.paidFees | currency }}</td>
+
                 <td>
                   <div class="flex align-items-center">
                     {{ token.currentValue | currency }}
                   </div>
                 </td>
+                <td>{{ token.paidFees | currency }}</td>
                 <td>
                   <div
                     class="flex align-items-center"
