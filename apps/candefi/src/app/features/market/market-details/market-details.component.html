@@ -16,51 +16,24 @@
       <tr>
         <th>ID</th>
         <th>Stake</th>
-        <th>Value</th>
         <th>Strike</th>
-        <th>Duration</th>
+        <th>Value</th>
         <th>Time Decay</th>
         <th>Leverage</th>
+        <th>Safe</th>
+        <th>Duration</th>
         <th>Daily fee</th>
         <th>Collateral</th>
-        <th>Safe</th>
-        <th>Writer</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-token>
       <tr class="cursor-pointer" (click)="displayRentModal(token)">
         <td>{{ token.tokenId }}</td>
-        <td>
-          <div class="flex align-items-center">
-            {{ token.stake | number: '1.0-0' }}
-            <img src="assets/images/candy.png" height="20" class="ml-2" />
-          </div>
-        </td>
-        <td>
-          <div class="flex align-items-center">
-            {{ token.value | number: '1.0-0' }}
-            <img src="assets/images/candy.png" height="20" class="ml-2" />
-          </div>
-        </td>
-        <td>${{ token.strike | number: '1.2-2' }}</td>
-        <td>
-          {{ token.listing.minMinutes / 60 / 24 }} -
-          {{ token.listing.maxMinutes / 60 / 24 }} days
-        </td>
+        <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
+        <td>{{ token.strike | currency }}</td>
+        <td>{{ token.value | number: '1.0-0' }} CANDY</td>
         <td>{{ token.timeDecay | number }}</td>
         <td>{{ token.leverage | number }}</td>
-        <td>
-          <div class="flex align-items-center">
-            {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}
-            <img src="assets/images/gas.png" height="20" class="ml-2" />
-          </div>
-        </td>
-        <td>
-          <div class="flex align-items-center">
-            {{ token.listing.collateral | number: '1.2-2' }}
-            <img src="assets/images/gas.png" height="20" class="ml-2" />
-          </div>
-        </td>
         <td>
           <p-checkbox
             [ngModel]="token.safe"
@@ -68,7 +41,14 @@
             [readonly]="true"
           ></p-checkbox>
         </td>
-        <td>{{ token.writer | truncateAddress }}</td>
+        <td>
+          {{ token.listing.minMinutes / 60 / 24 }} -
+          {{ token.listing.maxMinutes / 60 / 24 }} days
+        </td>
+        <td>
+          {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-3' }} GAS
+        </td>
+        <td>{{ token.listing.collateral | number: '1.2-3' }} GAS</td>
       </tr>
     </ng-template>
   </p-table>

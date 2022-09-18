@@ -20,9 +20,24 @@ import { CdTimerModule } from 'angular-cd-timer';
 import { MenuModule } from 'primeng/menu';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
+import { AuthGuard } from './guards/auth.guard';
+import { ProfitCalculatorComponent } from './components/profit-calculator/profit-calculator.component';
+import { FieldsetModule } from 'primeng/fieldset';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { ProfitCalculatorTableComponent } from './components/profit-calculator/project-calculator-table/profit-calculator-table.component';
+import { RentDetailsComponent } from './components/rent-details/rent-details.component';
+import { TooltipModule } from 'primeng/tooltip';
+import { ClipboardModule } from 'ngx-clipboard';
 
 @NgModule({
-  declarations: [TruncateAddressPipe, MonitorComponent],
+  declarations: [
+    TruncateAddressPipe,
+    MonitorComponent,
+    ProfitCalculatorComponent,
+    ProfitCalculatorTableComponent,
+    RentDetailsComponent,
+  ],
+  providers: [AuthGuard],
   imports: [
     CommonModule,
     ButtonModule,
@@ -43,6 +58,10 @@ import { TagModule } from 'primeng/tag';
     MenuModule,
     DividerModule,
     TagModule,
+    FieldsetModule,
+    SelectButtonModule,
+    TooltipModule,
+    ClipboardModule,
   ],
   exports: [
     CommonModule,
@@ -63,9 +82,16 @@ import { TagModule } from 'primeng/tag';
     MenubarModule,
     ToolbarModule,
     CdTimerModule,
+    FieldsetModule,
+    TooltipModule,
     MenuModule,
     DividerModule,
     TagModule,
+    SelectButtonModule,
+    ProfitCalculatorComponent,
+    ProfitCalculatorTableComponent,
+    RentDetailsComponent,
+    ClipboardModule,
   ],
 })
 export class SharedModule {}

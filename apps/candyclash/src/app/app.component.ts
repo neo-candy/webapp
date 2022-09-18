@@ -295,7 +295,7 @@ export class AppComponent implements OnInit {
             config.candyBalance / 1000000000,
             '1.0-2'
           ) +
-          ' $CANDY',
+          ' CANDY',
         disabled: true,
       },
       /* {
@@ -306,7 +306,7 @@ export class AppComponent implements OnInit {
               1000000000,
             '1.0-2'
           ) +
-          ' $CANDY',
+          ' CANDY',
         disabled: true,
       }, */
       {

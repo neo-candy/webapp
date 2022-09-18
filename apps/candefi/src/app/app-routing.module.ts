@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ProfitCalculatorComponent } from './shared/components/profit-calculator/profit-calculator.component';
+import { AuthGuard } from './shared/guards/auth.guard';
 
 const routes: Routes = [
   {
@@ -23,6 +25,7 @@ const routes: Routes = [
     path: 'profile',
     loadChildren: () =>
       import('./features/profile/profile.module').then((m) => m.ProfileModule),
+    canActivate: [AuthGuard],
   },
   {
     path: 'tokens',
@@ -30,6 +33,10 @@ const routes: Routes = [
       import('./features/token-details/token-details.module').then(
         (m) => m.TokenDetailsModule
       ),
+  },
+  {
+    path: 'calculator',
+    component: ProfitCalculatorComponent,
   },
   {
     path: '**',
@@ -41,7 +48,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { onSameUrlNavigation: 'reload' })],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

@@ -93,7 +93,7 @@
                 <span class="p-float-label">
                   <p-inputNumber
                     formControlName="stake"
-                    suffix=" $CANDY"
+                    suffix=" CANDY"
                     [min]="0"
                     id="stake"
                   ></p-inputNumber>
@@ -116,7 +116,7 @@
           </div>
           <p-accordion>
             <p-accordionTab header="Advanced">
-              <div class="grid mt-2">
+              <div class="grid mt-4">
                 <div class="col-12 md:col-6">
                   <div class="mb-2 p-fluid">
                     <span class="p-float-label">
@@ -163,7 +163,7 @@
                     <span class="p-float-label">
                       <p-inputNumber
                         formControlName="value"
-                        suffix=" $CANDY"
+                        suffix=" CANDY"
                         [min]="0"
                         [max]="stake.value"
                         id="value"
@@ -301,8 +301,15 @@
       </form>
     </div>
     <div [hidden]="s.activeMenuIndex !== 2">
-      <p-panel header="General"
-        ><p-table [value]="[0]">
+      <p-panel header="Profit Calculator">
+        <cd-profit-calculator-table
+          [isLoading]="false"
+          [cols]="s.cols"
+          [values]="s.values"
+        ></cd-profit-calculator-table> </p-panel
+      ><br />
+      <p-panel header="Basic">
+        <p-table [value]="[0]">
           <ng-template pTemplate="body">
             <tr>
               <td>Type</td>
@@ -320,7 +327,7 @@
             </tr>
             <tr>
               <td>Stake</td>
-              <td class="text-right">{{ stake.value | number }} $CANDY</td>
+              <td class="text-right">{{ stake.value | number }} CANDY</td>
             </tr>
           </ng-template>
         </p-table></p-panel
@@ -340,7 +347,7 @@
             </tr>
             <tr>
               <td>Initial value</td>
-              <td class="text-right">{{ value.value | number }} $CANDY</td>
+              <td class="text-right">{{ value.value | number }} CANDY</td>
             </tr>
             <tr>
               <td>Safe exercise</td>
@@ -374,7 +381,7 @@
           <ng-template pTemplate="body">
             <tr>
               <td>Protocol fee</td>
-              <td class="text-right">{{ s.protocolFee | number }} $CANDY</td>
+              <td class="text-right">{{ s.protocolFee | number }} CANDY</td>
             </tr>
             <tr>
               <td>
@@ -386,12 +393,12 @@
                 >
               </td>
               <td class="text-right line-through">
-                -{{ s.protocolFee | number }} $CANDY
+                -{{ s.protocolFee | number }} CANDY
               </td>
             </tr>
             <tr>
               <td>Total</td>
-              <td class="text-right">{{ s.protocolFee | number }} $CANDY</td>
+              <td class="text-right">{{ s.protocolFee | number }} CANDY</td>
             </tr>
           </ng-template>
         </p-table></p-panel

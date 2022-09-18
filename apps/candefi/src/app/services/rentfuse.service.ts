@@ -1,9 +1,14 @@
+import { DecimalPipe } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { sc, tx, wallet } from '@cityofzion/neon-js';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { NeoInvokeWriteResponse, NeoTypedValue } from '../models/n3';
+import {
+  NeoInvokeArgument,
+  NeoInvokeWriteResponse,
+  NeoTypedValue,
+} from '../models/n3';
 import { processBase64Hash160 } from '../shared/utils';
 import { CandefiToken } from './candefi.service';
 import { NeolineService } from './neoline.service';
@@ -28,7 +33,6 @@ export interface Renting {
 export type TokenWithListingOptionalRenting = CandefiToken & {
   listing: Listing;
   renting?: Renting;
-  profit?: number;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -36,7 +40,8 @@ export class RentfuseService {
   constructor(
     private neonjs: NeonJSService,
     private neoline: NeolineService,
-    private ui: UiService
+    private ui: UiService,
+    private decimalPipe: DecimalPipe
   ) {}
 
   public startRenting(
@@ -73,7 +78,9 @@ export class RentfuseService {
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() => this.ui.displaySuccess('You started renting a new NFT')),
+        tap((res) =>
+          this.ui.displaySuccess('You started renting a new NFT', res.txid)
+        ),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);
@@ -83,7 +90,44 @@ export class RentfuseService {
 
   public closeListing(
     address: string,
-    listingId: number
+    listingIds: number[]
+  ): Observable<NeoInvokeWriteResponse> {
+    const args: NeoInvokeArgument[] = [];
+    listingIds.forEach((listingId) => {
+      args.push({
+        scriptHash: environment.testnet.rentfuseProtocol,
+        operation: 'closeListing',
+        args: [NeolineService.int(listingId)],
+      });
+    });
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
+        ],
+        invokeArgs: args,
+      })
+      .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap((res) =>
+          this.ui.displaySuccess(
+            `You closed ${listingIds.length} listing`,
+            res.txid
+          )
+        ),
+        catchError((e) => {
+          this.ui.displayError(e);
+          return throwError(e);
+        })
+      );
+  }
+
+  public revokeRenting(
+    address: string,
+    rentingId: string
   ): Observable<NeoInvokeWriteResponse> {
     const args: {
       scriptHash: string;
@@ -92,8 +136,8 @@ export class RentfuseService {
     }[] = [
       {
         scriptHash: environment.testnet.rentfuseProtocol,
-        operation: 'closeListing',
-        args: [NeolineService.int(listingId)],
+        operation: 'revokeRenting',
+        args: [NeolineService.byteArray(rentingId)],
       },
     ];
     return this.neoline
@@ -108,7 +152,99 @@ export class RentfuseService {
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() => this.ui.displaySuccess('You closed 1 listing')),
+        tap((res) => this.ui.displaySuccess('You revoked 1 renting', res.txid)),
+        catchError((e) => {
+          this.ui.displayError(e);
+          return throwError(e);
+        })
+      );
+  }
+
+  public finishRenting(
+    address: string,
+    tokenId: string,
+    rentingId: string
+  ): Observable<NeoInvokeWriteResponse> {
+    const args: {
+      scriptHash: string;
+      operation: string;
+      args: NeoTypedValue[];
+    }[] = [
+      {
+        scriptHash: environment.testnet.candefi,
+        operation: 'transfer',
+        args: [
+          NeolineService.address(environment.testnet.rentfuseAddress),
+          NeolineService.byteArray(tokenId),
+          NeolineService.array([
+            NeolineService.int(2),
+            NeolineService.string(rentingId),
+          ]),
+        ],
+      },
+    ];
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
+        ],
+        invokeArgs: [...args],
+      })
+      .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap((res) =>
+          this.ui.displaySuccess('You finished 1 renting', res.txid)
+        ),
+        catchError((e) => {
+          this.ui.displayError(e);
+          return throwError(e);
+        })
+      );
+  }
+  public claimAmount(
+    address: string,
+    amount: number,
+    paymentToken: string,
+    symbol: string
+  ): Observable<NeoInvokeWriteResponse> {
+    const args: {
+      scriptHash: string;
+      operation: string;
+      args: NeoTypedValue[];
+    }[] = [
+      {
+        scriptHash: environment.testnet.rentfuseProtocol,
+        operation: 'claimAmount',
+        args: [
+          NeolineService.address(address),
+          NeolineService.address(address),
+          NeolineService.int(amount * Math.pow(10, 8)),
+          NeolineService.hash160(paymentToken),
+        ],
+      },
+    ];
+    return this.neoline
+      .invokeMultiple({
+        signers: [
+          {
+            account: new wallet.Account(address).scriptHash,
+            scopes: tx.WitnessScope.CalledByEntry,
+          },
+        ],
+        invokeArgs: [...args],
+      })
+      .pipe(
+        switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
+        tap((res) => {
+          this.ui.displaySuccess(
+            `You claimed ${this.decimalPipe.transform(amount)} ${symbol}`,
+            res.txid
+          );
+          //TODO: Reload page
+        }),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);
@@ -118,18 +254,30 @@ export class RentfuseService {
 
   getListingIdFromNft(tokenId: string): Observable<number> {
     const scriptHash = environment.testnet.rentfuseProtocol;
-    return this.neonjs.rpcRequest(
-      'getListingIdFromNft',
-      [
-        sc.ContractParam.hash160(environment.testnet.candefi),
-        sc.ContractParam.byteArray(tokenId),
-      ],
-      scriptHash
-    );
+    return this.neonjs
+      .rpcRequest(
+        'getListingIdFromNft',
+        [
+          sc.ContractParam.hash160(environment.testnet.candefi),
+          sc.ContractParam.byteArray(tokenId),
+        ],
+        scriptHash
+      )
+      .pipe(map((v) => Number(v)));
   }
 
   getListing(id: number): Observable<Listing> {
     const scriptHash = environment.testnet.rentfuseProtocol;
+    if (id === 0) {
+      //return a dummy listing if no listing was found
+      return of({
+        collateral: -1,
+        gasPerMinute: -1,
+        listingId: 0,
+        maxMinutes: -1,
+        minMinutes: -1,
+      });
+    }
     return this.neonjs
       .rpcRequest('getListing', [sc.ContractParam.integer(id)], scriptHash)
       .pipe(map((res) => this.mapListing(res)));
@@ -163,14 +311,16 @@ export class RentfuseService {
     paymentTokenHash: string
   ): Observable<number> {
     const scriptHash = environment.testnet.rentfuseProtocol;
-    return this.neonjs.rpcRequest(
-      'getClaimableAmount',
-      [
-        sc.ContractParam.hash160(address),
-        sc.ContractParam.hash160(paymentTokenHash),
-      ],
-      scriptHash
-    );
+    return this.neonjs
+      .rpcRequest(
+        'getClaimableAmount',
+        [
+          sc.ContractParam.hash160(address),
+          sc.ContractParam.hash160(paymentTokenHash),
+        ],
+        scriptHash
+      )
+      .pipe(map((v) => Number(v) / Math.pow(10, 8)));
   }
 
   /* CUSTOM METHODS */
@@ -179,7 +329,6 @@ export class RentfuseService {
     token: CandefiToken
   ): Observable<TokenWithListingOptionalRenting> {
     return this.getListingIdFromNft(token.tokenId).pipe(
-      filter((listingId) => listingId != 0),
       switchMap((listingId) => this.getListing(listingId)),
       map((listing) => this.addListingToToken(token, listing))
     );

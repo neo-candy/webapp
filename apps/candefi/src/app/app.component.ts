@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { Observable, timer } from 'rxjs';
 import { map, pairwise, startWith, switchMap } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 import { ContextService, THEME_CTX_KEY } from './services/context.service';
 import { PriceService } from './services/price.service';
 import { ThemeService } from './services/theme.service';
@@ -73,10 +74,10 @@ export class AppComponent {
     pairwise(),
     map(([prev, curr]) => ({ curr: curr, prev }))
   );
-  state$ = this.globalState.select();
+  readonly state$ = this.globalState.select();
   constructor(
+    public theme: ThemeService,
     private price: PriceService,
-    private theme: ThemeService,
     private context: ContextService,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
@@ -91,5 +92,9 @@ export class AppComponent {
     this.globalState.connect('adaPrice', this.adaPrice$);
     this.globalState.connect('flmPrice', this.flmPrice$);
     this.theme.switchTheme(this.context.get(THEME_CTX_KEY) ?? theme.current);
+  }
+
+  viewTransaction(txid: string): void {
+    window.open(environment.testnet.txExplorer + txid, '_blank');
   }
 }

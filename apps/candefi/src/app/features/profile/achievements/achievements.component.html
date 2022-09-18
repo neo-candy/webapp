@@ -1,0 +1,37 @@
+<ng-container *ngIf="state$ | async as s">
+  <p-panel header="Achievements">
+    <p-dataView [value]="s.achievements">
+      <ng-template let-achievement pTemplate="listItem">
+        <div class="flex w-full p-3">
+          <div class="flex-none">
+            <img
+              class="achievement-img mr-5"
+              [src]="'assets/achievements/' + achievement.image"
+              width="150"
+            />
+          </div>
+          <div class="flex-1">
+            <div class="font-bold text-xl">{{ achievement.title }}</div>
+            <div>
+              <p>
+                {{ achievement.desc }}
+              </p>
+            </div>
+            <p-tag
+              [value]="achievement.rarity.label"
+              [severity]="achievement.rarity.severity"
+            ></p-tag>
+          </div>
+          <div class="flex-none align-self-center">
+            <button
+              pButton
+              [ngClass]="achievement.locked ? 'p-button' : 'p-button-text'"
+              [disabled]="true"
+              [label]="achievement.locked ? 'Claim' : 'Claimed'"
+            ></button>
+          </div>
+        </div>
+      </ng-template>
+    </p-dataView>
+  </p-panel>
+</ng-container>

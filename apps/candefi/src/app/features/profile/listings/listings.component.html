@@ -1,7 +1,7 @@
 <ng-container *ngIf="state$ | async as s">
   <p-panel>
     <ng-template pTemplate="header"
-      ><span class="mr-2 font-bold">Listings</span>
+      ><span class="mr-2 font-bold">Listings </span>
     </ng-template>
     <p-toolbar>
       <div class="p-toolbar-group-left">
@@ -21,7 +21,15 @@
             <img src="assets/images/neo.png" height="20" class="mr-2" /> NEO
           </div>
         </ng-template>
-        <p-panel header="Pending" [toggleable]="true">
+        <p-panel [toggleable]="true">
+          <ng-template pTemplate="header">
+            <span class="font-bold">Pending</span
+            ><i
+              class="text-sm ml-1 pi pi-question-circle"
+              pTooltip="Listed on the market"
+            ></i>
+          </ng-template>
+
           <p-table
             [loading]="s.isLoading"
             [value]="s.pendingTokens"
@@ -33,14 +41,14 @@
               <tr>
                 <th>ID</th>
                 <th>Stake</th>
-                <th>Value</th>
                 <th>Strike</th>
+                <th>Value</th>
                 <th>Time Decay</th>
                 <th>Leverage</th>
+                <th>Safe</th>
                 <th>Duration</th>
                 <th>Collateral</th>
                 <th>Daily fee</th>
-                <th>Safe</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-token>
@@ -65,52 +73,26 @@
                 (click)="goToTokenDetails(token.tokenId)"
               >
                 <td>{{ token.tokenId }}</td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{ token.stake | number: '1.0-0' }}
-                    <img
-                      src="assets/images/candy.png"
-                      height="20"
-                      class="ml-2"
-                    />
-                  </div>
-                </td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{ token.value | number: '1.0-0' }}
-                    <img
-                      src="assets/images/candy.png"
-                      height="20"
-                      class="ml-2"
-                    />
-                  </div>
-                </td>
-
-                <td>${{ token.strike | number: '1.2-2' }}</td>
+                <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
+                <td>{{ token.strike | currency }}</td>
+                <td>{{ token.value | number: '1.0-0' }} CANDY</td>
                 <td>{{ token.timeDecay | number }}</td>
                 <td>{{ token.leverage | number }}</td>
-                <td>
-                  {{ token.listing.minMinutes / 60 / 24 }} -
-                  {{ token.listing.maxMinutes / 60 / 24 }} days
-                </td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}
-                    <img src="assets/images/gas.png" height="20" class="ml-2" />
-                  </div>
-                </td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{ token.listing.collateral | number: '1.2-2' }}
-                    <img src="assets/images/gas.png" height="20" class="ml-2" />
-                  </div>
-                </td>
                 <td>
                   <p-checkbox
                     [ngModel]="token.safe"
                     [binary]="true"
                     [readonly]="true"
                   ></p-checkbox>
+                </td>
+                <td>
+                  {{ token.listing.minMinutes / 60 / 24 }} -
+                  {{ token.listing.maxMinutes / 60 / 24 }} days
+                </td>
+                <td>{{ token.listing.collateral | number: '1.2-2' }} GAS</td>
+                <td>
+                  {{ token.listing.gasPerMinute * 60 * 24 | number: '1.2-2' }}
+                  GAS
                 </td>
               </tr>
             </ng-template>
@@ -126,7 +108,14 @@
             </ng-template></p-table
           >
         </p-panel>
-        <p-panel header="Active" [toggleable]="true">
+        <p-panel [toggleable]="true">
+          <ng-template pTemplate="header">
+            <span class="font-bold">Active</span
+            ><i
+              class="text-sm ml-1 pi pi-question-circle"
+              pTooltip="Lent out"
+            ></i>
+          </ng-template>
           <p-table
             [loading]="s.isLoading"
             [value]="s.activeTokens"
@@ -138,11 +127,13 @@
               <tr>
                 <th>ID</th>
                 <th>Stake</th>
-                <th>Value</th>
+                <th>Initial value</th>
                 <th>Strike</th>
                 <th>Remaining</th>
                 <th>Effective date</th>
                 <th>Safe</th>
+                <th>Earned fees</th>
+                <th>Exercise value</th>
                 <th>Profit</th>
               </tr>
             </ng-template>
@@ -160,28 +151,10 @@
                 (click)="goToTokenDetails(token.tokenId)"
               >
                 <td>{{ token.tokenId }}</td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{ token.stake | number: '1.0-0' }}
-                    <img
-                      src="assets/images/candy.png"
-                      height="20"
-                      class="ml-2"
-                    />
-                  </div>
-                </td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{ token.value | number: '1.0-0' }}
-                    <img
-                      src="assets/images/candy.png"
-                      height="20"
-                      class="ml-2"
-                    />
-                  </div>
-                </td>
+                <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
+                <td>{{ token.value | number: '1.0-0' }} CANDY</td>
 
-                <td>${{ token.strike | number: '1.2-2' }}</td>
+                <td>{{ token.strike | currency }}</td>
 
                 <td>
                   <ng-container
@@ -204,7 +177,6 @@
                       | date: 'medium'
                   }}
                 </td>
-
                 <td>
                   <p-checkbox
                     [ngModel]="token.safe"
@@ -213,14 +185,20 @@
                   ></p-checkbox>
                 </td>
                 <td>
+                  {{ token.paidFees | currency }}
+                </td>
+                <td>
+                  {{ token.currentValue | currency }}
+                </td>
+                <td>
                   <div
                     class="flex align-items-center"
                     [ngClass]="{
-                      'negative-price': token.profit < 0,
-                      'positive-price': token.profit >= 0
+                      'negative-price': token.delta < 0,
+                      'positive-price': token.delta >= 0
                     }"
                   >
-                    {{ calculateLenderProfit(token) | currency }}
+                    {{ token.delta | currency }}
                   </div>
                 </td>
               </tr>
@@ -237,7 +215,14 @@
             </ng-template></p-table
           >
         </p-panel>
-        <p-panel header="Expired" [toggleable]="true">
+        <p-panel [toggleable]="true">
+          <ng-template pTemplate="header">
+            <span class="font-bold">Expired</span
+            ><i
+              class="text-sm ml-1 pi pi-question-circle"
+              pTooltip="Lent NFTs with an effective date in the past"
+            ></i>
+          </ng-template>
           <p-table
             [loading]="s.isLoading"
             [value]="s.expiredTokens"
@@ -251,7 +236,7 @@
                 <th>Stake</th>
                 <th>Value</th>
                 <th>Effective date</th>
-                <th>Profit</th>
+                <th>Earned fees</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-token>
@@ -260,26 +245,8 @@
                 (click)="goToTokenDetails(token.tokenId)"
               >
                 <td>{{ token.tokenId }}</td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{ token.stake | number: '1.0-0' }}
-                    <img
-                      src="assets/images/candy.png"
-                      height="20"
-                      class="ml-2"
-                    />
-                  </div>
-                </td>
-                <td>
-                  <div class="flex align-items-center">
-                    {{ token.value | number: '1.0-0' }}
-                    <img
-                      src="assets/images/candy.png"
-                      height="20"
-                      class="ml-2"
-                    />
-                  </div>
-                </td>
+                <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
+                <td>{{ token.value | number: '1.0-0' }} CANDY</td>
                 <td>
                   {{
                     token.renting.startedAt + token.renting.duration * 60 * 1000
@@ -288,14 +255,8 @@
                 </td>
 
                 <td>
-                  <div
-                    class="flex align-items-center"
-                    [ngClass]="{
-                      'negative-price': token.profit < 0,
-                      'positive-price': token.profit >= 0
-                    }"
-                  >
-                    {{ calculateLenderProfit(token) | currency }}
+                  <div class="flex align-items-center positive-price">
+                    {{ token.earnedFees | currency }}
                   </div>
                 </td>
               </tr>

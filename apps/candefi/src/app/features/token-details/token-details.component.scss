@@ -2,14 +2,15 @@
   padding: 0;
 }
 
-.loading-icon-dark {
+::ng-deep .cd-token-status-panel .p-tabview-panels {
+  padding: 0;
+}
+
+.loading-icon {
   height: 80px;
   margin: 10rem;
 }
 
-.loading-icon-light {
-  height: 80px;
-  margin: 10rem;
-  filter: invert(90%) sepia(22%) saturate(0%) hue-rotate(305deg) brightness(110%) contrast(100%);
+::ng-deep .p-tabview .p-tabview-nav .p-tabview-ink-bar {
+  z-index: 0;
 }
-

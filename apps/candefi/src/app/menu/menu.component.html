@@ -16,7 +16,7 @@
           pButton
           icon="pi pi-user"
           class="p-button-text"
-          routerLink="profile/listings"
+          (click)="goToProfile()"
         ></button>
         <button
           pButton
@@ -24,6 +24,7 @@
           [icon]="s.isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-copy'"
           class="p-button-text"
           type="button"
+          (click)="copyAddress(s.address)"
           label="{{ s.address | truncateAddress }}"
         ></button>
       </ng-container>
@@ -37,8 +38,7 @@
           <ng-template pTemplate="selectedItem">
             <div *ngIf="s.selectedWallet">
               <div class="flex align-items-center">
-                <img src="assets/ui/neoline.png" width="15" class="mr-2" />
-                <div>{{ s.selectedWallet }}</div>
+                <i class="pi pi-spin pi-spinner mr-2"></i> Connecting...
               </div>
             </div>
           </ng-template>
@@ -76,7 +76,7 @@
   <p-tabView
     [scrollable]="true"
     styleClass="price-widget-tabview"
-    [activeIndex]="-1"
+    [activeIndex]="0"
   >
     <p-tabPanel [disabled]="true">
       <ng-template pTemplate="header">

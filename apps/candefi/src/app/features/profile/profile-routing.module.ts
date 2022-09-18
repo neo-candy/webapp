@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MonitorComponent } from '../../shared/components/monitor/monitor.component';
+import { StorageComponent } from './storage/storage.component';
 import { ListingsComponent } from './listings/listings.component';
 import { ProfileComponent } from './profile.component';
 import { RentalsComponent } from './rentals/rentals.component';
+import { EarningsComponent } from './earnings/earnings.component';
+import { AchievementsComponent } from './achievements/achievements.component';
 
 const routes: Routes = [
   {
@@ -11,8 +13,8 @@ const routes: Routes = [
     component: ProfileComponent,
     children: [
       {
-        path: 'earnings',
-        component: MonitorComponent,
+        path: 'storage',
+        component: StorageComponent,
       },
       {
         path: 'listings',
@@ -21,6 +23,14 @@ const routes: Routes = [
       {
         path: 'rentings',
         component: RentalsComponent,
+      },
+      {
+        path: 'earnings',
+        component: EarningsComponent,
+      },
+      {
+        path: 'achievements',
+        component: AchievementsComponent,
       },
     ],
   },

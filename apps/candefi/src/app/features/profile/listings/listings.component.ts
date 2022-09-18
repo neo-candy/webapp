@@ -22,13 +22,19 @@ import {
   TokenWithListingOptionalRenting,
 } from '../../../services/rentfuse.service';
 import { ThemeService } from '../../../services/theme.service';
-import { isExpired } from '../../../shared/utils';
+import { determineCurrentValue, isExpired } from '../../../shared/utils';
 import {
   GlobalState,
   GLOBAL_RX_STATE,
   Price,
 } from '../../../state/global.state';
 
+export interface TokenWithCurrentNFTValue
+  extends TokenWithListingOptionalRenting {
+  currentValue: number;
+  paidFees: number;
+  delta: number;
+}
 type LayoutChangeEvent = { value: string };
 const FILTER_VALUE_CALL = 'call';
 const FILTER_VALUE_PUT = 'put';
@@ -38,8 +44,8 @@ interface ListingState {
   isLoading: boolean;
   tokens: TokenWithListingOptionalRenting[];
   pendingTokens: TokenWithListingOptionalRenting[];
-  activeTokens: TokenWithListingOptionalRenting[];
-  expiredTokens: TokenWithListingOptionalRenting[];
+  activeTokens: TokenWithCurrentNFTValue[];
+  expiredTokens: TokenWithCurrentNFTValue[];
   neoPrice: Price;
 }
 
@@ -77,6 +83,7 @@ export class ListingsComponent extends RxState<ListingState> {
     this.candefi.tokensOfWriterJson(address).pipe(
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
+      filter((token) => token.listing.listingId !== 0),
       toArray(),
       finalize(() => this.set({ isLoading: false }))
     );
@@ -134,6 +141,9 @@ export class ListingsComponent extends RxState<ListingState> {
                   !isExpired(listing) &&
                   listing.owner === listing.renting.borrower
               )
+            ),
+            map((listings) =>
+              listings.map((listing) => this.mapProfits(listing))
             )
           )
         )
@@ -153,6 +163,9 @@ export class ListingsComponent extends RxState<ListingState> {
                   isExpired(listing) &&
                   listing.owner === listing.renting.borrower
               )
+            ),
+            map((listings) =>
+              listings.map((listing) => this.mapProfits(listing))
             )
           )
         )
@@ -166,9 +179,22 @@ export class ListingsComponent extends RxState<ListingState> {
     this.router.navigate(['/tokens/' + atob(tokenId)]);
   }
 
-  calculateLenderProfit(token: TokenWithListingOptionalRenting): number {
-    const profit = this.candefi.calculateProfit(token, false, isExpired(token));
-    token.profit = profit;
-    return profit;
+  private mapProfits(
+    token: TokenWithListingOptionalRenting
+  ): TokenWithCurrentNFTValue {
+    console.log(token.listing.listingId);
+    const neoPrice = this.globalState.get('neoPrice').curr;
+    const candyPrice = this.globalState.get('candyPrice').curr;
+    const currentValue = determineCurrentValue(token, neoPrice) * candyPrice;
+    const earnedFees =
+      token.listing.gasPerMinute *
+      (token.renting ? token.renting?.duration : 0) *
+      this.globalState.get('gasPrice').curr;
+    return {
+      ...token,
+      delta: earnedFees - currentValue,
+      currentValue: currentValue,
+      paidFees: earnedFees,
+    };
   }
 }

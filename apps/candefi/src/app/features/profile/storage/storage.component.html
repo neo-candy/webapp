@@ -1,0 +1,131 @@
+<ng-container *ngIf="state$ | async as s">
+  <div class="flex">
+    <div class="grid w-full">
+      <div class="col-12 md:col-6">
+        <p-panel styleClass="cd-storage-panel">
+          <ng-template pTemplate="header">
+            <div class="flex justify-content-between align-items-center w-full">
+              <div>
+                <span class="font-bold"
+                  >Finished Rentings
+                  <i
+                    class="text-sm ml-1 pi pi-question-circle"
+                    pTooltip="NFTs you lent out and have been finished or exercised by the borrower"
+                  ></i
+                ></span>
+              </div>
+              <button
+                pButton
+                class="p-button-outlined"
+                (click)="closeAll()"
+                [disabled]="true"
+              >
+                Close all
+              </button>
+            </div>
+          </ng-template>
+          <p-table
+            [loading]="s.isLoading"
+            [value]="s.finishedRentings"
+            responsiveLayout="scroll"
+            styleClass="p-datatable-sm"
+            selectionMode="single"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>ID</th>
+                <th>Stake</th>
+                <th>Created</th>
+                <th>Exercised</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-token>
+              <tr
+                class="cursor-pointer"
+                (click)="goToTokenDetails(token.tokenId)"
+              >
+                <td>{{ token.tokenId }}</td>
+                <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
+                <td>{{ token.created | date: 'mediumDate' }}</td>
+                <td>
+                  <p-checkbox
+                    [binary]="true"
+                    [ngModel]="token.isExercised"
+                  ></p-checkbox>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="12">
+                  <div class="p-1">
+                    Could not find cancelled rentings for this address.
+                  </div>
+                </td>
+              </tr>
+            </ng-template></p-table
+          >
+        </p-panel>
+      </div>
+      <div class="col-12 md:col-6">
+        <p-panel styleClass="cd-storage-panel">
+          <ng-template pTemplate="header">
+            <div class="flex justify-content-between align-items-center w-full">
+              <div>
+                <span class="font-bold"
+                  >Closed Listings
+                  <i
+                    class="text-sm ml-1 pi pi-question-circle"
+                    pTooltip="NFTs in your wallet that can no longer be listed"
+                  ></i
+                ></span>
+              </div>
+              <button
+                [disabled]="true"
+                pButton
+                class="p-button-outlined mr-2"
+                (click)="claimAll()"
+              >
+                Claim all
+              </button>
+            </div>
+          </ng-template>
+          <p-table
+            [loading]="s.isLoading"
+            [value]="s.closedListings"
+            responsiveLayout="scroll"
+            styleClass="p-datatable-sm"
+            selectionMode="single"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>ID</th>
+                <th>Stake</th>
+                <th>Created</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-token>
+              <tr
+                class="cursor-pointer"
+                (click)="goToTokenDetails(token.tokenId)"
+              >
+                <td>{{ token.tokenId }}</td>
+                <td>{{ token.stake | number: '1.0-0' }} CANDY</td>
+                <td>{{ token.created | date: 'mediumDate' }}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="12">
+                  <div class="p-1">
+                    Could not find closed listings for this address.
+                  </div>
+                </td>
+              </tr>
+            </ng-template></p-table
+          >
+        </p-panel>
+      </div>
+    </div>
+  </div>
+</ng-container>

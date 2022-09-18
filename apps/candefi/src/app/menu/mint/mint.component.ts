@@ -8,20 +8,27 @@ import {
 import { RxState } from '@rx-angular/state';
 import { MenuItem, SelectItem } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { map } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { CandefiService } from '../../services/candefi.service';
 import {
   ContextService,
-  SELECTED_MINT_MARKET,
-  SELECTED_MINT_TYPE,
+  SELECTED_MINT_MARKET_CTX_KEY,
+  SELECTED_MINT_TYPE_CTX_KEY,
 } from '../../services/context.service';
+import {
+  ProfitCalculatorComponent,
+  ProfitCalculatorParams,
+  TableValue,
+} from '../../shared/components/profit-calculator/profit-calculator.component';
+import { generateNumberArray } from '../../shared/utils';
 import { initialValueReqLeverageValidator } from '../../shared/validators/initial-value.directive';
 import { minCollateralValidator } from '../../shared/validators/min-collateral.directive';
 import { MinStakeValidator } from '../../shared/validators/min-stake.directive';
 import { nonZeroValidator } from '../../shared/validators/non-zero.directive';
 import { safeLeverageValidator } from '../../shared/validators/safe-leverage.directive';
 import { strikePriceValidator } from '../../shared/validators/strike-price.directive';
-import { GlobalState, GLOBAL_RX_STATE } from '../../state/global.state';
+import { GlobalState, GLOBAL_RX_STATE, Price } from '../../state/global.state';
 
 interface MintState {
   protocolFee: number;
@@ -32,6 +39,8 @@ interface MintState {
   typeOptions: SelectItem[];
   collateralOptions1: SelectItem[];
   collateralOptions2: SelectItem[];
+  cols: number[];
+  values: TableValue[];
 }
 
 const DEFAULT_STATE: MintState = {
@@ -66,6 +75,8 @@ const DEFAULT_STATE: MintState = {
     { label: '500%', value: '500' },
     { label: '550%', value: '550' },
   ],
+  cols: generateNumberArray(1, 10),
+  values: [],
 };
 
 @Component({
@@ -76,6 +87,7 @@ const DEFAULT_STATE: MintState = {
 export class MintComponent extends RxState<MintState> implements OnInit {
   form: FormGroup = new FormGroup({});
   readonly state$ = this.select();
+  readonly values$ = this.select('values');
   constructor(
     private fb: FormBuilder,
     private candefi: CandefiService,
@@ -84,6 +96,7 @@ export class MintComponent extends RxState<MintState> implements OnInit {
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
+
     this.connect(
       'protocolFee',
       this.candefi
@@ -97,22 +110,22 @@ export class MintComponent extends RxState<MintState> implements OnInit {
     this.set(DEFAULT_STATE);
     this.set({
       steps: [
-        { label: 'General' },
+        { label: 'Basic' },
         { label: 'Renting' },
         { label: 'Confirmation' },
       ],
     });
 
     this.hold(this.select('minStake'), (v) => {
-      this.form.patchValue({ stake: v });
+      this.form.patchValue({ stake: v * 10 });
     });
   }
 
   ngOnInit(): void {
     this.form = this.fb.group(
       {
-        type: [this.context.get(SELECTED_MINT_TYPE) ?? 'call'],
-        market: [this.context.get(SELECTED_MINT_MARKET) ?? 'neo'],
+        type: [this.context.get(SELECTED_MINT_TYPE_CTX_KEY) ?? 'call'],
+        market: [this.context.get(SELECTED_MINT_MARKET_CTX_KEY) ?? 'neo'],
         strike: [
           Math.round(this.globalState.get('neoPrice').curr),
           Validators.compose([Validators.required, nonZeroValidator()]),
@@ -127,9 +140,9 @@ export class MintComponent extends RxState<MintState> implements OnInit {
         leverage: [0, Validators.required],
         safe: [true],
         agreement: [true, Validators.requiredTrue],
-        duration: [[1, 28]],
-        dailyFee: [0.01, Validators.required],
-        collateral: [0.01, Validators.required],
+        duration: [[1, 10]],
+        dailyFee: [0.5, Validators.required],
+        collateral: [5, Validators.required],
         collateralOption1: ['300'],
         collateralOption2: [null],
       },
@@ -307,9 +320,9 @@ export class MintComponent extends RxState<MintState> implements OnInit {
         value,
         this.leverage.value,
         this.safe.value,
-        collateral,
         minMinutes,
         maxMinutes,
+        collateral,
         feePerMinute
       )
       .subscribe((txid) => {
@@ -326,17 +339,65 @@ export class MintComponent extends RxState<MintState> implements OnInit {
     this.collateral.patchValue(collateral);
   }
 
+  private mapFormToProfitCalculatorParams(): ProfitCalculatorParams {
+    return {
+      dailyFee: this.dailyFee.value,
+      final: true,
+      fromDays: this.duration.value[0],
+      toDays: this.duration.value[1],
+      fromStrike: this.strike.value - 5 < 1 ? 1 : this.strike.value - 5,
+      toStrike: this.strike.value + 5,
+      initialValue:
+        this.leverage.value > 0 ? this.value.value : this.stake.value,
+      isSafe: this.safe.value,
+      leverage: this.leverage.value,
+      lender: true,
+      stake: this.stake.value,
+      strike: this.strike.value,
+      timeDecay: this.timeDecay.value,
+      type: this.type.value,
+    };
+  }
+
   private registerValueChanges(): void {
+    this.connect(
+      'values',
+      combineLatest([
+        this.form.valueChanges.pipe(
+          map(() => this.mapFormToProfitCalculatorParams())
+        ),
+        this.globalState.select('gasPrice'),
+        this.globalState.select('candyPrice'),
+      ]).pipe(
+        map((params: [ProfitCalculatorParams, Price, Price]) =>
+          ProfitCalculatorComponent.mapToTableValues(
+            params[0],
+            params[1].curr,
+            params[2].curr
+          )
+        )
+      )
+    );
+
+    this.connect(
+      'cols',
+      this.form.controls['duration'].valueChanges.pipe(
+        debounceTime(800),
+        distinctUntilChanged(),
+        map((v: number[]) => generateNumberArray(v[0], v[1]))
+      )
+    );
+
     this.hold(this.form.controls['type'].valueChanges, (v) => {
-      this.context.put(SELECTED_MINT_TYPE, v);
+      this.context.put(SELECTED_MINT_TYPE_CTX_KEY, v);
     });
     this.hold(this.form.controls['market'].valueChanges, (v) => {
-      this.context.put(SELECTED_MINT_MARKET, v);
+      this.context.put(SELECTED_MINT_MARKET_CTX_KEY, v);
     });
 
     this.hold(this.form.controls['collateralOption1'].valueChanges, (v) => {
       if (v) {
-        this.setCollateral(Number(v));
+        this.setCollateral(Number(v) + 0.1); //to avoid error message that 200% is not enough, because of price flucutation that could happen in between
         if (this.collateralOption2.value) {
           this.collateralOption2.reset();
         }

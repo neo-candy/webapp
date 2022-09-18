@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { MessageService } from 'primeng/api';
-import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, finalize, map } from 'rxjs/operators';
+import { NeoInvokeWriteResponse } from '../models/n3';
 import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
 import { NeonJSService } from './neonjs.service';
 
@@ -33,33 +34,38 @@ export class UiService {
     });
   }
 
-  public displaySuccess(msg: string, summary?: string): void {
+  public displaySuccess(msg: string, txId?: string): void {
     this.messageService.add({
       key: 'successToast',
       severity: 'success',
-      summary: summary ?? 'Success',
+      summary: 'Success',
       detail: msg,
       life: 5000,
+      data: txId,
     });
   }
 
-  public displayInfo(msg: string, summary?: string): void {
+  public displayInfo(msg: string, life?: number, summary?: string): void {
     this.messageService.add({
       key: 'infoToast',
       severity: 'info',
       summary: summary ?? 'Info',
       detail: msg,
-      life: 5000,
+      life: life ?? 10000,
     });
   }
 
-  public displayTxLoadingModal(txid: string): Observable<any> {
+  public displayTxLoadingModal(
+    txid: string
+  ): Observable<NeoInvokeWriteResponse> {
     this.globalState.set({ displayLoadingModal: true });
-    return this.neonjs
-      .awaitTx(txid)
-      .pipe(
-        finalize(() => this.globalState.set({ displayLoadingModal: false }))
-      );
+    return this.neonjs.awaitTx(txid).pipe(
+      catchError((e) => {
+        this.displayError(e);
+        return of();
+      }),
+      finalize(() => this.globalState.set({ displayLoadingModal: false }))
+    );
   }
 
   private mapToReadableErrorMessage(err: string): string {

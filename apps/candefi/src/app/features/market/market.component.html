@@ -7,124 +7,116 @@
         </div>
       </ng-template>
       <ng-container *ngIf="state$ | async as s">
-        <div class="grid">
-          <div class="col">
-            <p-table
-              [rowHover]="true"
-              [loading]="s.isLoading"
-              [value]="s.calls"
-              responsiveLayout="scroll"
-              styleClass="p-datatable-sm"
-            >
-              <ng-template pTemplate="caption">
-                <div class="flex justify-content-center text-xl">
-                  Calls
-                </div></ng-template
+        <div class="flex">
+          <div class="grid w-full">
+            <div class="col">
+              <p-table
+                [rowHover]="true"
+                [loading]="s.isLoading"
+                [value]="s.calls"
+                responsiveLayout="scroll"
+                styleClass="p-datatable-sm"
+                [paginator]="true"
+                [rows]="25"
               >
-
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Strike</th>
-                  <th>Stakes</th>
-                  <th>Volume</th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-token>
-                <tr
-                  (click)="onCallsRowSelect(token)"
-                  class="cursor-pointer"
-                  [ngClass]="{
-                    'highlight-row-dark-theme':
-                      token.strike < s.neoPrice.curr &&
-                      theme.current === 'lara-dark-indigo',
-                    'highlight-row-light-theme':
-                      token.strike < s.neoPrice.curr &&
-                      theme.current === 'lara-light-indigo'
-                  }"
+                <ng-template pTemplate="caption">
+                  <div class="flex justify-content-center text-xl">
+                    Calls
+                  </div></ng-template
                 >
-                  <td>${{ token.strike | number: '1.2-2' }}</td>
-                  <td>
-                    <div class="flex align-items-center">
-                      {{ token.stake | number: '1.0-0' }}
-                      <img
-                        src="assets/images/candy.png"
-                        height="20"
-                        class="ml-2"
-                      />
-                    </div>
-                  </td>
-                  <td>{{ token.volume }}</td>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="emptymessage">
-                <tr>
-                  <td colspan="3">
-                    <div class="p-1">
-                      There are currently no call NFTs listed.
-                    </div>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </div>
-          <div class="col">
-            <p-table
-              [rowHover]="true"
-              [value]="s.puts"
-              [loading]="s.isLoading"
-              responsiveLayout="scroll"
-              styleClass="p-datatable-sm"
-            >
-              <ng-template pTemplate="caption">
-                <div class="flex justify-content-center text-xl">
-                  Puts
-                </div></ng-template
+
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Strike</th>
+                    <th>TVL</th>
+                    <th>Volume</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-token>
+                  <tr
+                    (click)="onCallsRowSelect(token)"
+                    class="cursor-pointer"
+                    [ngClass]="{
+                      'highlight-row-dark-theme':
+                        token.strike < s.neoPrice.curr &&
+                        theme.current === 'lara-dark-indigo',
+                      'highlight-row-light-theme':
+                        token.strike < s.neoPrice.curr &&
+                        theme.current === 'lara-light-indigo'
+                    }"
+                  >
+                    <td>${{ token.strike | number: '1.2-2' }}</td>
+                    <td>
+                      {{ token.tvl | currency }}
+                    </td>
+                    <td>{{ token.volume }}</td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="3">
+                      <div class="p-1">
+                        There are currently no call NFTs listed.
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+            <div class="col">
+              <p-table
+                [rowHover]="true"
+                [value]="s.puts"
+                [loading]="s.isLoading"
+                responsiveLayout="scroll"
+                styleClass="p-datatable-sm"
+                [paginator]="true"
+                [rows]="25"
               >
-
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Strike</th>
-                  <th>Stakes</th>
-                  <th>Volume</th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-token>
-                <tr
-                  (click)="onPutsRowSelect(token)"
-                  class="cursor-pointer"
-                  [ngClass]="{
-                    'highlight-row-dark-theme':
-                      token.strike > s.neoPrice.curr &&
-                      theme.current === 'lara-dark-indigo',
-                    'highlight-row-light-theme':
-                      token.strike > s.neoPrice.curr &&
-                      theme.current === 'lara-light-indigo'
-                  }"
+                <ng-template pTemplate="caption">
+                  <div class="flex justify-content-center text-xl">
+                    Puts
+                  </div></ng-template
                 >
-                  <td>${{ token.strike | number: '1.2-2' }}</td>
-                  <td>
-                    <div class="flex align-items-center">
-                      {{ token.stake | number: '1.0-0' }}
-                      <img
-                        src="assets/images/candy.png"
-                        height="20"
-                        class="ml-2"
-                      />
-                    </div>
-                  </td>
-                  <td>{{ token.volume }}</td>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="emptymessage">
-                <tr>
-                  <td colspan="3">
-                    <div class="p-1">
-                      There are currently no put NFTs listed.
-                    </div>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
+
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Strike</th>
+                    <th>TVL</th>
+                    <th>Volume</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-token>
+                  <tr
+                    (click)="onPutsRowSelect(token)"
+                    class="cursor-pointer"
+                    [ngClass]="{
+                      'highlight-row-dark-theme':
+                        token.strike > s.neoPrice.curr &&
+                        theme.current === 'lara-dark-indigo',
+                      'highlight-row-light-theme':
+                        token.strike > s.neoPrice.curr &&
+                        theme.current === 'lara-light-indigo'
+                    }"
+                  >
+                    <td>${{ token.strike | number: '1.2-2' }}</td>
+                    <td>
+                      {{ token.tvl | currency }}
+                    </td>
+                    <td>{{ token.volume }}</td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="3">
+                      <div class="p-1">
+                        There are currently no put NFTs listed.
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
           </div>
         </div>
       </ng-container></p-tabPanel

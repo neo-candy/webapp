@@ -1,8 +1,12 @@
 import { Component, Inject } from '@angular/core';
 import { RxState } from '@rx-angular/state';
-import { DialogService, DynamicDialogConfig } from 'primeng/dynamicdialog';
+import {
+  DialogService,
+  DynamicDialogConfig,
+  DynamicDialogRef,
+} from 'primeng/dynamicdialog';
 import { from, Subject } from 'rxjs';
-import { finalize, map, mergeMap, tap, toArray } from 'rxjs/operators';
+import { filter, finalize, map, mergeMap, tap, toArray } from 'rxjs/operators';
 import { CandefiToken } from '../../../services/candefi.service';
 
 import { NeolineService } from '../../../services/neoline.service';
@@ -12,14 +16,15 @@ import {
 } from '../../../services/rentfuse.service';
 import { UiService } from '../../../services/ui.service';
 import { GlobalState, GLOBAL_RX_STATE } from '../../../state/global.state';
-import { RentDetailsComponent } from './rent-details/rent-details.component';
+import { RentDetailsComponent } from '../../../shared/components/rent-details/rent-details.component';
 
 interface MarketDetailsState {
   tokens: TokenWithListingOptionalRenting[];
   isLoading: boolean;
+  address: string;
 }
 
-const DEFAULT_STATE: MarketDetailsState = {
+const DEFAULT_STATE: Partial<MarketDetailsState> = {
   tokens: [],
   isLoading: true,
 };
@@ -38,10 +43,12 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
     private neoline: NeolineService,
     private ui: UiService,
     private dialogService: DialogService,
+    private ref: DynamicDialogRef,
     @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
   ) {
     super();
     this.set(DEFAULT_STATE);
+    this.connect('address', this.globalState.select('address'));
     this.connect(
       'tokens',
       from(this.config.data.tokens as CandefiToken[]).pipe(
@@ -58,13 +65,14 @@ export class MarketDetailsComponent extends RxState<MarketDetailsState> {
     if (!this.globalState.get('address')) {
       this.connectWallet();
     } else {
-      this.dialogService.open(RentDetailsComponent, {
+      const ref = this.dialogService.open(RentDetailsComponent, {
         header: 'Rent NFT',
-        width: 'auto',
+        width: '70%',
         data: {
           token: token,
         },
       });
+      this.hold(ref.onClose.pipe(filter((v) => !!v)), () => this.ref.close());
     }
   }
 

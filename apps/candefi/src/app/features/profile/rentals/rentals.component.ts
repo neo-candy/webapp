@@ -22,12 +22,13 @@ import {
   TokenWithListingOptionalRenting,
 } from '../../../services/rentfuse.service';
 import { ThemeService } from '../../../services/theme.service';
-import { isExpired } from '../../../shared/utils';
+import { determineCurrentValue, isExpired } from '../../../shared/utils';
 import {
   GlobalState,
   GLOBAL_RX_STATE,
   Price,
 } from '../../../state/global.state';
+import { TokenWithCurrentNFTValue } from '../listings/listings.component';
 
 type LayoutChangeEvent = { value: string };
 const FILTER_VALUE_CALL = 'call';
@@ -70,7 +71,7 @@ export class RentalsComponent extends RxState<RentalState> {
   });
   readonly state$ = this.select();
   readonly fetchRentings$ = (address: string) =>
-    this.candefi.tokensOfJson(address).pipe(
+    this.candefi.tokensOfJson(address, 1, 999).pipe(
       mergeAll(),
       mergeMap((token) => this.rentfuse.getListingAndRentingForToken(token)),
       filter(
@@ -114,7 +115,8 @@ export class RentalsComponent extends RxState<RentalState> {
                 (listing) =>
                   listing.type.toLowerCase() === layout.value.toLowerCase()
               )
-            )
+            ),
+            map((rentals) => rentals.map((rental) => this.mapProfits(rental)))
           )
         )
       )
@@ -123,10 +125,22 @@ export class RentalsComponent extends RxState<RentalState> {
     this.connect('neoPrice', this.globalState.select('neoPrice'));
   }
 
-  calculateBorrowerProfit(token: TokenWithListingOptionalRenting): number {
-    const profit = this.candefi.calculateProfit(token, true, isExpired(token));
-    token.profit = profit;
-    return profit;
+  private mapProfits(
+    token: TokenWithListingOptionalRenting
+  ): TokenWithCurrentNFTValue {
+    const neoPrice = this.globalState.get('neoPrice').curr;
+    const candyPrice = this.globalState.get('candyPrice').curr;
+    const currentValue = determineCurrentValue(token, neoPrice) * candyPrice;
+    const earnedFees =
+      token.listing.gasPerMinute *
+      (token.renting ? token.renting?.duration : 0) *
+      this.globalState.get('gasPrice').curr;
+    return {
+      ...token,
+      delta: currentValue - earnedFees,
+      currentValue: currentValue,
+      paidFees: earnedFees,
+    };
   }
 
   goToTokenDetails(tokenId: string) {

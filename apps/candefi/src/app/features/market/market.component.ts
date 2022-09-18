@@ -27,7 +27,7 @@ const DEFAULT_STATE: MarketState = {
 interface OptionOverview {
   strike: number;
   volume: number;
-  stake: number;
+  tvl: number;
 }
 @Component({
   templateUrl: './market.component.html',
@@ -56,15 +56,20 @@ export class MarketComponent extends RxState<MarketState> {
     this.connect(
       'tokens',
       this.candefi
-        .tokensOfJson(environment.testnet.rentfuseAddress)
-        .pipe(tap(() => this.set({ isLoading: false })))
+        .tokensOfJson(environment.testnet.rentfuseAddress, 1, 999)
+        .pipe(
+          map((tokens) =>
+            tokens.filter((token) => token.stake > 0 && !token.rentingId)
+          ),
+          tap(() => this.set({ isLoading: false }))
+        )
     );
     this.connect('neoPrice', this.globalState.select('neoPrice'));
     this.connect('calls', this.calls$);
     this.connect('puts', this.puts$);
   }
 
-  onCallsRowSelect(token: CandefiToken): void {
+  onCallsRowSelect(token: OptionOverview): void {
     const strike = token.strike;
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Calls',
@@ -77,7 +82,7 @@ export class MarketComponent extends RxState<MarketState> {
     });
   }
 
-  onPutsRowSelect(token: CandefiToken): void {
+  onPutsRowSelect(token: OptionOverview): void {
     const strike = token.strike;
     this.dialogService.open(MarketDetailsComponent, {
       header: 'Puts',
@@ -101,7 +106,9 @@ export class MarketComponent extends RxState<MarketState> {
     const result: OptionOverview[] = [];
     map.forEach((v, k) => {
       result.push({
-        stake: v.reduce((p, c) => p + c, 0),
+        tvl:
+          this.globalState.get('candyPrice').curr *
+          v.reduce((p, c) => p + c, 0),
         strike: k,
         volume: v.length,
       });

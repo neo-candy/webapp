@@ -1,16 +1,14 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { sc, tx, wallet } from '@cityofzion/neon-js';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { NeoInvokeWriteResponse, NeoTypedValue } from '../models/n3';
+import { NeoInvokeArgument, NeoInvokeWriteResponse } from '../models/n3';
 import { UiService } from './ui.service';
 import { NeolineService } from './neoline.service';
 import { NeonJSService } from './neonjs.service';
 import { processBase64Hash160 } from '../shared/utils';
-import { GlobalState, GLOBAL_RX_STATE } from '../state/global.state';
-import { RxState } from '@rx-angular/state';
-import { TokenWithListingOptionalRenting } from './rentfuse.service';
+import { DecimalPipe } from '@angular/common';
 
 const CALL = 1;
 const PUT = 2;
@@ -47,6 +45,7 @@ export interface CandefiToken {
   value: number;
   isExercised: boolean;
   safe: boolean;
+  rentingId: string;
 }
 
 export interface Earnings {
@@ -60,7 +59,7 @@ export class CandefiService {
     private neoline: NeolineService,
     private neonjs: NeonJSService,
     private ui: UiService,
-    @Inject(GLOBAL_RX_STATE) private globalState: RxState<GlobalState>
+    private decimalPipe: DecimalPipe
   ) {}
   public mint(
     address: string,
@@ -71,9 +70,9 @@ export class CandefiService {
     value: number,
     leverage: number,
     safe: boolean,
-    collateral: number,
     minDuration: number,
     maxDuration: number,
+    collateral: number,
     feePerMinute: number
   ): Observable<NeoInvokeWriteResponse> {
     return this.candyProtocolFee().pipe(
@@ -91,10 +90,10 @@ export class CandefiService {
             NeolineService.int(value),
             NeolineService.int(leverage),
             NeolineService.bool(safe),
-            NeolineService.int(collateral),
+            NeolineService.int(feePerMinute),
             NeolineService.int(minDuration),
             NeolineService.int(maxDuration),
-            NeolineService.int(feePerMinute),
+            NeolineService.int(collateral),
           ]),
         ],
       })),
@@ -116,8 +115,11 @@ export class CandefiService {
           })
           .pipe(
             switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-            tap(() =>
-              this.ui.displaySuccess('You listed a new ' + type + ' NFT')
+            tap((res) =>
+              this.ui.displaySuccess(
+                'You listed a new ' + type + ' NFT',
+                res.txid
+              )
             ),
             catchError((e) => {
               this.ui.displayError(e);
@@ -132,11 +134,7 @@ export class CandefiService {
     address: string,
     tokenIds: string[]
   ): Observable<NeoInvokeWriteResponse> {
-    const args: {
-      scriptHash: string;
-      operation: string;
-      args: NeoTypedValue[];
-    }[] = [];
+    const args: NeoInvokeArgument[] = [];
     tokenIds.forEach((tokenId) => {
       args.push({
         scriptHash: environment.testnet.candefi,
@@ -150,15 +148,22 @@ export class CandefiService {
         signers: [
           {
             account: new wallet.Account(address).scriptHash,
-            scopes: tx.WitnessScope.CalledByEntry,
+            scopes: tx.WitnessScope.CustomContracts,
+            allowedContracts: [
+              environment.testnet.candefi,
+              environment.testnet.rentfuseProtocol,
+            ],
           },
         ],
         invokeArgs: [...args],
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() =>
-          this.ui.displaySuccess(`You exercised ${tokenIds.length} position(s)`)
+        tap((res) =>
+          this.ui.displaySuccess(
+            `You exercised ${tokenIds.length} position(s)`,
+            res.txid
+          )
         ),
         catchError((e) => {
           this.ui.displayError(e);
@@ -167,22 +172,20 @@ export class CandefiService {
       );
   }
 
-  public closeListing(
+  public burn(
     address: string,
-    tokenId: string
+    tokens: CandefiToken[]
   ): Observable<NeoInvokeWriteResponse> {
-    const args: {
-      scriptHash: string;
-      operation: string;
-      args: NeoTypedValue[];
-    }[] = [
-      {
+    const args: NeoInvokeArgument[] = [];
+    tokens.forEach((token) => {
+      args.push({
         scriptHash: environment.testnet.candefi,
-        operation: 'closeListing',
-        args: [NeolineService.byteArray(tokenId)],
-      },
-    ];
+        operation: 'burn',
+        args: [NeolineService.byteArray(token.tokenId)],
+      });
+    });
 
+    const claimableAmount = tokens.reduce((prev, curr) => prev + curr.stake, 0);
     return this.neoline
       .invokeMultiple({
         signers: [
@@ -191,11 +194,16 @@ export class CandefiService {
             scopes: tx.WitnessScope.CalledByEntry,
           },
         ],
-        invokeArgs: [...args],
+        invokeArgs: args,
       })
       .pipe(
         switchMap((res) => this.ui.displayTxLoadingModal(res.txid)),
-        tap(() => this.ui.displaySuccess('You closed 1 listing')),
+        tap((res) =>
+          this.ui.displaySuccess(
+            `You claimed ${this.decimalPipe.transform(claimableAmount)} CANDY`,
+            res.txid
+          )
+        ),
         catchError((e) => {
           this.ui.displayError(e);
           return throwError(e);
@@ -203,12 +211,20 @@ export class CandefiService {
       );
   }
 
-  public tokensOfJson(address: string): Observable<CandefiToken[]> {
+  public tokensOfJson(
+    address: string,
+    page: number,
+    size: number
+  ): Observable<CandefiToken[]> {
     const scriptHash = environment.testnet.candefi;
     return this.neonjs
       .rpcRequest(
         'tokensOfJson',
-        [sc.ContractParam.hash160(address)],
+        [
+          sc.ContractParam.hash160(address),
+          sc.ContractParam.integer(page),
+          sc.ContractParam.integer(size),
+        ],
         scriptHash
       )
       .pipe(
@@ -272,47 +288,7 @@ export class CandefiService {
       );
   }
 
-  public calculateProfit(
-    token: TokenWithListingOptionalRenting,
-    borrower: boolean,
-    expired?: boolean
-  ): number {
-    if (!token.renting) {
-      throw new Error('calculateBorrowerProfit_noRenting');
-    }
-    const gasValue =
-      token.listing.gasPerMinute *
-      token.renting.duration *
-      this.globalState.get('gasPrice').curr;
-    if (expired) {
-      return borrower ? -gasValue : gasValue;
-    }
-    const candyValue = token.stake * this.globalState.get('candyPrice').curr;
-    if (borrower) {
-      return candyValue - gasValue;
-    }
-    return gasValue - candyValue;
-  }
-
   private mapToken(v: TokenProperties): CandefiToken {
-    const strike = Number(
-      v.attributes.filter((a) => a.trait_type === 'Strike')[0].value
-    );
-    const neoPrice = this.globalState.get('neoPrice').curr * Math.pow(10, 8);
-    const delta = neoPrice - strike;
-    const leverage = Number(
-      v.attributes.filter((a) => a.trait_type === 'Leverage')[0].value
-    );
-    const stake = Number(
-      v.attributes.filter((a) => a.trait_type === 'Stake')[0].value
-    );
-    const result = delta * leverage;
-    const value = Number(
-      v.attributes.filter((a) => a.trait_type === 'Value')[0].value
-    );
-    const updatedValue =
-      value + result > stake ? stake : value + result < 0 ? 0 : value + result;
-
     return {
       tokenId: btoa(v.tokenId),
       type:
@@ -320,7 +296,9 @@ export class CandefiService {
         CALL
           ? 'Call'
           : 'Put',
-      stake: stake / Math.pow(10, 9),
+      stake:
+        Number(v.attributes.filter((a) => a.trait_type === 'Stake')[0].value) /
+        Math.pow(10, 9),
       strike:
         Number(v.attributes.filter((a) => a.trait_type === 'Strike')[0].value) /
         Math.pow(10, 8),
@@ -334,19 +312,16 @@ export class CandefiService {
           v.attributes.filter((a) => a.trait_type === 'Owner')[0].value
         )
       ).address,
-      timeDecay:
-        (Number(
-          v.attributes.filter((a) => a.trait_type === 'Time Decay')[0].value
-        ) *
-          1000 *
-          60 *
-          60 *
-          24) /
-        Math.pow(10, 9),
+      timeDecay: Number(
+        v.attributes.filter((a) => a.trait_type === 'Time Decay')[0].value
+      ),
+
       leverage: Number(
         v.attributes.filter((a) => a.trait_type === 'Leverage')[0].value
       ),
-      value: updatedValue / Math.pow(10, 9),
+      value:
+        Number(v.attributes.filter((a) => a.trait_type === 'Value')[0].value) /
+        Math.pow(10, 9),
       created: Number(
         v.attributes.filter((a) => a.trait_type === 'Created')[0].value
       ),
@@ -356,6 +331,8 @@ export class CandefiService {
       safe: Boolean(
         v.attributes.filter((a) => a.trait_type === 'Safe')[0].value
       ),
+      rentingId: v.attributes.filter((a) => a.trait_type === 'Renting Id')[0]
+        .value,
     };
   }
 }
