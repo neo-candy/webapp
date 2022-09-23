@@ -91,6 +91,24 @@ export class HomeComponent implements OnInit {
     window.open('https://docs.neocandy.io/about/games/candyland', '_blank');
   }
 
+  public openCandefiApp(): void {
+    window.open('https://candefi.pages.dev/markets', '_blank');
+  }
+
+  public openCandefiDocs(): void {
+    window.open(
+      'https://medium.com/neocandy/candefi-sweetest-defi-protocol-on-neo-n3-edd0e38384ef',
+      '_blank'
+    );
+  }
+
+  public openCandefiTutorial(): void {
+    window.open(
+      'https://medium.com/neocandy/candefi-app-overview-2a774bb5d55f',
+      '_blank'
+    );
+  }
+
   connectWallet(): void {
     this.isLoading = true;
     this.neoline
