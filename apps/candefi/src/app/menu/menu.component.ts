@@ -69,6 +69,7 @@ export class MenuComponent extends RxState<MenuState> {
     {
       label: 'About',
       icon: 'pi pi-question-circle',
+      command: () => this.openAbout(),
     },
 
     {
@@ -136,6 +137,12 @@ export class MenuComponent extends RxState<MenuState> {
   }
   openNeoCandy(): void {
     window.open('https://neocandy.io', '_blank');
+  }
+  openAbout(): void {
+    window.open(
+      'https://medium.com/neocandy/candefi-sweetest-defi-protocol-on-neo-n3-edd0e38384ef',
+      '_blank'
+    );
   }
 
   displayMintModal(): void {

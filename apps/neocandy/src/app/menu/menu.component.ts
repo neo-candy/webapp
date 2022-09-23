@@ -42,7 +42,7 @@ export class MenuComponent implements OnInit {
       },
       {
         label: 'DeFi',
-        disabled: true,
+        command: () => this.router.navigate([''], { fragment: 'defi' }),
       },
     ];
 
@@ -66,7 +66,7 @@ export class MenuComponent implements OnInit {
         },
         {
           label: 'DeFi',
-          disabled: true,
+          command: () => this.router.navigate([''], { fragment: 'defi' }),
         },
         {
           label: '$' + price.toFixed(9),
