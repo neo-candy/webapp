@@ -11,6 +11,7 @@
     "start:cd": "nx s candefi",
     "build:cc": "nx build candyclash",
     "build:cd": "nx build candefi",
+    "build:nc": "nx build neocandy",
     "lint:ts": "nx lint",
     "build": "nx build",
     "test": "nx test"
